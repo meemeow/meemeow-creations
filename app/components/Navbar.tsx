@@ -68,8 +68,26 @@ export default function Navbar() {
     }
   }, [activeHover]);
 
+  // Close mobile menu automatically when resizing past the mobile breakpoint
+  useEffect(() => {
+    const handleResize = () => {
+      if (open && typeof window !== "undefined" && window.innerWidth > 1100) {
+        clearLeaveTimer();
+        clearHoverLeaveTimer();
+        setOpen(false);
+        setLinkHover(false);
+        setActiveHover(null);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    // sync state on mount in case initial width is large
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
+  }, [open]);
+
   return (
-    <header className={`navbar ${linkHover ? "expanded" : ""}`}>
+    <header className={`navbar ${linkHover ? "expanded" : ""} ${open ? "menu-open" : ""}`}>
       <video
         ref={videoRef}
         className={`hover-video ${activeHover ? "visible " : ""}${lastHover ? "hover-" + lastHover : ""}`}
@@ -80,10 +98,6 @@ export default function Navbar() {
       />
       <div
         className="navbar-inner"
-        onMouseEnter={() => {
-          clearLeaveTimer();
-          setLinkHover(true);
-        }}
         onMouseLeave={() => {
           scheduleCollapse();
         }}
@@ -119,29 +133,58 @@ export default function Navbar() {
           className="navbar-burger"
           aria-label="Toggle menu"
           aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
+          onClick={() => {
+            setOpen((v) => {
+              const newOpen = !v;
+              if (newOpen) {
+                clearLeaveTimer();
+                clearHoverLeaveTimer();
+                setLinkHover(false);
+                setActiveHover(null);
+              }
+              return newOpen;
+            });
+          }}
+          onMouseEnter={(e) => {
+            e.stopPropagation();
+            clearLeaveTimer();
+            clearHoverLeaveTimer();
+            setLinkHover(false);
+          }}
+          onMouseLeave={(e) => {
+            e.stopPropagation();
+          }}
         >
-          <span className="burger-line" />
-          <span className="burger-line" />
-          <span className="burger-line" />
+          {open ? (
+            <span className="burger-close" aria-hidden>
+              ×
+            </span>
+          ) : (
+            <>
+              <span className="burger-line" />
+              <span className="burger-line" />
+              <span className="burger-line" />
+            </>
+          )}
         </button>
 
-        <nav className={`navbar-links ${open ? "open" : ""}`} onClick={() => setOpen(false)}>
+        <nav className={`navbar-links ${open ? "open" : ""}`}>
           <a
             className="nav-link home"
             href="#home"
             onMouseEnter={() => {
               clearLeaveTimer();
               clearHoverLeaveTimer();
-              setLinkHover(true);
+              if (!open) setLinkHover(true);
               setActiveHover("home");
             }}
             onMouseLeave={() => {
               scheduleHoverCollapse();
-              scheduleCollapse();
+              if (!open) scheduleCollapse();
             }}
+            onClick={() => setOpen(false)}
           >
-            Home
+            <span className="link-text">Home</span>
           </a>
           <a
             className="nav-link about"
@@ -149,15 +192,16 @@ export default function Navbar() {
             onMouseEnter={() => {
               clearLeaveTimer();
               clearHoverLeaveTimer();
-              setLinkHover(true);
+              if (!open) setLinkHover(true);
               setActiveHover("about");
             }}
             onMouseLeave={() => {
               scheduleHoverCollapse();
-              scheduleCollapse();
+              if (!open) scheduleCollapse();
             }}
+            onClick={() => setOpen(false)}
           >
-            About
+            <span className="link-text">About</span>
           </a>
           <a
             className="nav-link projects"
@@ -165,15 +209,16 @@ export default function Navbar() {
             onMouseEnter={() => {
               clearLeaveTimer();
               clearHoverLeaveTimer();
-              setLinkHover(true);
+              if (!open) setLinkHover(true);
               setActiveHover("projects");
             }}
             onMouseLeave={() => {
               scheduleHoverCollapse();
-              scheduleCollapse();
+              if (!open) scheduleCollapse();
             }}
+            onClick={() => setOpen(false)}
           >
-            Projects
+            <span className="link-text">Projects</span>
           </a>
           <a
             className="nav-link contact"
@@ -181,17 +226,27 @@ export default function Navbar() {
             onMouseEnter={() => {
               clearLeaveTimer();
               clearHoverLeaveTimer();
-              setLinkHover(true);
+              if (!open) setLinkHover(true);
               setActiveHover("contact");
             }}
             onMouseLeave={() => {
               scheduleHoverCollapse();
-              scheduleCollapse();
+              if (!open) scheduleCollapse();
             }}
+            onClick={() => setOpen(false)}
           >
-            Contact
+            <span className="link-text">Contact</span>
           </a>
         </nav>
+        {/* modal overlay behind the dropdown on small screens */}
+        {open && (
+          <div
+            className="nav-overlay"
+            onClick={() => {
+              setOpen(false);
+            }}
+          />
+        )}
       </div>
     </header>
   );
