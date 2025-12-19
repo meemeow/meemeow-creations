@@ -10,6 +10,7 @@ import {
     contactSchema,
     ContactForm,
 } from "./contact-validation";
+import "../css/contact.css";
 
 export default function Contact() {
     const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -106,47 +107,40 @@ export default function Contact() {
                         aria-hidden="true"
                     />
 
-                    <div className="md:flex md:items-center md:justify-between relative z-10">
-                        <div className="md:w-full">
-                            <h1 className="text-5xl md:text-6xl font-extrabold mb-3">
-                                From Memo to Memory
-                            </h1>
-                            <p className="text-xl text-gray-200 mb-6">
-                                Ideas start with a conversation. Let’s make something memorable.
-                            </p>
+                    <div className="relative z-10 w-full flex flex-col items-center text-center md:items-start md:text-left">
+                        <h1
+                            className="font-extrabold mb-3 whitespace-nowrap"
+                            style={{ fontSize: 'clamp(1.6rem, 6vw, 3.5rem)', lineHeight: 1.1 }}
+                        >
+                            From Memo to Memory
+                        </h1>
+                        <p className="text-xl text-gray-200 mb-6">
+                            Ideas start with a conversation. Let's make something memorable.
+                        </p>
 
-                            <div className="space-y-2 text-gray-200 text-lg md:text-xl">
-                                <div className="font-medium flex items-center gap-3">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                        <path
-                                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 3.09 4.18 2 2 0 0 1 5 2h3a2 2 0 0 1 2 1.72c.12.93.37 1.82.73 2.65a2 2 0 0 1-.45 2.11L9.91 9.91a16 16 0 0 0 6 6l1.33-1.33a2 2 0 0 1 2.11-.45c.83.36 1.72.61 2.65.73A2 2 0 0 1 22 16.92z"
-                                            fill="currentColor"
-                                        />
-                                    </svg>
-                                    +63 9152669845
-                                </div>
+                        <div className="space-y-2 text-gray-200 text-lg md:text-xl flex flex-col items-center md:items-start">
+                            <div className="font-medium flex items-center gap-3">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <path
+                                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 3.09 4.18 2 2 0 0 1 5 2h3a2 2 0 0 1 2 1.72c.12.93.37 1.82.73 2.65a2 2 0 0 1-.45 2.11L9.91 9.91a16 16 0 0 0 6 6l1.33-1.33a2 2 0 0 1 2.11-.45c.83.36 1.72.61 2.65.73A2 2 0 0 1 22 16.92z"
+                                        fill="currentColor"
+                                    />
+                                </svg>
+                                +63 9152669845
+                            </div>
 
-                                <div className="break-words flex items-center gap-3">
-                                    <img src="/assets/images/gmail.jpg" alt="Gmail" className="w-5 h-5 object-contain" />
-                                    <a
-                                        href="mailto:emerson.clamor.prof@gmail.com"
-                                        className="underline-offset-2 hover:underline"
-                                    >
-                                        emerson.clamor.prof@gmail.com
-                                    </a>
-                                </div>
+                            <div className="break-words flex items-center gap-3">
+                                <img src="/assets/images/gmail.jpg" alt="Gmail" className="w-5 h-5 object-contain" />
+                                <a href="mailto:emerson.clamor.prof@gmail.com" className="underline-offset-2 hover:underline">
+                                    emerson.clamor.prof@gmail.com
+                                </a>
+                            </div>
 
-                                <div className="flex items-center gap-3 text-gray-300 text-lg md:text-xl">
-                                    <img src="/assets/images/linkedin.jpg" alt="LinkedIn" className="w-6 h-6 md:w-7 md:h-7 object-contain" />
-                                    <a
-                                        href="https://www.linkedin.com/in/emerson-clamor"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="hover:underline"
-                                    >
-                                        www.linkedin.com/in/emerson-clamor
-                                    </a>
-                                </div>
+                            <div className="flex items-center gap-3 text-gray-300 text-lg md:text-xl">
+                                <img src="/assets/images/linkedin.jpg" alt="LinkedIn" className="w-6 h-6 md:w-7 md:h-7 object-contain" />
+                                <a href="https://www.linkedin.com/in/emerson-clamor" target="_blank" rel="noopener noreferrer" className="hover:underline">
+                                    www.linkedin.com/in/emerson-clamor
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -155,7 +149,7 @@ export default function Contact() {
                 {/* Contact form + callout */}
                 <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                     {/* Wider-looking form without moving grid */}
-                    <div className="flex justify-start">
+                    <div className="flex justify-start order-2 lg:order-1">
                         <div className="bg-white/5 border-2 border-white/20 p-10 w-full max-w-[760px] contact-card">
                             <form className="space-y-4" onSubmit={handleSubmit} noValidate>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -248,22 +242,22 @@ export default function Contact() {
                         </div>
                     </div>
 
-                    <aside className="flex flex-col items-center text-center lg:self-center lg:px-6">
-                        <h1 className="text-6xl md:text-7xl font-semibold fleur-font mb-5">
-                                {"Email me directly".split("").map((ch, i) =>
-                                    ch === " " ? (
-                                        <span key={i} className="glow-letter-space" aria-hidden="true">&nbsp;</span>
-                                    ) : (
-                                        <span
-                                            key={i}
-                                            className="animate-contact-glow"
-                                            style={{ animationDelay: `${i * 80}ms` }}
-                                        >
-                                            {ch}
-                                        </span>
-                                    )
-                                )}
-                            </h1>
+                    <aside className="flex flex-col items-center text-center order-1 lg:order-2 lg:self-center lg:px-6">
+                        <h1 className="text-6xl md:text-7xl font-semibold fleur-font mb-5 whitespace-nowrap">
+                            {"Email me directly".split("").map((ch, i) =>
+                                ch === " " ? (
+                                    <span key={i} className="glow-letter-space" aria-hidden="true">&nbsp;</span>
+                                ) : (
+                                    <span
+                                        key={i}
+                                        className="animate-contact-glow"
+                                        style={{ animationDelay: `${i * 80}ms` }}
+                                    >
+                                        {ch}
+                                    </span>
+                                )
+                            )}
+                        </h1>
                         <p className="text-xl text-gray-300 gotham-medium">
                             You can reach me more quickly via email by filling out the form.
                         </p>

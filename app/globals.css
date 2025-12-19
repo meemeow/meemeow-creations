@@ -27,77 +27,6 @@
   font-weight: 500;
 }
 
-/* Contact form: constrained, glassmorphism card + input/button styles */
-.contact-card {
-  max-width: 680px;
-  margin-left: auto;
-  margin-right: auto;
-  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 10px 30px rgba(2,6,23,0.6);
-  border: 2px solid rgba(var(--peach-r), var(--peach-g), var(--peach-b), 0.7);
-  box-shadow: 0 0 38px 0 rgba(var(--peach-r), var(--peach-g), var(--peach-b), 0.22), 0 0 8px 0 rgba(var(--peach-r), var(--peach-g), var(--peach-b), 0.12), 0 10px 36px rgba(2,6,23,0.7);
-  transition: box-shadow 220ms ease, border-color 220ms ease, transform 160ms ease;
-}
-
-.fancy-input {
-  background: rgba(255,255,255,0.82);
-  border: 1px solid rgba(255,255,255,0.12);
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  color: #171717;
-  font-family: 'Gotham', Arial, Helvetica, sans-serif;
-  font-weight: 500;
-}
-.fancy-input::placeholder {
-  color: #515151;
-  font-family: 'Gotham', Arial, Helvetica, sans-serif;
-  font-weight: 500;
-  width: 100%;
-  transition: border-color 160ms ease, box-shadow 160ms ease, transform 120ms ease;
-}
-.fancy-input:focus {
-  outline: none;
-  border-color: rgba(255,255,255,0.72);
-  box-shadow: none;
-  transform: translateY(-1px);
-}
-
-.fancy-textarea {
-  min-height: 140px;
-  resize: vertical;
-}
-.fancy-textarea:focus {
-  outline: none;
-  border-color: rgba(255,255,255,0.72);
-  box-shadow: none;
-  transform: translateY(-1px);
-}
-
-.fancy-submit {
-  display: inline-block;
-  padding: 0.6rem 1rem;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #ffe6f0 0%, #fff0f5 100%); /* whitish-pink gradient */
-  color: #171717; /* black text */
-  border: 1px solid rgba(255,230,216,0.9); /* 1px peachy glow border */
-  box-shadow: 0 0 8px 1px rgba(255,230,216,0.65);
-  cursor: pointer;
-  transition: transform 160ms cubic-bezier(.2,.9,.2,1), box-shadow 160ms ease, background 160ms ease, border-color 160ms ease, color 160ms ease;
-}
-.fancy-submit:active {
-  transform: scale(0.96) translateY(2px);
-  box-shadow: 0 2px 8px rgba(2,6,23,0.18);
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-start;
-  gap: 0.75rem;
-  margin-top: 0.25rem;
-}
-
 /* Gotham family (Black / Medium / Light) - available globally */
 @font-face {
   font-family: 'Gotham';
@@ -420,39 +349,6 @@ body {
   pointer-events: auto;
 }
 
-/* Per-letter glow for contact heading */
-@keyframes contactGlow {
-  0% {
-    filter: drop-shadow(0 0 0 rgba(255,200,160,0));
-    transform: translateY(0) scale(1);
-    opacity: 0.95;
-  }
-  40% {
-    filter: drop-shadow(0 0 18px rgba(255,180,120,0.36));
-    transform: translateY(-3px) scale(1.02);
-    opacity: 1;
-  }
-  100% {
-    filter: drop-shadow(0 0 0 rgba(255,200,160,0));
-    transform: translateY(0) scale(1);
-    opacity: 0.95;
-  }
-}
-
-@layer utilities {
-  .animate-contact-glow {
-    @apply inline-block text-white;
-    will-change: transform, filter, opacity;
-    text-shadow: 0 0 6px rgba(255,200,160,0.12);
-    animation: contactGlow 3.2s ease-in-out infinite;
-  }
-
-  .glow-letter-space {
-    @apply inline-block;
-    width: 0.42rem;
-  }
-}
-
 /* Fancy link entrance + hover */
 .navbar-links a {
   transform-origin: right center;
@@ -557,4 +453,3 @@ body {
   display: inline-block;
   margin-top: 0.35rem;
 }
-

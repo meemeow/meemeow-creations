@@ -1,0 +1,300 @@
+/* add css code from exclusively in contact page here */
+
+/* Contact form: constrained, glassmorphism card + input/button styles */
+.contact-card {
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+  border: 2px solid rgba(var(--peach-r), var(--peach-g), var(--peach-b), 0.7);
+  box-shadow: 0 0 38px 0 rgba(var(--peach-r), var(--peach-g), var(--peach-b), 0.22), 0 0 8px 0 rgba(var(--peach-r), var(--peach-g), var(--peach-b), 0.12), 0 10px 36px rgba(2,6,23,0.7);
+  transition: box-shadow 220ms ease, border-color 220ms ease, transform 160ms ease;
+}
+
+/* Hero card sizing: taller to balance constrained width from horizontal margins */
+.hero-card {
+  min-height: 390px;
+  padding-left: 3.5rem !important;
+  padding-right: 3.5rem !important;
+  padding-top: 4.5rem !important;
+  padding-bottom: 4.5rem !important;
+  display: flex;
+  align-items: center;
+  transition: min-height 220ms ease, padding 220ms ease;
+}
+
+/* Larger screens: emphasize vertical scale and typographic weight */
+@media (min-width: 1200px) {
+  .hero-card {
+    min-height: 760px;
+    padding-left: 7rem !important;
+    padding-right: 7rem !important;
+    padding-top: 6.5rem !important;
+    padding-bottom: 6.5rem !important;
+  }
+  .hero-card h1 {
+    font-size: clamp(2rem, 5.6vw, 5rem) !important;
+    line-height: 1.02;
+  }
+  .hero-card p {
+    font-size: clamp(1.1rem, 2.2vw, 1.6rem) !important;
+  }
+  .hero-card .text-lg,
+  .hero-card .text-xl {
+    font-size: clamp(1rem, 1.8vw, 1.25rem) !important;
+  }
+}
+
+.fancy-input {
+  background: rgba(255,255,255,0.82);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  color: #171717;
+  font-family: 'Gotham', Arial, Helvetica, sans-serif;
+  font-weight: 500;
+}
+.fancy-input::placeholder {
+  color: #515151;
+  font-family: 'Gotham', Arial, Helvetica, sans-serif;
+  font-weight: 500;
+  width: 100%;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 120ms ease;
+}
+.fancy-input:focus {
+  outline: none;
+  border-color: rgba(255,255,255,0.72);
+  box-shadow: none;
+  transform: translateY(-1px);
+}
+
+.fancy-textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+.fancy-textarea:focus {
+  outline: none;
+  border-color: rgba(255,255,255,0.72);
+  box-shadow: none;
+  transform: translateY(-1px);
+}
+
+.fancy-submit {
+  display: inline-block;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #ffe6f0 0%, #fff0f5 100%); /* whitish-pink gradient */
+  color: #171717; /* black text */
+  border: 1px solid rgba(255,230,216,0.9); /* 1px peachy glow border */
+  box-shadow: 0 0 8px 1px rgba(255,230,216,0.65);
+  cursor: pointer;
+  transition: transform 160ms cubic-bezier(.2,.9,.2,1), box-shadow 160ms ease, background 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+.fancy-submit:active {
+  transform: scale(0.96) translateY(2px);
+  box-shadow: 0 2px 8px rgba(2,6,23,0.18);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* Per-letter glow for contact heading */
+@keyframes contactGlow {
+  0% {
+    filter: drop-shadow(0 0 0 rgba(255,200,160,0));
+    transform: translateY(0) scale(1);
+    opacity: 0.95;
+  }
+  40% {
+    filter: drop-shadow(0 0 18px rgba(255,180,120,0.36));
+    transform: translateY(-3px) scale(1.02);
+    opacity: 1;
+  }
+  100% {
+    filter: drop-shadow(0 0 0 rgba(255,200,160,0));
+    transform: translateY(0) scale(1);
+    opacity: 0.95;
+  }
+}
+
+/* Contact-specific animations and utilities */
+.animate-contact-glow {
+  display: inline-block;
+  color: white;
+  will-change: transform, filter, opacity;
+  text-shadow: 0 0 6px rgba(255,200,160,0.12);
+  animation: contactGlow 3.2s ease-in-out infinite;
+}
+
+.glow-letter-space {
+  display: inline-block;
+  width: 0.42rem;
+}
+
+/* Responsive adjustments for contact page */
+/* Larger breakpoints: keep generous spacing but prevent overflow */
+@media (max-width: 1200px) {
+  .contact-card {
+    max-width: 720px;
+    padding: 2.25rem;
+  }
+  .hero-card {
+    padding-left: 3.5rem !important;
+    padding-right: 3.5rem !important;
+    padding-top: 3.5rem !important;
+    padding-bottom: 3.5rem !important;
+  }
+}
+
+/* Tablet / small laptop */
+@media (max-width: 992px) {
+  .contact-card {
+    max-width: 680px;
+    padding: 1.75rem;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
+  .hero-card {
+    /* Reduce the massive side padding that causes the 'purple' border effect */
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+    padding-top: 4rem !important;
+    padding-bottom: 4rem !important;
+    justify-content: center; /* Helps center content if text-align isn't enough */
+  }
+  .hero-card h1 {
+    font-size: clamp(1.6rem, 6vw, 3.5rem) !important;
+    line-height: 1.05;
+  }
+  .hero-card p {
+    font-size: clamp(0.95rem, 2.5vw, 1.25rem) !important;
+  }
+  .hero-card .text-lg,
+  .hero-card .text-xl {
+    font-size: clamp(0.92rem, 1.7vw, 1.08rem) !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .contact-card {
+    width: calc(100% - 2rem);
+    max-width: none;
+    padding: 1rem 1rem 1.25rem 1rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    border-radius: 10px;
+  }
+
+  /* Override the large spacing applied in JSX classes (px-28 / py-52) */
+  .hero-card {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    padding-top: 1.75rem !important;
+    padding-bottom: 1.75rem !important;
+  }
+
+  .hero-card h1 {
+    font-size: clamp(1.2rem, 5vw, 2.2rem) !important;
+  }
+  .hero-card p {
+    font-size: clamp(0.85rem, 2vw, 1.05rem) !important;
+  }
+
+  /* When the contact form collapses to one column, center hero texts and socials */
+  .hero-card h1,
+  .hero-card p {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-card .space-y-2 {
+    text-align: center;
+  }
+
+  .hero-card .space-y-2 .flex {
+    justify-content: center;
+  }
+
+  /* Make inputs full width and easier to tap */
+  .fancy-input,
+  .fancy-textarea {
+    width: 100%;
+    font-size: 0.98rem;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .fancy-textarea {
+    min-height: 120px;
+  }
+
+  /* Submit button: right-aligned above 640px, centered below */
+  .fancy-submit {
+    width: 70%;
+    min-width: 120px;
+    max-width: 220px;
+    display: inline-flex;
+    justify-content: center;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+@media (max-width: 639px) {
+  .fancy-submit {
+    margin: 0 auto;
+    width: 70%;
+    justify-content: center;
+    display: flex;
+  }
+}
+
+  /* Make the aside heading stay large on mobile */
+  aside .fleur-font {
+    font-size: clamp(3rem, 12vw, 5rem);
+    line-height: 1.02;
+  }
+}
+
+/* Extra small phones */
+@media (max-width: 420px) {
+  .contact-card {
+    padding: 0.75rem 0.75rem 1rem 0.75rem;
+    margin-left: 0.6rem;
+    margin-right: 0.6rem;
+  }
+  .hero-card h1 {
+    font-size: clamp(1rem, 4vw, 1.4rem) !important;
+  }
+  .hero-card p {
+    font-size: clamp(0.8rem, 1.5vw, 0.9rem) !important;
+  }
+  .fancy-textarea {
+    min-height: 100px;
+  }
+  .animate-contact-glow {
+    font-size: 1rem;
+  }
+
+  /* Clamp aside heading and paragraph for extra small screens */
+  aside .fleur-font {
+    font-size: clamp(1.1rem, 8vw, 2.2rem) !important;
+  }
+  aside p {
+    font-size: clamp(0.8rem, 4vw, 1.05rem) !important;
+  }
+}
+
+/* Small accessibility tweak: ensure focus outlines remain visible on reduced sizes */
+.fancy-input:focus, .fancy-textarea:focus, .fancy-submit:focus {
+  box-shadow: 0 0 0 3px rgba(255,230,216,0.12);
+}
