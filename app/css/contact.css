@@ -196,9 +196,10 @@
 
   /* Override the large spacing applied in JSX classes (px-28 / py-52) */
   .hero-card {
+    min-height: 340px !important; /* reduced by 60px from default 390px for mobile */
     padding-left: 1rem !important;
     padding-right: 1rem !important;
-    padding-top: 1.75rem !important;
+    padding-top: 2.75rem !important;
     padding-bottom: 1.75rem !important;
   }
 
@@ -249,19 +250,20 @@
     margin: 0;
   }
 
+  /* Make the aside heading stay large on mobile */
+  aside .fleur-font {
+    font-size: clamp(2rem, 10vw, 4rem);
+    line-height: 1.02;
+  }
+}
+
+/* Small screens tweak for submit button spacing */
 @media (max-width: 639px) {
   .fancy-submit {
     margin: 0 auto;
     width: 70%;
     justify-content: center;
     display: flex;
-  }
-}
-
-  /* Make the aside heading stay large on mobile */
-  aside .fleur-font {
-    font-size: clamp(3rem, 12vw, 5rem);
-    line-height: 1.02;
   }
 }
 
@@ -282,12 +284,10 @@
     min-height: 100px;
   }
   .animate-contact-glow {
-    font-size: 1rem;
+    font-size: inherit;
   }
-
-  /* Clamp aside heading and paragraph for extra small screens */
   aside .fleur-font {
-    font-size: clamp(1.1rem, 8vw, 2.2rem) !important;
+    font-size: clamp(2rem, 10vw, 4rem) !important;
   }
   aside p {
     font-size: clamp(0.8rem, 4vw, 1.05rem) !important;

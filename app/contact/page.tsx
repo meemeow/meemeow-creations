@@ -120,7 +120,7 @@ export default function Contact() {
             <div className="max-w-9xl mx-2 md:mx-10 px-6 py-10 md:py-18">
                 {/* Hero card */}
                 <section
-                    className={`hero-card bg-white/5 border-2 border-white/20 rounded-lg px-28 py-52 mb-24 relative overflow-hidden ${hovered ? "hovered" : ""}`}
+                    className={`hero-card bg-white/5 border-2 border-white/20 rounded-lg px-28 py-52 mb-16 md:mb-24 relative overflow-hidden ${hovered ? "hovered" : ""}`}
                     onMouseEnter={() => setHovered(true)}
                     onMouseLeave={() => setHovered(false)}
                 >
