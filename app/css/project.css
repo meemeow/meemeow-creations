@@ -9,6 +9,16 @@
 	box-shadow: 0 8px 24px rgba(0,0,0,0.55), 0 0 0 4px rgba(255,255,255,0.02) inset;
 }
 
+/* Masonry-specific card sizing: keeps image aspect, scales with width */
+.masonry-card {
+	position: relative;
+	overflow: hidden;
+	height: auto;
+	aspect-ratio: 16 / 8;
+	background-size: cover;
+	background-position: center center;
+}
+
 /* Slight irregularity to mimic hand-drawn cards */
 .project-item .project-card,
 .project-row .project-card {
@@ -84,8 +94,36 @@
 
 @media (max-width: 767px) {
 	.project-row { flex-direction: column; align-items: stretch; }
-	.project-row .project-card { width: 100% !important; height: 1200px !important; }
-	.project-row > div.text-right { text-align: left; width: 100% !important; }
+	.project-row .project-card { width: 100% !important; }
+	.project-row > div.text-right { width: 100% !important; }
+
+	/* Masonry on small screens: place card on top and text below */
+	.project-item { flex-direction: column; align-items: stretch; }
+
+	/* Ensure preview cards remain visible on very small screens */
+	.masonry-card,
+	.stacked-card,
+	.project-item .project-card,
+	.project-row .project-card {
+		width: 100% !important;
+		/* more generous aspect ratio and a sensible minimum height */
+		aspect-ratio: 4 / 2;
+		min-height: 8rem; /* ~128px */
+	}
+
+	/* Make background images cover the card so they don't appear squashed or tiny */
+	.library_preview,
+	.library_preview .alt-layer {
+		background-size: cover !important;
+		background-position: center center !important;
+	}
+}
+
+/* Between 640px and 767px ensure meta is right-aligned */
+@media (min-width: 640px) and (max-width: 767px) {
+	.project-meta { text-align: right !important; }
+	.project-row > div.text-right { text-align: right !important; }
+	.project-item .project-meta { text-align: right !important; }
 }
 
 /* small visual helper: subtly offset some cards for staggered masonry */
@@ -137,9 +175,49 @@
 
 /* Mobile: keep readability by left-aligning and slightly smaller text */
 @media (max-width: 767px) {
-	.project-meta { text-align: left; }
+	.project-meta { text-align: right; }
 	.project-meta .font-semibold { font-size: 1.375rem; }
 	.project-meta .text-gray-300 { font-size: 1rem; }
+}
+
+/* On very small screens center text (title, description, etc.) and keep button centered */
+@media (max-width: 639px) {
+	.project-meta { text-align: center !important; }
+	.project-row > div.text-right { text-align: center !important; }
+}
+
+/* Medium screens (desktop small to medium): slightly reduce description size for 1024px - 1439px */
+@media (min-width: 1024px) and (max-width: 1439px) {
+	.project-meta .text-gray-300 {
+		/* clamp between 14px and 16px, with a fluid step */
+		font-size: clamp(0.875rem, 0.8vw + 0.6rem, 1rem);
+		line-height: 1.45;
+	}
+	/* Optional: slightly reduce title size to match proportion */
+	.project-meta .font-semibold {
+		font-size: clamp(1.6rem, 1.2vw + 1rem, 2rem);
+	}
+}
+
+/* Masonry-specific clamps for 1024px - 1279px: reduce title, desc, and button sizes */
+@media (min-width: 1024px) and (max-width: 1279px) {
+	.projects-container .masonry-list .project-meta .text-gray-300 {
+		font-size: clamp(0.8rem, 0.6vw + 0.55rem, 0.95rem);
+		line-height: 1.4;
+	}
+
+	.projects-container .masonry-list .project-meta .font-semibold {
+		font-size: clamp(1.4rem, 1vw + 0.9rem, 1.9rem);
+	}
+
+	.projects-container .masonry-list .visit-button {
+		padding: 0.5rem 1rem;
+		font-size: clamp(0.85rem, 0.4vw + 0.7rem, 0.95rem);
+		border-radius: 8px;
+	}
+
+	/* tighten spacing inside meta for better compact layout */
+	.projects-container .masonry-list .project-meta { gap: 0.4rem; }
 }
 
 /* Visit button: copied from contact page .fancy-submit for consistent visual language */
@@ -208,13 +286,36 @@
 
 /* Stacked-list: expand project card height on hover to match masonry sizes (desktop) */
 @media (min-width: 768px) {
-	.project-row .project-card {
-		height: 12rem; /* matches h-48 (default stacked height) */
+	.project-row .stacked-card {
+		/* stacked rows: collapsed by default on desktop, expands on hover to match masonry aspect */
+		height: 12rem; /* collapsed */
 		transition: height 320ms cubic-bezier(.2,.9,.2,1), transform 200ms ease, box-shadow 200ms ease;
 		overflow: hidden;
+		aspect-ratio: auto  ;
 	}
-	.project-row .project-card:hover {
-		height: 28rem; /* reduced from 34rem to avoid excessive expansion */
+	.project-row .stacked-card:hover {
+		/* expand to masonry aspect ratio on hover for large screens */
+		aspect-ratio: 16 / 8;
+		height: auto;
+		transition: height 360ms cubic-bezier(.2,.9,.2,1), aspect-ratio 360ms ease;
+	}
+}
+
+/* For viewports 1838px and below, stacked list should show expanded cards always
+   and hover should not be required/used. This keeps behavior consistent on many
+   medium/large screens and mobile landscape. */
+@media (max-width: 1838px) {
+	.project-row .stacked-card {
+		aspect-ratio: 16 / 8;
+		height: auto !important;
+		transition: none !important;
+		overflow: visible;
+	}
+	/* disable hover expansion visual differences at these sizes */
+	.project-row .stacked-card:hover {
+		aspect-ratio: 16 / 8;
+		height: auto !important;
+		transition: none !important;
 	}
 }
 
@@ -241,4 +342,83 @@
 @keyframes fadeIn {
 	from { opacity: 0; }
 	to { opacity: 1; }
+}
+
+/* Page container responsive horizontal spacing: smooth transitions between breakpoints */
+.projects-container {
+	margin-inline: 32px; /* default: mx-8 */
+	transition: margin-inline 220ms ease, padding 220ms ease;
+}
+
+/* Masonry gap smoothing: default to gap-60 (240px) and interpolate down to gap-30 (120px)
+   between 1024px and 1439px. Add a smooth transition so the gap reduces gradually. */
+.projects-container .masonry-list {
+	gap: 240px; /* gap-60 */
+	transition: gap 260ms ease;
+}
+
+@media (min-width: 1024px) and (max-width: 1439px) {
+	.projects-container .masonry-list {
+		gap: clamp(120px, calc(120px + (100vw - 1024px) * 0.2884615385), 240px);
+	}
+}
+
+@media (max-width: 639px) {
+	.projects-container { margin-inline: 16px; }
+}
+@media (min-width: 640px) {
+	.projects-container { margin-inline: 32px; }
+}
+@media (min-width: 768px) {
+	.projects-container { margin-inline: 64px; }
+}
+@media (min-width: 1024px) {
+	.projects-container { margin-inline: 80px; }
+}
+@media (min-width: 1280px) {
+	.projects-container { margin-inline: 96px; }
+}
+@media (min-width: 1440px) {
+	.projects-container { margin-inline: 112px; }
+}
+@media (min-width: 1600px) {
+	.projects-container { margin-inline: 128px; }
+}
+@media (min-width: 1920px) {
+	.projects-container { margin-inline: 144px; }
+}
+@media (min-width: 2560px) {
+	.projects-container { margin-inline: 168px; }
+}
+@media (min-width: 3200px) {
+	.projects-container { margin-inline: 192px; }
+}
+@media (min-width: 3840px) {
+	.projects-container { margin-inline: 192px; }
+}
+
+/* Keep stacked view typography matching masonry at the 1024px boundary so
+   transitioning from 1024px -> 1023px doesn't cause a jump. Applies to
+   the typical tablet/phone-landscape range where stacked view is used. */
+@media (min-width: 768px) and (max-width: 1023px) {
+	/* description */
+	.project-row .project-meta .text-gray-300,
+	.project-row .text-gray-300 {
+		font-size: 0.934rem; /* matches masonry computed size at 1024px */
+		line-height: 1.45;
+	}
+
+	/* title */
+	.project-row .project-meta .font-semibold,
+	.project-row .font-semibold {
+		font-size: 1.54rem; /* matches masonry computed title size at 1024px */
+	}
+
+	/* buttons */
+	.project-row .visit-button,
+	.project-row .project-meta .visit-button {
+		padding: 0.5rem 1rem;
+		font-size: 0.95rem; /* match masonry button size at 1024px */
+		border-radius: 8px;
+	}
 }

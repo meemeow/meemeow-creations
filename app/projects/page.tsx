@@ -22,6 +22,7 @@ export default function Projects() {
   const [view, setView] = useState<"masonry" | "stacked">("masonry");
   const masonryRef = useRef<HTMLElement | null>(null);
   const stackedRef = useRef<HTMLElement | null>(null);
+  const [showViewToggle, setShowViewToggle] = useState(true);
 
   const projects = [
     {
@@ -37,6 +38,23 @@ export default function Projects() {
   // Refs for cleanup/timeouts/observer
   const observerRef = useRef<IntersectionObserver | null>(null);
   const staggerTimeoutsRef = useRef<number[]>([]);
+
+  useEffect(() => {
+    // enforce stacked view and hide toggles on narrow screens
+    const handleResize = () => {
+      const w = typeof window !== 'undefined' ? window.innerWidth : 0;
+      if (w <= 1023) {
+        setView('stacked');
+        setShowViewToggle(false);
+      } else {
+        setShowViewToggle(true);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    // cleanup listener when component unmounts
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     // Clear previous observer / timeouts whenever view changes
@@ -121,10 +139,11 @@ export default function Projects() {
 
   return (
     <main className="min-h-screen bg-[#191b1dff] text-white">
-      <div className="max-w-8xl mx-10 md:mx-38 px-6 py-12">
+      <div className="projects-container max-w-8xl px-6 py-12">
         <header className="flex items-center justify-between mb-12">
           <h2 className="rye-font text-4xl md:text-5xl font-semibold">My Projects</h2>
-          <div className="flex items-center gap-3">
+          {showViewToggle && (
+            <div className="flex items-center gap-3">
             <button
               aria-pressed={view === "masonry"}
               onClick={() => setView("masonry")}
@@ -158,12 +177,13 @@ export default function Projects() {
                 <rect x="17" y="16" width="4" height="4" rx="1" stroke="currentColor" strokeWidth="1.5" />
               </svg>
             </button>
-          </div>
+            </div>
+          )}
         </header>
 
         {/* Content */}
         {view === "masonry" ? (
-          <section ref={masonryRef} className="flex flex-col gap-60">
+          <section ref={masonryRef} className="flex flex-col gap-30 masonry-list">
             {projects.map((p) => {
               const isEven = p.id % 2 === 0;
               return (
@@ -284,7 +304,7 @@ function ProjectCard({ p, isEven }: { p: { id: number; title: string; desc: stri
   return (
     <div className={`flex flex-col md:flex-row items-center gap-6 w-full ${isEven ? "md:flex-row-reverse" : ""}`}>
       <div
-        className={`project-card w-full md:w-full h-128 md:h-136 ${hasPreview ? "library_preview" : ""}`}
+        className={`project-card masonry-card w-full md:w-full ${hasPreview ? "library_preview" : ""}`}
         style={hasPreview ? { backgroundImage: `url('/assets/images/${previewName}')` } : undefined}
         onMouseEnter={() => hasPreview && triggerCycle()}
         onMouseLeave={() => hasPreview && handleClear()}
@@ -403,7 +423,7 @@ function ProjectRow({ p }: { p: { id: number; title: string; desc: string; url?:
   return (
     <div className="w-full md:w-3/5">
       <div
-        className={`project-card h-48 bg-white/5 rounded-xl border-2 border-black/80 ${hasPreview ? "library_preview" : ""}`}
+        className={`project-card stacked-card bg-white/5 rounded-xl border-2 border-black/80 ${hasPreview ? "library_preview" : ""}`}
         style={hasPreview ? { backgroundImage: `url('/assets/images/${previewName}')` } : undefined}
         onMouseEnter={handleMouseEnter} // UPDATED: Use new handler
         onMouseLeave={handleClear}
