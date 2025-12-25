@@ -42,11 +42,29 @@
 	opacity: 1;
 }
 
-/* Disable pop transform on small screens to avoid layout shifts */
-@media (max-width: 767px) {
+/* Disable pop transform on small screens to avoid layout shifts (extended to 940px) */
+@media (max-width: 940px) {
 	.project-item:hover .project-meta,
 	.project-row:hover .project-meta {
 		transform: none;
+	}
+
+	
+	/* Description + Title sizing with 2.5:1 ratio (title : description)
+	   Description uses a fluid clamp; title is ~2.5x the description. */
+	.project-meta .text-gray-300,
+	.project-row .project-meta .text-gray-300,
+	.project-item .project-meta .text-gray-300 {
+		font-size: clamp(0.88rem, 0.6vw + 0.56rem, 1rem);
+		line-height: 1.45;
+	}
+
+	.project-meta .font-semibold,
+	.project-row .project-meta .font-semibold,
+	.project-item .project-meta .font-semibold,
+	.project-row .font-semibold {
+		font-size: clamp(2.1rem, 2.4vw + 1rem, 2.4rem);
+		line-height: 1.05;
 	}
 }
 
@@ -92,15 +110,18 @@
 	.project-item { padding: 6px 2px; }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 940px) {
 	.project-row { flex-direction: column; align-items: stretch; }
-	.project-row .project-card { width: 100% !important; }
+	/* Ensure the direct children (wrappers) expand full width so the
+	   card (inside) can take the full row instead of remaining narrow */
+	.project-row > div { width: 100% !important; }
 	.project-row > div.text-right { width: 100% !important; }
+	.project-row .project-card { width: 100% !important; max-width: 100% !important; margin-inline: auto; }
 
 	/* Masonry on small screens: place card on top and text below */
 	.project-item { flex-direction: column; align-items: stretch; }
 
-	/* Ensure preview cards remain visible on very small screens */
+	/* Ensure preview cards remain visible on small screens up to 940px */
 	.masonry-card,
 	.stacked-card,
 	.project-item .project-card,
@@ -108,7 +129,7 @@
 		width: 100% !important;
 		/* more generous aspect ratio and a sensible minimum height */
 		aspect-ratio: 4 / 2;
-		min-height: 8rem; /* ~128px */
+		min-height: 12rem; /* increased for better prominence */
 	}
 
 	/* Make background images cover the card so they don't appear squashed or tiny */
@@ -119,8 +140,8 @@
 	}
 }
 
-/* Between 640px and 767px ensure meta is right-aligned */
-@media (min-width: 640px) and (max-width: 767px) {
+/* Between 640px and 940px ensure meta is right-aligned */
+@media (min-width: 640px) and (max-width: 940px) {
 	.project-meta { text-align: right !important; }
 	.project-row > div.text-right { text-align: right !important; }
 	.project-item .project-meta { text-align: right !important; }
@@ -218,6 +239,38 @@
 
 	/* tighten spacing inside meta for better compact layout */
 	.projects-container .masonry-list .project-meta { gap: 0.4rem; }
+
+	/* header: slightly larger than the 768-1023px clamp so header scales up */
+	.projects-container header .rye-font {
+		font-size: clamp(2.6rem, 2.4vw + 1rem, 3rem);
+		line-height: 1.06;
+	}
+}
+
+/* Apply same clamps to stacked view rows so stacked list matches masonry
+   between 1024px and 1279px */
+@media (min-width: 1024px) and (max-width: 1279px) {
+	.projects-container .project-row .project-meta .text-gray-300,
+	.project-row .project-meta .text-gray-300 {
+		font-size: clamp(0.8rem, 0.6vw + 0.55rem, 0.95rem);
+		line-height: 1.4;
+	}
+
+	.projects-container .project-row .project-meta .font-semibold,
+	.project-row .project-meta .font-semibold {
+		font-size: clamp(1.4rem, 1vw + 0.9rem, 1.9rem);
+	}
+
+	.projects-container .project-row .visit-button,
+	.project-row .project-meta .visit-button {
+		padding: 0.5rem 1rem;
+		font-size: clamp(0.85rem, 0.4vw + 0.7rem, 0.95rem);
+		border-radius: 8px;
+	}
+
+	/* tighten spacing inside stacked meta for consistency */
+	.projects-container .project-row .project-meta,
+	.project-row .project-meta { gap: 0.4rem; }
 }
 
 /* Visit button: copied from contact page .fancy-submit for consistent visual language */
@@ -275,13 +328,51 @@
 
 .glow-letter-space { display: inline-block; width: 0.42rem; }
 
-/* Responsive sizing for visit-button to match contact button behavior */
-@media (max-width: 768px) {
+/* Responsive sizing for visit-button to match contact button behavior (extended to 940px) */
+@media (max-width: 940px) {
  	.visit-button { width: 70%; min-width: 120px; max-width: 220px; padding: 0.65rem 0.9rem; font-size: 0.95rem; }
 }
 
 @media (max-width: 639px) {
 	.visit-button { margin: 0 auto; display: flex; justify-content: center; width: 70%; }
+}
+
+/* Extra-small screens: improve card proportions & typography for <= 467px */
+@media (max-width: 467px) {
+	/* ensure rows stack cleanly and wrappers fill width */
+	.project-row, .project-item { gap: 1rem; }
+	.project-row > div, .project-item > div { width: 100% !important; }
+
+	/* make preview cards slightly taller (more natural for small screens)
+	   and allow images to cover without getting squashed */
+	.masonry-card,
+	.stacked-card,
+	.project-item .project-card,
+	.project-row .project-card {
+		aspect-ratio: 4 / 3; /* taller than ultra-wide to show more content */
+		min-height: 8rem; /* ~128px */
+		width: 100% !important;
+		max-width: 100% !important;
+		margin-inline: 0;
+		border-radius: 10px;
+	}
+
+	/* tighten padding around the card/meta so layout feels compact */
+	.projects-container { padding-inline: 12px; }
+
+	/* center meta content and reduce font sizes for compactness */
+	.project-meta { text-align: center !important; padding: 0.25rem 0.5rem; }
+	.project-meta .font-semibold { font-size: clamp(1rem, 2.2vw + 0.2rem, 1.15rem); line-height: 1.08; }
+	.project-meta .text-gray-300 { font-size: clamp(0.76rem, 1.2vw + 0.18rem, 0.88rem); line-height: 1.3; }
+
+	/* full-width, centered visit button for easy tapping (smaller tap target) */
+	.visit-button { display: block; width: 90%; margin: 0.5rem auto; padding: 0.48rem 0.7rem; font-size: 0.85rem; }
+
+	/* reduce vertical spacing */
+	.projects-container header { margin-bottom: 0.9rem; }
+
+	/* ensure the page title has extra breathing room on very small screens */
+	.projects-container header .rye-font { margin-bottom: 24px; }
 }
 
 /* Stacked-list: expand project card height on hover to match masonry sizes (desktop) */
@@ -370,7 +461,7 @@
 	.projects-container { margin-inline: 32px; }
 }
 @media (min-width: 768px) {
-	.projects-container { margin-inline: 64px; }
+	.projects-container { margin-inline: 48px; }
 }
 @media (min-width: 1024px) {
 	.projects-container { margin-inline: 80px; }
@@ -400,25 +491,42 @@
 /* Keep stacked view typography matching masonry at the 1024px boundary so
    transitioning from 1024px -> 1023px doesn't cause a jump. Applies to
    the typical tablet/phone-landscape range where stacked view is used. */
-@media (min-width: 768px) and (max-width: 1023px) {
-	/* description */
+@media (min-width: 941px) and (max-width: 1023px) {
+	/* description: smaller, fluid clamp to match masonry proportions */
 	.project-row .project-meta .text-gray-300,
 	.project-row .text-gray-300 {
-		font-size: 0.934rem; /* matches masonry computed size at 1024px */
-		line-height: 1.45;
+		font-size: clamp(0.78rem, 0.5vw + 0.56rem, 0.92rem);
+		line-height: 1.42;
 	}
 
-	/* title */
+	/* title: slightly reduced clamp for tablet/phone-landscape */
 	.project-row .project-meta .font-semibold,
 	.project-row .font-semibold {
-		font-size: 1.54rem; /* matches masonry computed title size at 1024px */
+		font-size: clamp(1.3rem, 2.1rem + 0.85rem, 1.54rem);
 	}
 
-	/* buttons */
+	/* buttons: compact, fluid sizing */
 	.project-row .visit-button,
 	.project-row .project-meta .visit-button {
-		padding: 0.5rem 1rem;
-		font-size: 0.95rem; /* match masonry button size at 1024px */
+		padding: 0.45rem 0.9rem;
+		font-size: clamp(0.8rem, 0.36vw + 0.68rem, 0.95rem);
 		border-radius: 8px;
+	}
+
+	/* page title: slightly larger than the <=767px size for 768-1023px */
+	.projects-container header .rye-font {
+		font-size: clamp(2.5rem, 2.4vw + 1rem, 3rem);
+		line-height: 1.08;
+	}
+}
+
+/* Center the page header/title on very narrow viewports (<= 376px) */
+@media (max-width: 376px) {
+	.projects-container header {
+		justify-content: center; /* center the flex header contents */
+	}
+	.projects-container header .rye-font {
+		text-align: center; /* ensure the title itself is centered */
+		width: 100%;
 	}
 }
