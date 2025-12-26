@@ -13,8 +13,9 @@ export default function About() {
 						className="w-28 h-28 object-contain drop-shadow-lg pulse-glow"
 					/>
 
-					<div className="flex items-center justify-center ml-2 text-center">
+					<div className="flex flex-col items-center justify-center ml-2 text-center">
 						<p className="text-2xl rye-font whitespace-nowrap pulse-glow">Page under construction...</p>
+						<p className="text-xl rye-font whitespace-nowrap pulse-glow">Try another page for now!</p>
 					</div>
 				</div>
 			</div>
