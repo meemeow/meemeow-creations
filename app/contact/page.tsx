@@ -171,6 +171,13 @@ export default function Contact() {
                                     www.linkedin.com/in/emerson-clamor
                                 </a>
                             </div>
+
+                            <div className="flex items-center gap-3 text-gray-300 text-lg md:text-xl">
+                                <img src="/assets/images/github.png" alt="GitHub" className="w-5 h-5 object-contain" />
+                                <a href="https://github.com/meemeow" target="_blank" rel="noopener noreferrer" className="hover:underline">
+                                    https://github.com/meemeow
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </section>

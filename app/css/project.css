@@ -395,7 +395,7 @@
 /* For viewports 1838px and below, stacked list should show expanded cards always
    and hover should not be required/used. This keeps behavior consistent on many
    medium/large screens and mobile landscape. */
-@media (max-width: 1838px) {
+@media (max-width: 1620px) {
 	.project-row .stacked-card {
 		aspect-ratio: 16 / 8;
 		height: auto !important;
