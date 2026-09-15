@@ -1,5 +1,5 @@
-import nodemailer from 'nodemailer';
-import { contactSchema } from '../../contact/contact-validation';
+import { contactSchema } from '@/lib/contact-validation';
+import { createTransporter, mailFrom, mailTo } from '@/lib/send-mail';
 
 export async function POST(req: Request) {
   try {
@@ -11,21 +11,11 @@ export async function POST(req: Request) {
 
     const data = result.data;
 
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.mailtrap.io',
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: (process.env.SMTP_SECURE === 'true') || false,
-      auth: process.env.SMTP_USER
-        ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
-        : undefined,
-    });
-
-    const from = process.env.FROM_EMAIL || 'no-reply@example.com';
-    const to = process.env.TO_EMAIL || 'emerson.clamor.prof@gmail.com';
+    const transporter = createTransporter();
 
     await transporter.sendMail({
-      from,
-      to,
+      from: mailFrom(),
+      to: mailTo(),
       subject: `Portfolio contact: ${data.firstName} ${data.lastName}`,
       text: `${data.message}\n\nReply to: ${data.email}`,
       replyTo: data.email,

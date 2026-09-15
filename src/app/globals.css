@@ -1,5 +1,37 @@
 @import "tailwindcss";
 
+/* ---------- Breakpoints ----------
+   Tailwind's built-in `max-[Npx]:` means `width < N`, but the site's layout was
+   designed around inclusive `max-width: Npx` queries. These keep that exact
+   behaviour (including fractional widths when the browser is zoomed):
+     upto-N:  width <= N
+     above-N: width >  N
+   Lower bounds that were `min-width: Npx` use Tailwind's own `min-[Npx]:`. */
+@custom-variant upto-376 (@media (width <= 376px));
+@custom-variant upto-420 (@media (width <= 420px));
+@custom-variant upto-467 (@media (width <= 467px));
+@custom-variant upto-639 (@media (width <= 639px));
+@custom-variant upto-768 (@media (width <= 768px));
+@custom-variant upto-940 (@media (width <= 940px));
+@custom-variant upto-992 (@media (width <= 992px));
+@custom-variant upto-1000 (@media (width <= 1000px));
+@custom-variant upto-1023 (@media (width <= 1023px));
+@custom-variant upto-1200 (@media (width <= 1200px));
+@custom-variant upto-1279 (@media (width <= 1279px));
+@custom-variant upto-1439 (@media (width <= 1439px));
+@custom-variant upto-1535 (@media (width <= 1535px));
+@custom-variant upto-1620 (@media (width <= 1620px));
+@custom-variant above-420 (@media (width > 420px));
+@custom-variant above-467 (@media (width > 467px));
+@custom-variant above-639 (@media (width > 639px));
+@custom-variant above-768 (@media (width > 768px));
+@custom-variant above-940 (@media (width > 940px));
+@custom-variant above-992 (@media (width > 992px));
+@custom-variant above-1200 (@media (width > 1200px));
+@custom-variant above-1279 (@media (width > 1279px));
+@custom-variant above-1620 (@media (width > 1620px));
+
+/* ---------- Fonts ---------- */
 @font-face {
   font-family: 'Rubber';
   src: url('/assets/fonts/rubber.TTF') format('truetype');
@@ -8,12 +40,6 @@
   font-display: swap;
 }
 
-/* Utility: Rubber font class usable throughout the app */
-.rubber-font {
-  font-family: 'Rubber', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-}
-
-/* Fleur De Leah decorative font (used for contact callout heading) */
 @font-face {
   font-family: 'FleurDeLeah';
   src: url('/assets/fonts/FleurDeLeah.ttf') format('truetype');
@@ -22,11 +48,6 @@
   font-display: swap;
 }
 
-.fleur-font {
-  font-family: 'FleurDeLeah', cursive, serif;
-}
-
-/* Rye decorative font for project titles */
 @font-face {
   font-family: 'Rye';
   src: url('/assets/fonts/Rye-Regular.ttf') format('truetype');
@@ -35,17 +56,6 @@
   font-display: swap;
 }
 
-.rye-font {
-  font-family: 'Rye', var(--font-gotham), Arial, sans-serif;
-}
-
-/* Utility: Gotham Medium for headings/strong text */
-.gotham-medium {
-  font-family: var(--font-gotham);
-  font-weight: 500;
-}
-
-/* Gotham family (Black / Medium / Light) - available globally */
 @font-face {
   font-family: 'Gotham';
   src: url('/assets/fonts/Gotham%20Fonts%20Family/Gotham-Black.otf') format('opentype');
@@ -68,10 +78,10 @@
   font-display: swap;
 }
 
+/* ---------- Theme tokens ---------- */
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --font-gotham: 'Gotham', Arial, Helvetica, sans-serif;
   /* Peachy-white glow used for focused fields and form border */
   --peach-r: 255;
   --peach-g: 230;
@@ -86,6 +96,20 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* font-rubber / font-fleur / font-rye / font-gotham and the animate-* utilities */
+@theme {
+  --font-rubber: 'Rubber', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  --font-fleur: 'FleurDeLeah', cursive, serif;
+  --font-gotham: 'Gotham', Arial, Helvetica, sans-serif;
+  --font-rye: 'Rye', var(--font-gotham), Arial, sans-serif;
+
+  --animate-pulse-float: pulseFloat 2000ms ease-in-out infinite;
+  --animate-dropdown-in: dropdownIn 260ms cubic-bezier(.2,.9,.2,1) forwards;
+  --animate-contact-glow: contactGlow 3.2s ease-in-out infinite;
+  --animate-visit-glow: visitGlow 3.2s ease-in-out infinite;
+  --animate-indicator-in: fadeIn 0.3s ease 1.5s forwards;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -93,479 +117,68 @@
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-/* Navbar styles */
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 116px;
-  transition: height 220ms ease;
-  overflow: hidden;
-  background: #0A0A0A;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  z-index: 100;
-}
-
-.navbar.expanded {
-  height: 166px;
-}
-.navbar-spacer {
-  height: 116px;
-  transition: height 220ms ease;
-  display: block;
-  width: 100%;
-}
-.navbar.expanded + .navbar-spacer,
-.navbar-spacer.expanded {
-  height: 166px;
-}
-.navbar-inner {
-  width: 100%;
-  padding: 0 3rem; /* increased horizontal padding */
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-/* allow absolutely-positioned hover video inside navbar (cover full header) */
-.navbar {
-  position: fixed;
-}
-
-.hover-video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-  opacity: 0;
-  transition: opacity 200ms ease;
-  pointer-events: none;
-}
-.hover-video.visible {
-  opacity: 1;
-}
-
-/* ensure navbar content appears above the video */
-.brand,
-.navbar-burger,
-.navbar-links {
-  z-index: 400;
-  position: relative;
-}
-
-/* Hero card hover: subtly scale + increase opacity and play video */
-.hero-card .hero-video {
-  opacity: 0.56; /* subtle base visibility */
-  transform: scale(1);
-  transition: opacity 260ms ease, transform 420ms cubic-bezier(.2,.9,.2,1);
-  pointer-events: none;
-}
-.hero-card.hovered .hero-video,
-.hero-card:hover .hero-video {
-  opacity: 0.85;
-  transform: scale(1.03);
-}
-
-/* ensure overlay content remains above the video */
-.hero-card > .z-10 {
-  z-index: 11;
-}
-
-/* move home hover view slightly down so bottom of mp4 is more visible */
-.hover-video.hover-home {
-  object-position: center 13%;
-}
-/* apply same vertical shift to other hover videos */
-.hover-video.hover-about {
-  object-position: center 58%;
-}
-.hover-video.hover-projects {
-  object-position: center 70%;
-}
-.hover-video.hover-contact {
-  object-position: center 25%;
-}
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-.brand-logo {
-  display: block;
-  height: 64px;
-  width: 200px; /* fixed visual width so logo doesn't resize between breakpoints */
-  max-width: 200px;
-  object-fit: contain;
-  flex: 0 0 200px; /* prevent flex shrinking/growing */
-}
-/* keep brand container and link from shrinking when nav toggles */
-.brand {
-  flex: 0 0 auto;
-}
-.brand-link {
-  display: flex;
-  align-items: center;
-  flex: 0 0 auto;
-}
-.brand-text {
-  display: none; /* hidden when logo is present */
-  font-weight: 800;
-  font-size: 1.25rem;
-}
-.brand-text-fallback .brand-text {
-  display: inline-block;
-}
-.navbar-links {
-  display: flex;
-  gap: 3.5rem;
-  align-items: center;
-}
-.navbar-links a {
-  color: inherit;
-  text-decoration: none;
-  display: inline-block;
-  padding: 0.75rem 0.75rem; /* increased vertical hit area */
-  font-size: 1.125rem;
-  position: relative;
-}
-
-/* underline highlight for each nav item (colored bar beneath text) */
-.navbar-links a.nav-link {
-  position: relative;
-  border-radius: 4px;
-  transition: color 180ms ease;
-}
-.navbar-links a .link-text {
-  position: relative;
-  display: inline-block;
-}
-.navbar-links a .link-text::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -6px;
-  height: 4px;
-  width: 0%;
-  background: transparent;
-  border-radius: 2px;
-  transition: width 200ms ease, background-color 200ms ease;
-}
-.navbar-links a.nav-link:hover .link-text::after {
-  width: 100%;
-  background: #ffffff; /* white underline for all links */
-}
-/* text color changes per-link on hover (underline remains white) */
-.navbar-links a.nav-link.home:hover {
-  color: #49f9ff; /* sky blue text */
-}
-.navbar-links a.nav-link.about:hover {
-  color: #32CD32; /* lime green text */
-}
-.navbar-links a.nav-link.projects:hover {
-  color: #FF00FF; /* magenta text */
-}
-.navbar-links a.nav-link.contact:hover {
-  color: #FFEB3B; /* yellow text */
-}
-.navbar-burger {
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.25rem;
-}
-.burger-line {
-  display: block;
-  width: 24px;
-  height: 3px;
-  background: #fff;
-  margin: 4px 0;
-}
-
-/* Close (X) icon for burger when menu is open */
-.burger-close {
-  display: inline-block;
-  color: #fff;
-  font-size: 1.6rem;
-  line-height: 1;
-  font-weight: 700;
-  transform: translateY(-1px);
-}
-
-/* when menu is opened via burger, allow dropdown to be visible outside header */
-.navbar.menu-open {
-  overflow: visible;
-}
-
-@media (max-width: 1000px) {
-  .navbar-links {
-    display: none;
-    position: absolute;
-    right: 0;
-    top: 116px;
-    background: #1e2124;
-    width: 100%;
-    flex-direction: column;
-    padding: 1rem;
-    box-sizing: border-box;
-    z-index: 201;
-  }
-  /* When opened, treat the links as a centered dropdown/modal panel */
-  .navbar-links.open {
-    display: flex;
-    position: fixed;
-    /* align to the right so modal sits inline with burger */
-    right: 2rem; /* more space from the viewport edge */
-    top: 118px;
-    width: 235px; /* reduced width for a more compact look */
-    max-width: calc(100% - 3.5rem);
-    background: rgba(30,33,36,0.92);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    border-radius: 12px;
-    padding: 0.4rem 1rem; /* increased right padding inside the modal */
-    box-shadow: 0 12px 40px rgba(8,10,12,0.6);
-    z-index: 201;
-    flex-direction: column;
-    gap: 0.125rem;
-    align-items: flex-end; /* align items to the right edge of the modal */
-    opacity: 0;
-    transform: translateY(-8px) scale(0.995);
-    transform-origin: right top;
-    animation: dropdownIn 260ms cubic-bezier(.2,.9,.2,1) forwards;
-  }
-
-@keyframes dropdownIn {
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-  .navbar-burger {
-    display: block;
-  }
-}
-
-/* overlay behind mobile dropdown */
-.nav-overlay {
-  position: fixed;
-  inset: 0;
-  background: transparent; /* no dimming per request */
-  z-index: 200;
-  pointer-events: auto;
-}
-
-/* Fancy link entrance + hover */
-.navbar-links a {
-  transform-origin: right center;
-  transition: transform 160ms cubic-bezier(.2,.9,.2,1), color 140ms ease;
-  /* more space to the right and slightly tighter left inset */
-  padding: 0.45rem 1.2rem 0.45rem 0.45rem;
-  text-align: right;
-  border-radius: 8px;
-  width: 100%;
-  box-sizing: border-box;
-}
-.navbar-links.open a {
-  opacity: 0;
-  transform: translateY(-6px) scale(0.995);
-  animation: linkStagger 240ms ease forwards;
-}
-.navbar-links.open a:nth-child(1) { animation-delay: 35ms; }
-.navbar-links.open a:nth-child(2) { animation-delay: 75ms; }
-.navbar-links.open a:nth-child(3) { animation-delay: 115ms; }
-.navbar-links.open a:nth-child(4) { animation-delay: 155ms; }
-
-@keyframes linkStagger {
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.navbar-burger, .burger-close {
-  cursor: pointer;
-  z-index: 401; /* keep button above overlay */
-}
-
-.burger-close {
-  display: inline-block;
-  color: #fff;
-  font-size: 1.6rem;
-  line-height: 1;
-  font-weight: 700;
-  transform: translateY(-1px);
-  user-select: none;
-}
-
-/* Slight divider between items for compact modal */
-.navbar-links.open a + a {
-  margin-top: 0.125rem;
-}
-
-/* Footer styles */
-.site-footer {
-  width: 100%;
-  background: #0A0A0A;
-  color: #dcdcdc;
-  padding: 1.5rem 0;
-  position: relative;
-  z-index: 6;
-}
-.site-footer-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0.5rem 2rem;
-  text-align: center;
-  font-size: 0.95rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-}
-
-/* Apply local Rubber font to navbar and footer */
-.navbar,
-.site-footer {
-  font-family: 'Rubber', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-}
-
-/* Footer character interaction: pointer-based rainbow + scale per character */
-.footer-char {
-  display: inline-block;
-  transition: transform 160ms ease, color 160ms ease;
-  transform-origin: center;
-  will-change: transform, color;
-  font-size: 0.90rem;
-  margin-bottom: 0.5rem;
-}
-.footer-space {
-  display: inline-block;
-  width: 0.5rem;
-}
-.site-footer .site-footer-inner {
-  cursor: default;
-  user-select: none;
-}
-
-/* disclaimer styles */
-.footer-disclaimer {
-  font-size: 0.75rem;
-  color: rgba(220,220,220,0.7);
-  display: block;
-  width: 100%;
-  margin-bottom: 0.2rem;
-  max-width: 1000px;
-  line-height: 1.2;
-  text-align: center;
-}
-.footer-main {
-  display: inline-block;
-  margin-top: 0.35rem;
-}
-
-/* Construction page decorative styles */
-.construction-wrap {
-  position: relative;
-  padding: 2.5rem 1rem;
-  border-radius: 0; /* remove rounded panel */
-  background: transparent; /* no panel background */
-  box-shadow: none; /* remove panel shadow */
-  overflow: visible;
-}
-
-.construction-tape {
-  position: absolute;
-  right: -17vw; /* start well off the left edge so stripe spans entire viewport */
-  top: -16rem;
-  width: 60vw; /* very wide so it stretches across the page */
-  height: 3.5rem;
-  background: repeating-linear-gradient(45deg, #ffde59 0 18px, rgba(0,0,0,0) 18px 36px);
-  transform: rotate(-127deg);
-  border-radius: 6px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
-  opacity: 0.98;
-  pointer-events: none;
-  z-index: 5;
-}
-
-.construction-tape.second {
-  transform: rotate(24deg);
-  top: -11rem;
-  right: -6vw; /* start well off the right edge */
-  left: auto;
-  width: 60vw; /* stretch across the page */
-  z-index: 5;
-}
-
-.construction-tape.third {
-  transform: rotate(19deg);
-  top: auto;
-  bottom: -12rem;
-  right: auto;
-  left: -6vw;
-  width: 60vw; /* stretch across the page */
-  z-index: 5;
-}
-
-.construction-tape.fourth {
-  transform: rotate(58deg);
-  top: auto;
-  bottom: -8rem;
-  right: auto; /* start well off the right edge */
-  left: -22vw;
-  width: 60vw; /* stretch across the page */
-  z-index: 5;
-}
-
-.pulse-glow {
-  animation: pulseFloat 2000ms ease-in-out infinite;
-  text-shadow: 0 6px 18px rgba(255,206,0,0.12), 0 0 10px rgba(255,206,0,0.06);
-}
-
+/* ---------- Keyframes ----------
+   Kept at top level (not inside @theme) so the per-link staggered
+   `animate-[linkStagger_…]` values can reference them too. */
 @keyframes pulseFloat {
   0% { transform: translateY(0); }
   50% { transform: translateY(-6px); }
   100% { transform: translateY(0); }
 }
 
-/* Responsive clamp for very small screens (<=420px) */
-@media (max-width: 420px) {
-  .construction-content { flex-direction: column; gap: 0.5rem; }
-  .construction-content img { width: 112px; height: 112px; /* keep current w-28/h-28 size until clamp point */ }
-  /* clamp down at very small widths: reduce image and text size to fit */
-  .construction-wrap .construction-content img { width: 72px; height: 72px; }
-  .construction-wrap p.rye-font { font-size: 1rem; line-height: 1.1; white-space: normal; }
-  /* reduce tape overshoot on very small screens to avoid overflow */
-  .construction-tape,
-  .construction-tape.second,
-  .construction-tape.third,
-  .construction-tape.fourth {
-    width: 120vw;
-    left: -10vw;
-    right: -10vw;
-  }
-
-  /* Adjust tape positions specifically for very small screens */
-  .construction-tape {
-    transform: rotate(-30deg);
-    top: -12rem;
-    left: -20vw;
-  }
-
-  .construction-tape.fourth {
-    transform: rotate(148deg);
+/* mobile nav dropdown panel */
+@keyframes dropdownIn {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
-/* floating dots removed - decorative bubbles disabled */
+/* mobile nav links, staggered per link */
+@keyframes linkStagger {
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* per-letter glow on the contact heading and submit button */
+@keyframes contactGlow {
+  0% {
+    filter: drop-shadow(0 0 0 rgba(255,200,160,0));
+    transform: translateY(0) scale(1);
+    opacity: 0.95;
+  }
+  40% {
+    filter: drop-shadow(0 0 18px rgba(255,180,120,0.36));
+    transform: translateY(-3px) scale(1.02);
+    opacity: 1;
+  }
+  100% {
+    filter: drop-shadow(0 0 0 rgba(255,200,160,0));
+    transform: translateY(0) scale(1);
+    opacity: 0.95;
+  }
+}
+
+/* per-letter wave on the project "Visit Page" buttons */
+@keyframes visitGlow {
+  0% {
+    filter: drop-shadow(0 0 0 rgba(255,200,160,0));
+    transform: translateY(0);
+    opacity: 0.95;
+  }
+  40% {
+    filter: drop-shadow(0 0 18px rgba(255,180,120,0.36));
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+  100% {
+    filter: drop-shadow(0 0 0 rgba(255,200,160,0));
+    transform: translateY(0);
+    opacity: 0.95;
+  }
+}
+
+/* "images will cycle" dot on hovered stacked project cards */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

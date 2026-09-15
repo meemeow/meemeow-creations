@@ -1,39 +1,55 @@
 "use client";
-import "../css/project.css";
-import { useState, useRef, useEffect, type MutableRefObject } from "react";
+import { useState, useRef, useEffect } from "react";
+import ProjectCard from "@/components/sections/ProjectCard";
+import ProjectRow from "@/components/sections/ProjectRow";
+import WaveText from "@/components/sections/WaveText";
+import { projects } from "@/data/projects";
 
-function WaveText({ text }: { text: string }) {
-  return (
-    <>
-      {text.split("").map((ch, i) =>
-        ch === " " ? (
-          <span key={i} className="glow-letter-space" aria-hidden="true">&nbsp;</span>
-        ) : (
-          <span key={i} className="wave-char" style={{ animationDelay: `${i * 80}ms` }}>
-            {ch}
-          </span>
-        )
-      )}
-    </>
-  );
-}
+// Each project pops in (fade + slide up) when the page adds `in-view`;
+// `already-seen` shows it instantly when returning within the same tab.
+const REVEAL =
+  "opacity-0 will-change-[transform,opacity] [transform:translateY(18px)] [transition:transform_420ms_ease-out,opacity_420ms_ease] " +
+  "[&.in-view]:opacity-100 [&.in-view:not(.already-seen)]:[transform:translateY(0)] " +
+  "[&.already-seen]:opacity-100 [&.already-seen]:[transform:translateY(0)_scale(1)] [&.already-seen]:[transition:none]";
+
+// Title / description / button block beside each card. Lifts slightly when the project is hovered (>940px).
+const META =
+  "[transition:transform_220ms_cubic-bezier(.2,.9,.2,1),opacity_220ms_ease] will-change-[transform,opacity] " +
+  "upto-639:text-center upto-467:px-2 upto-467:py-1 min-[1024px]:upto-1279:gap-[0.4rem]";
+
+// Project title and description scale down fluidly on mid-size and small screens.
+const TITLE =
+  "font-rye font-semibold text-[2.2rem] tracking-[0.2px] " +
+  "upto-940:text-[clamp(2.1rem,2.4vw+1rem,2.4rem)] upto-940:leading-[1.05] " +
+  "min-[1024px]:upto-1279:text-[clamp(1.4rem,1vw+0.9rem,1.9rem)] above-1279:upto-1439:text-[clamp(1.6rem,1.2vw+1rem,2rem)]";
+const TITLE_STACKED = "min-[941px]:upto-1023:text-[clamp(1.3rem,2.1rem+0.85rem,1.54rem)]";
+
+const DESC =
+  "font-gotham font-medium text-gray-300 text-[1.0625rem] leading-[1.5] " +
+  "upto-940:text-[clamp(0.88rem,0.6vw+0.56rem,1rem)] upto-940:leading-[1.45] " +
+  "min-[1024px]:upto-1279:text-[clamp(0.8rem,0.6vw+0.55rem,0.95rem)] min-[1024px]:upto-1279:leading-[1.4] " +
+  "above-1279:upto-1439:text-[clamp(0.875rem,0.8vw+0.6rem,1rem)] above-1279:upto-1439:leading-[1.45]";
+const DESC_STACKED = "min-[941px]:upto-1023:text-[clamp(0.78rem,0.5vw+0.56rem,0.92rem)] min-[941px]:upto-1023:leading-[1.42]";
+
+// Black "Visit Page" pill (same visual language as the contact submit button).
+// Compact at 1024–1279px, 70% wide and centered on small screens, full-width block ≤467px.
+const VISIT =
+  "inline-flex cursor-pointer items-center justify-center rounded-[10px] border border-[rgba(255,255,255,0.08)] bg-black px-6 py-[0.64rem] font-gotham font-medium text-white no-underline " +
+  "[box-shadow:0_6px_22px_rgba(0,0,0,0.6),0_0_10px_rgba(255,255,255,0.04)_inset] " +
+  "[transition:transform_160ms_cubic-bezier(.2,.9,.2,1),box-shadow_160ms_ease,background_160ms_ease,border-color_160ms_ease,color_160ms_ease] " +
+  "focus:[outline:none] focus:[box-shadow:0_0_0_3px_rgba(255,230,216,0.12)] active:[transform:scale(0.96)_translateY(2px)] [&:active:not(:focus)]:[box-shadow:0_2px_8px_rgba(0,0,0,0.6)] " +
+  "min-[1024px]:upto-1279:rounded-lg min-[1024px]:upto-1279:px-4 min-[1024px]:upto-1279:py-2 min-[1024px]:upto-1279:text-[clamp(0.85rem,0.4vw+0.7rem,0.95rem)] " +
+  "upto-940:min-w-[120px] upto-940:max-w-[220px] above-467:upto-940:w-[70%] above-467:upto-940:px-[0.9rem] above-467:upto-940:py-[0.65rem] above-467:upto-940:text-[0.95rem] " +
+  "above-467:upto-639:mx-auto above-467:upto-639:flex " +
+  "upto-467:mx-auto upto-467:my-2 upto-467:block upto-467:w-[90%] upto-467:px-[0.7rem] upto-467:py-[0.48rem] upto-467:text-[0.85rem]";
+const VISIT_STACKED =
+  "min-[941px]:upto-1023:rounded-lg min-[941px]:upto-1023:px-[0.9rem] min-[941px]:upto-1023:py-[0.45rem] min-[941px]:upto-1023:text-[clamp(0.8rem,0.36vw+0.68rem,0.95rem)]";
 
 export default function Projects() {
   const [view, setView] = useState<"masonry" | "stacked">("masonry");
   const masonryRef = useRef<HTMLElement | null>(null);
   const stackedRef = useRef<HTMLElement | null>(null);
   const [showViewToggle, setShowViewToggle] = useState(true);
-
-  const projects = [
-    {
-      id: 1,
-      title: "ePasigLib",
-      desc: "A Web & Mobile OPAC and Library System with Record and Circulation Automation using NFC and Barcodes for Pasig City Library ",
-      url: "https://epasiglibrary.com/opac/home",
-    },
-    { id: 2, title: "The Cat Platformer", desc: "A Platforming Game inspired by Mario and Terraria", url: "https://catplatformer.vercel.app/games" },
-    { id: 3, title: "Meemeow's GitCafe", desc: "A Simple Coffee Ordering Platform", url: "https://meemeow.github.io/AWD-FINALS/" },
-  ];
 
   // Refs for cleanup/timeouts/observer
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -73,13 +89,13 @@ export default function Projects() {
         l.classList.remove('visible');
         try {
           l.style.backgroundImage = '';
-        } catch (e) {
+        } catch {
           /* ignore */
         }
       });
     }
 
-    const win = window as unknown as Record<string, any>;
+    const win = window as unknown as Record<string, unknown>;
     const container = view === "masonry" ? masonryRef.current : stackedRef.current;
     if (!container) return;
 
@@ -139,9 +155,11 @@ export default function Projects() {
 
   return (
     <main className="min-h-screen bg-[#191b1dff] text-white">
-      <div className="projects-container max-w-8xl px-6 py-12">
-        <header className="flex items-center justify-between mb-12">
-          <h2 className="rye-font text-4xl md:text-5xl font-semibold">My Projects</h2>
+      <div className="max-w-8xl mx-8 px-6 py-12 [transition:margin-inline_220ms_ease,padding_220ms_ease] upto-639:mx-4 min-[768px]:mx-12 min-[1024px]:mx-20 min-[1280px]:mx-24 min-[1440px]:mx-28 min-[1600px]:mx-32 min-[1920px]:mx-36 min-[2560px]:mx-42 min-[3200px]:mx-48 upto-467:px-[12px]">
+        <header className="mb-12 flex items-center justify-between upto-467:mb-[0.9rem] upto-376:justify-center">
+          <h2 className="font-rye text-4xl font-semibold md:text-5xl min-[941px]:upto-1023:text-[clamp(2.5rem,2.4vw+1rem,3rem)]! min-[941px]:upto-1023:leading-[1.08]! min-[1024px]:upto-1279:text-[clamp(2.6rem,2.4vw+1rem,3rem)]! min-[1024px]:upto-1279:leading-[1.06]! upto-467:mb-[24px] upto-376:w-full upto-376:text-center">
+            My Projects
+          </h2>
           {showViewToggle && (
             <div className="flex items-center gap-3">
             <button
@@ -183,17 +201,27 @@ export default function Projects() {
 
         {/* Content */}
         {view === "masonry" ? (
-          <section ref={masonryRef} className="flex flex-col gap-30 masonry-list">
+          <section
+            ref={masonryRef}
+            className="flex flex-col gap-[240px] [transition:gap_260ms_ease] min-[1024px]:upto-1439:gap-[clamp(120px,calc(120px+(100vw-1024px)*0.2884615385),240px)]"
+          >
             {projects.map((p) => {
               const isEven = p.id % 2 === 0;
               return (
-                <article key={p.id} className={`project-item group w-full flex items-center gap-6 ${isEven ? "md:flex-row-reverse" : ""}`}>
+                <article
+                  key={p.id}
+                  className={`project-item group flex w-full items-center gap-6 ${REVEAL} min-[768px]:px-[2px] min-[768px]:py-[6px] upto-940:flex-col upto-940:items-stretch upto-467:gap-4 ${isEven ? "above-940:flex-row-reverse" : ""}`}
+                >
                   <ProjectCard p={p} isEven={isEven} />
-                  <div className={`w-full md:w-2/5 project-meta ${isEven ? "md:text-left md:pr-4" : "md:text-right md:pl-4"}`}>
-                    <div className="rye-font font-semibold mb-1">{p.title}</div>
-                    <div className="text-gray-300 gotham-medium">{p.desc}</div>
+                  <div
+                    className={`${META} w-full md:w-2/5 above-639:upto-940:text-right above-940:[.project-item:hover_&]:[transform:translateY(-6px)_scale(1.02)] ${
+                      isEven ? "md:pr-4 above-940:text-left" : "md:pl-4 above-940:text-right"
+                    }`}
+                  >
+                    <div className={`mb-1 ${TITLE}`}>{p.title}</div>
+                    <div className={DESC}>{p.desc}</div>
                     <div className="mt-4">
-                      <a aria-label={`Visit ${p.title}`} href={p.url ?? "#"} target="_blank" rel="noopener noreferrer" className="visit-button">
+                      <a aria-label={`Visit ${p.title}`} href={p.url ?? "#"} target="_blank" rel="noopener noreferrer" className={VISIT}>
                         <WaveText text="Visit Page" />
                       </a>
                     </div>
@@ -205,13 +233,16 @@ export default function Projects() {
         ) : (
           <section ref={stackedRef} className="flex flex-col gap-8">
             {projects.map((p) => (
-              <article key={p.id} className="flex items-center gap-8 project-row">
+              <article
+                key={p.id}
+                className={`project-row flex items-center gap-8 ${REVEAL} upto-940:flex-col upto-940:items-stretch upto-467:gap-4`}
+              >
                 <ProjectRow p={p} />
-                <div className="w-full md:w-2/5 project-meta text-right">
-                  <div className="rye-font font-semibold mb-2">{p.title}</div>
-                  <div className="text-gray-300 whitespace-pre-line gotham-medium">{p.desc}</div>
+                <div className={`${META} w-full text-right above-940:w-2/5 above-940:[.project-row:hover_&]:[transform:translateY(-6px)_scale(1.02)]`}>
+                  <div className={`mb-2 ${TITLE} ${TITLE_STACKED}`}>{p.title}</div>
+                  <div className={`whitespace-pre-line ${DESC} ${DESC_STACKED}`}>{p.desc}</div>
                   <div className="mt-4">
-                    <a aria-label={`Visit ${p.title}`} href={p.url ?? "#"} target="_blank" rel="noopener noreferrer" className="visit-button">
+                    <a aria-label={`Visit ${p.title}`} href={p.url ?? "#"} target="_blank" rel="noopener noreferrer" className={`${VISIT} ${VISIT_STACKED}`}>
                       <WaveText text="Visit page" />
                     </a>
                   </div>
@@ -222,221 +253,5 @@ export default function Projects() {
         )}
       </div>
     </main>
-  );
-}
-
-// Per-project preview and alternate images
-const previewMap: Record<number, string> = {
-  1: "library_preview.png",
-  2: "cat_preview.png",
-  3: "cafe_preview.png",
-};
-
-const altImagesMap: Record<number, string[]> = {
-  1: ["/assets/images/library1.png", "/assets/images/library2.png", "/assets/images/library3.png", "/assets/images/library_preview.png"],
-  2: ["/assets/images/cat1.png", "/assets/images/cat2.png", "/assets/images/cat3.png", "/assets/images/cat_preview.png"],
-  3: ["/assets/images/cafe1.png", "/assets/images/cafe2.png", "/assets/images/cafe3.png", "/assets/images/cafe_preview.png"],
-};
-
-function ProjectCard({ p, isEven }: { p: { id: number; title: string; desc: string; url?: string }; isEven: boolean }) {
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const cycleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const altARef = useRef<HTMLDivElement | null>(null);
-  const altBRef = useRef<HTMLDivElement | null>(null);
-  const activeRef = useRef<"a" | "b">("a");
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      if (cycleRef.current) clearTimeout(cycleRef.current);
-      // Ensure any visible alt layers are hidden and their backgrounds cleared
-      hideLayer(altARef);
-      hideLayer(altBRef);
-      if (altARef.current) altARef.current.style.backgroundImage = "";
-      if (altBRef.current) altBRef.current.style.backgroundImage = "";
-      activeRef.current = "a";
-    };
-  }, []);
-
-  const altImages = altImagesMap[p.id] ?? [];
-  const previewName = previewMap[p.id];
-  const hasPreview = !!previewName;
-
-  const setLayerBg = (ref: MutableRefObject<HTMLDivElement | null>, src: string) => {
-    if (ref.current) ref.current.style.backgroundImage = `url('${src}')`;
-  };
-
-  const showLayer = (ref: MutableRefObject<HTMLDivElement | null>) => {
-    if (ref.current) ref.current.classList.add("visible");
-  };
-  const hideLayer = (ref: MutableRefObject<HTMLDivElement | null>) => {
-    if (ref.current) ref.current.classList.remove("visible");
-  };
-
-  const triggerCycle = () => {
-    if (!altImages.length) return;
-    if (timerRef.current) clearTimeout(timerRef.current);
-    if (cycleRef.current) clearTimeout(cycleRef.current);
-    let idx = 0;
-    setLayerBg(altARef, altImages[0]);
-    showLayer(altARef);
-    activeRef.current = "a";
-    const advance = () => {
-      idx = (idx + 1) % altImages.length;
-      const nextLayer = activeRef.current === "a" ? altBRef : altARef;
-      const prevLayer = activeRef.current === "a" ? altARef : altBRef;
-      setLayerBg(nextLayer, altImages[idx]);
-      showLayer(nextLayer);
-      hideLayer(prevLayer);
-      activeRef.current = activeRef.current === "a" ? "b" : "a";
-      cycleRef.current = setTimeout(advance, 3000);
-    };
-    cycleRef.current = setTimeout(advance, 3000);
-  };
-
-  const handleClear = () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    if (cycleRef.current) clearTimeout(cycleRef.current);
-    hideLayer(altARef);
-    hideLayer(altBRef);
-  };
-
-  return (
-    <div className={`flex flex-col md:flex-row items-center gap-6 w-full ${isEven ? "md:flex-row-reverse" : ""}`}>
-      <div
-        className={`project-card masonry-card w-full md:w-full ${hasPreview ? "library_preview" : ""}`}
-        style={hasPreview ? { backgroundImage: `url('/assets/images/${previewName}')` } : undefined}
-        onMouseEnter={() => hasPreview && triggerCycle()}
-        onMouseLeave={() => hasPreview && handleClear()}
-        onTouchStart={() => hasPreview && triggerCycle()}
-        onTouchEnd={() => hasPreview && handleClear()}
-      >
-        {hasPreview && (
-          <>
-            <div ref={altARef} className="alt-layer" />
-            <div ref={altBRef} className="alt-layer" />
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function ProjectRow({ p }: { p: { id: number; title: string; desc: string; url?: string } }) {
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const cycleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const expandTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null); // NEW: Timer for expansion delay
-  const altARef = useRef<HTMLDivElement | null>(null);
-  const altBRef = useRef<HTMLDivElement | null>(null);
-  const activeRef = useRef<"a" | "b">("a");
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      if (cycleRef.current) clearTimeout(cycleRef.current);
-      if (expandTimerRef.current) clearTimeout(expandTimerRef.current); // NEW: Clear expansion timer
-      // Ensure any visible alt layers are hidden and their backgrounds cleared
-      hideLayer(altARef);
-      hideLayer(altBRef);
-      if (altARef.current) altARef.current.style.backgroundImage = "";
-      if (altBRef.current) altBRef.current.style.backgroundImage = "";
-      activeRef.current = "a";
-    };
-  }, []);
-
-  const altImages = altImagesMap[p.id] ?? [];
-  const previewName = previewMap[p.id];
-  const hasPreview = !!previewName;
-
-  const setLayerBg = (ref: MutableRefObject<HTMLDivElement | null>, src: string) => {
-    if (ref.current) ref.current.style.backgroundImage = `url('${src}')`;
-  };
-
-  const showLayer = (ref: MutableRefObject<HTMLDivElement | null>) => {
-    if (ref.current) ref.current.classList.add("visible");
-  };
-  const hideLayer = (ref: MutableRefObject<HTMLDivElement | null>) => {
-    if (ref.current) ref.current.classList.remove("visible");
-  };
-
-  const triggerCycle = () => {
-    if (!altImages.length) return;
-    if (timerRef.current) clearTimeout(timerRef.current);
-    if (cycleRef.current) clearTimeout(cycleRef.current);
-    
-    let idx = 0;
-    setLayerBg(altARef, altImages[0]);
-    showLayer(altARef);
-    activeRef.current = "a";
-    
-    const advance = () => {
-      idx = (idx + 1) % altImages.length;
-      const nextLayer = activeRef.current === "a" ? altBRef : altARef;
-      const prevLayer = activeRef.current === "a" ? altARef : altBRef;
-      setLayerBg(nextLayer, altImages[idx]);
-      showLayer(nextLayer);
-      hideLayer(prevLayer);
-      activeRef.current = activeRef.current === "a" ? "b" : "a";
-      cycleRef.current = setTimeout(advance, 3000);
-    };
-    
-    // Start cycling after 2 seconds (2000ms) instead of 3
-    cycleRef.current = setTimeout(advance, 2000);
-  };
-
-  const handleClear = () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    if (cycleRef.current) clearTimeout(cycleRef.current);
-    if (expandTimerRef.current) clearTimeout(expandTimerRef.current); // NEW: Clear expansion timer
-    hideLayer(altARef);
-    hideLayer(altBRef);
-  };
-
-  const handleMouseEnter = () => {
-    if (!hasPreview) return;
-    
-    // Clear any existing timers
-    if (expandTimerRef.current) clearTimeout(expandTimerRef.current);
-    if (cycleRef.current) clearTimeout(cycleRef.current);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    
-    // Start the image cycle after 2 seconds delay
-    expandTimerRef.current = setTimeout(() => {
-      triggerCycle();
-    }, 2000);
-  };
-
-  const handleTouchStart = () => {
-    if (!hasPreview) return;
-    
-    // Clear any existing timers
-    if (expandTimerRef.current) clearTimeout(expandTimerRef.current);
-    if (cycleRef.current) clearTimeout(cycleRef.current);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    
-    // Start the image cycle after 2 seconds delay
-    expandTimerRef.current = setTimeout(() => {
-      triggerCycle();
-    }, 2000);
-  };
-
-  return (
-    <div className="w-full md:w-3/5">
-      <div
-        className={`project-card stacked-card bg-white/5 rounded-xl border-2 border-black/80 ${hasPreview ? "library_preview" : ""}`}
-        style={hasPreview ? { backgroundImage: `url('/assets/images/${previewName}')` } : undefined}
-        onMouseEnter={handleMouseEnter} // UPDATED: Use new handler
-        onMouseLeave={handleClear}
-        onTouchStart={handleTouchStart} // UPDATED: Use new handler
-        onTouchEnd={handleClear}
-      >
-        {hasPreview && (
-          <>
-            <div ref={altARef} className="alt-layer" />
-            <div ref={altBRef} className="alt-layer" />
-          </>
-        )}
-      </div>
-    </div>
   );
 }

@@ -4,7 +4,7 @@ import React, { useRef, useEffect } from "react";
 
 export default function Footer() {
   const disclaimer = "Minecraft is a trademark of Mojang Studios. Any other trademarks are the property of their respective holders.";
-  const text = "© 2025 Emerson Clamor. All rights reserved."
+  const text = `© ${new Date().getFullYear()} Emerson Clamor. All rights reserved.`
   const containerRef = useRef<HTMLDivElement | null>(null);
   const spanRefs = useRef<Array<HTMLSpanElement | null>>([]);
 
@@ -43,25 +43,25 @@ export default function Footer() {
   };
 
   return (
-    <footer className="site-footer">
+    <footer className="relative z-6 mt-auto w-full shrink-0 bg-[#0A0A0A] py-6 font-rubber text-[#dcdcdc]">
       <div
-        className="site-footer-inner"
+        className="mx-auto flex max-w-[1200px] cursor-default flex-col items-center justify-center gap-[0.6rem] px-8 py-2 text-center text-[0.95rem] select-none"
         ref={containerRef}
         onPointerMove={handleMove}
         onPointerLeave={handleLeave}
       >
-        <div className="footer-main">
+        <div className="mt-[0.35rem] inline-block">
           {Array.from(text).map((ch, i) => (
             <span
               key={i}
               ref={(el) => { spanRefs.current[i] = el; }}
-              className={ch === " " ? "footer-char footer-space" : "footer-char"}
+              className={`mb-2 inline-block origin-center text-[0.90rem] will-change-[transform,color] [transition:transform_160ms_ease,color_160ms_ease] ${ch === " " ? "w-2" : ""}`}
             >
               {ch === " " ? "\u00A0" : ch}
             </span>
           ))}
         </div>
-        <div className="footer-disclaimer" role="note" aria-label="Legal disclaimer">{disclaimer}</div>
+        <div className="mb-[0.2rem] block w-full max-w-[1000px] text-center text-[0.75rem] leading-[1.2] text-[rgba(220,220,220,0.7)]" role="note" aria-label="Legal disclaimer">{disclaimer}</div>
       </div>
     </footer>
   );
