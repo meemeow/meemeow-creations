@@ -109,6 +109,27 @@ export default function Navbar() {
     }
   }, [active]);
 
+  // Phones pause a decoder on their own under memory/battery pressure (the
+  // contact page runs a second video, which makes it likelier). If the active
+  // clip stops without us asking, start it again.
+  useEffect(() => {
+    if (!active) return;
+    const v = videoRefs.current[active];
+    if (!v) return;
+    const resume = () => {
+      if (document.hidden) return;
+      v.play().catch(() => {});
+    };
+    v.addEventListener("pause", resume);
+    v.addEventListener("stalled", resume);
+    v.addEventListener("ended", resume);
+    return () => {
+      v.removeEventListener("pause", resume);
+      v.removeEventListener("stalled", resume);
+      v.removeEventListener("ended", resume);
+    };
+  }, [active]);
+
   // Don't keep decoding while the tab is in the background; pick the clip back
   // up on return.
   useEffect(() => {
