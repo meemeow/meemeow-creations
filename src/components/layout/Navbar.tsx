@@ -165,7 +165,7 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`fixed top-0 right-0 left-0 z-100 flex h-[116px] items-center bg-[#0A0A0A] font-rubber text-white max-2xl:h-[99px] max-lg:h-[81px] ${
+        className={`relative z-100 flex h-[116px] w-full shrink-0 items-center bg-[#0A0A0A] font-rubber text-white max-2xl:h-[99px] max-lg:h-[81px] ${
           open ? "overflow-visible" : "overflow-hidden"
         }`}
       >
@@ -293,7 +293,7 @@ export default function Navbar() {
           className={`relative z-400 flex items-center gap-14 above-1279:upto-1535:gap-10 min-[1001px]:upto-1279:gap-7 upto-1000:z-201 upto-1000:box-border upto-1000:flex-col ${
             open
               ? // mobile dropdown panel
-                "upto-1000:fixed upto-1000:top-[118px] max-lg:top-[83px]! upto-1000:right-8 upto-1000:w-[235px] upto-1000:max-w-[calc(100%-3.5rem)] upto-1000:origin-top-right upto-1000:animate-dropdown-in upto-1000:items-end upto-1000:gap-0.5 upto-1000:rounded-xl upto-1000:bg-[rgba(30,33,36,0.92)] upto-1000:px-4 upto-1000:py-[0.4rem] upto-1000:opacity-0 upto-1000:[box-shadow:0_12px_40px_rgba(8,10,12,0.6)] upto-1000:[transform:translateY(-8px)_scale(0.995)] upto-1000:backdrop-blur-[6px]"
+                "upto-1000:absolute upto-1000:top-[118px] max-lg:top-[83px]! upto-1000:right-8 upto-1000:w-[235px] upto-1000:max-w-[calc(100%-3.5rem)] upto-1000:origin-top-right upto-1000:animate-dropdown-in upto-1000:items-end upto-1000:gap-0.5 upto-1000:rounded-xl upto-1000:bg-[rgba(30,33,36,0.92)] upto-1000:px-4 upto-1000:py-[0.4rem] upto-1000:opacity-0 upto-1000:[box-shadow:0_12px_40px_rgba(8,10,12,0.6)] upto-1000:[transform:translateY(-8px)_scale(0.995)] upto-1000:backdrop-blur-[6px]"
               : "upto-1000:absolute upto-1000:top-[116px] max-lg:top-[81px]! upto-1000:right-0 upto-1000:hidden upto-1000:w-full upto-1000:bg-[#1e2124] upto-1000:p-4"
           }`}
         >
@@ -338,8 +338,6 @@ export default function Navbar() {
         )}
       </div>
     </header>
-      {/* spacer keeps page content from being overlapped by the fixed navbar */}
-      <div className="block h-[116px] w-full shrink-0 max-2xl:h-[99px] max-lg:h-[81px]" />
     </>
   );
 }

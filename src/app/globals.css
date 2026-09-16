@@ -108,6 +108,7 @@
   --animate-contact-glow: contactGlow 3.2s ease-in-out infinite;
   --animate-visit-glow: visitGlow 3.2s ease-in-out infinite;
   --animate-indicator-in: fadeIn 0.3s ease 1.5s forwards;
+  --animate-arrow-bounce: arrowBounce 1.8s cubic-bezier(.4,0,.2,1) infinite;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -181,4 +182,11 @@
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* back-to-top arrow: a small hop upward, with a pause between hops */
+@keyframes arrowBounce {
+  0%, 55%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-4px); }
+  40% { transform: translateY(-1px); }
 }
