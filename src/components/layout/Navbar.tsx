@@ -45,7 +45,21 @@ export default function Navbar() {
   // videos work on phones too. Clicking the logo clears it, leaving the plain
   // #0A0A0A header. Hovering another link still wins while the pointer is on it.
   const [pinned, setPinned] = useState<NavKey | null>(null);
-  const active = activeHover ?? pinned;
+  const target = activeHover ?? pinned;
+  // Sweeping the pointer across the links used to rewind and restart a 1080p
+  // decoder per link passed, which could stall the page. The clip only switches
+  // once the pointer settles for a moment; leaving still clears instantly.
+  const [active, setActive] = useState<NavKey | null>(null);
+
+  useEffect(() => {
+    if (target === active) return;
+    if (!target) {
+      setActive(null);
+      return;
+    }
+    const t = setTimeout(() => setActive(target), 90);
+    return () => clearTimeout(t);
+  }, [target, active]);
   // One <video> per link, so hovering just rewinds/plays an already-loaded clip
   // instead of swapping `src` + load(), which re-downloaded a ~70MB file and
   // rebuilt the decoder on every hover and could freeze the page.
@@ -86,12 +100,27 @@ export default function Navbar() {
       const v = videoRefs.current[key];
       if (!v) continue;
       if (key === active) {
-        if (v.currentTime !== 0) v.currentTime = 0;
-        v.play().catch(() => {});
+        // only seek when it actually sits somewhere else; seeking is the expensive part
+        if (v.currentTime > 0.05) v.currentTime = 0;
+        if (v.paused) v.play().catch(() => {});
       } else if (!v.paused) {
         v.pause();
       }
     }
+  }, [active]);
+
+  // Don't keep decoding while the tab is in the background; pick the clip back
+  // up on return.
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.hidden) {
+        for (const { key } of NAV_ITEMS) videoRefs.current[key]?.pause();
+      } else if (active) {
+        videoRefs.current[active]?.play().catch(() => {});
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
   }, [active]);
 
   // Close mobile menu automatically when resizing past the mobile breakpoint
@@ -133,7 +162,7 @@ export default function Navbar() {
             ref={(el) => {
               videoRefs.current[key] = el;
             }}
-            src={`/assets/others/${key}_hover.mp4`}
+            src={`/assets/others/${key}.mp4`}
             className={`absolute top-0 left-0 h-[166px] w-full origin-top object-cover [transform:scaleY(0.6988)] max-2xl:[transform:scaleY(0.5964)] max-lg:[transform:scaleY(0.488)] ${VIDEO_POSITION[key]} ${
               key === lastHover ? "block" : "hidden"
             }`}
