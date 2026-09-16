@@ -176,8 +176,8 @@ export default function Contact() {
 
                             <div className="flex items-center gap-3 break-words upto-768:justify-center">
                                 <img src="/assets/images/gmail.jpg" alt="Gmail" className="w-5 h-5 object-contain" />
-                                <a href="mailto:emerson.clamor.prof@gmail.com" className="underline-offset-2 hover:underline">
-                                    emerson.clamor.prof@gmail.com
+                                <a href="mailto:emerson.clamor.dev@gmail.com" className="underline-offset-2 hover:underline">
+                                    emerson.clamor.dev@gmail.com
                                 </a>
                             </div>
 

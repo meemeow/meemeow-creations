@@ -12,4 +12,4 @@ export function createTransporter() {
 }
 
 export const mailFrom = () => process.env.FROM_EMAIL || 'no-reply@example.com';
-export const mailTo = () => process.env.TO_EMAIL || 'emerson.clamor.prof@gmail.com';
+export const mailTo = () => process.env.TO_EMAIL || 'emerson.clamor.dev@gmail.com';

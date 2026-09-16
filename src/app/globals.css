@@ -34,7 +34,7 @@
 /* ---------- Fonts ---------- */
 @font-face {
   font-family: 'Rubber';
-  src: url('/assets/fonts/rubber.TTF') format('truetype');
+  src: url('/assets/fonts/RubberBiscuit-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -42,7 +42,7 @@
 
 @font-face {
   font-family: 'FleurDeLeah';
-  src: url('/assets/fonts/FleurDeLeah.ttf') format('truetype');
+  src: url('/assets/fonts/FleurDeLeah-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -58,21 +58,21 @@
 
 @font-face {
   font-family: 'Gotham';
-  src: url('/assets/fonts/Gotham%20Fonts%20Family/Gotham-Black.otf') format('opentype');
+  src: url('/assets/fonts/Gotham-Black.otf') format('opentype');
   font-weight: 800;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Gotham';
-  src: url('/assets/fonts/Gotham%20Fonts%20Family/Gotham-Medium.otf') format('opentype');
+  src: url('/assets/fonts/Gotham-Medium.otf') format('opentype');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Gotham';
-  src: url('/assets/fonts/Gotham%20Fonts%20Family/Gotham-Light.otf') format('opentype');
+  src: url('/assets/fonts/Gotham-Light.otf') format('opentype');
   font-weight: 300;
   font-style: normal;
   font-display: swap;

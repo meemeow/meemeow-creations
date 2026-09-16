@@ -41,14 +41,19 @@ export default function Navbar() {
   const [lastHover, setLastHover] = useState<
     "home" | "about" | "projects" | "contact" | null
   >(null);
+  // A clicked/tapped link keeps its clip playing after the pointer leaves, so the
+  // videos work on phones too. Clicking the logo clears it, leaving the plain
+  // #0A0A0A header. Hovering another link still wins while the pointer is on it.
+  const [pinned, setPinned] = useState<NavKey | null>(null);
+  const active = activeHover ?? pinned;
   // One <video> per link, so hovering just rewinds/plays an already-loaded clip
   // instead of swapping `src` + load(), which re-downloaded a ~70MB file and
   // rebuilt the decoder on every hover and could freeze the page.
   const videoRefs = useRef<Partial<Record<NavKey, HTMLVideoElement | null>>>({});
 
   useEffect(() => {
-    if (activeHover) setLastHover(activeHover);
-  }, [activeHover]);
+    if (active) setLastHover(active);
+  }, [active]);
 
   const clearLeaveTimer = () => {
     if (leaveTimer.current) {
@@ -75,19 +80,19 @@ export default function Navbar() {
   };
 
   useEffect(() => {
-    // play the hovered link's clip from the start and pause the others. They're
+    // play the active link's clip from the start and pause the others. They're
     // rewound when hovered next, not here, so fast hovering doesn't seek twice.
     for (const { key } of NAV_ITEMS) {
       const v = videoRefs.current[key];
       if (!v) continue;
-      if (key === activeHover) {
+      if (key === active) {
         if (v.currentTime !== 0) v.currentTime = 0;
         v.play().catch(() => {});
       } else if (!v.paused) {
         v.pause();
       }
     }
-  }, [activeHover]);
+  }, [active]);
 
   // Close mobile menu automatically when resizing past the mobile breakpoint
   useEffect(() => {
@@ -110,15 +115,16 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`fixed top-0 right-0 left-0 z-100 flex h-[116px] items-center bg-[#0A0A0A] font-rubber text-white ${
+        className={`fixed top-0 right-0 left-0 z-100 flex h-[116px] items-center bg-[#0A0A0A] font-rubber text-white max-2xl:h-[99px] max-lg:h-[81px] ${
           open ? "overflow-visible" : "overflow-hidden"
         }`}
       >
       {/* hover videos: the layer fades in/out; switching links swaps clips instantly.
-          Each keeps its 166px framing, squished to fit the 116px header (116 / 166). */}
+          Each keeps its 166px framing, squished to fit the header it sits in:
+          116 / 166 at 2xl, 99 / 166 below 2xl, 81 / 166 below lg. */}
       <div
         className={`pointer-events-none absolute inset-0 z-0 [transition:opacity_200ms_ease] ${
-          activeHover ? "opacity-100" : "opacity-0"
+          active ? "opacity-100" : "opacity-0"
         }`}
       >
         {NAV_ITEMS.map(({ key }) => (
@@ -128,7 +134,7 @@ export default function Navbar() {
               videoRefs.current[key] = el;
             }}
             src={`/assets/others/${key}_hover.mp4`}
-            className={`absolute top-0 left-0 h-[166px] w-full origin-top object-cover [transform:scaleY(0.6988)] ${VIDEO_POSITION[key]} ${
+            className={`absolute top-0 left-0 h-[166px] w-full origin-top object-cover [transform:scaleY(0.6988)] max-2xl:[transform:scaleY(0.5964)] max-lg:[transform:scaleY(0.488)] ${VIDEO_POSITION[key]} ${
               key === lastHover ? "block" : "hidden"
             }`}
             loop
@@ -139,7 +145,7 @@ export default function Navbar() {
         ))}
       </div>
       <div
-        className="flex w-full items-center justify-between px-12"
+        className="flex w-full items-center justify-between px-12 max-2xl:px-10 max-lg:px-8"
         onMouseLeave={() => {
           scheduleCollapse();
         }}
@@ -159,25 +165,30 @@ export default function Navbar() {
             onClick={() => {
               setLinkHover(false);
               setOpen(false);
+              // back to the plain #0A0A0A header
+              setPinned(null);
+              setActiveHover(null);
             }}
           >
             <Image
               src="/assets/images/logotext.png"
               alt="Meemeow logo"
-              className="block h-16 w-[200px] max-w-[200px] flex-[0_0_200px] object-contain upto-420:hidden"
+              className="block h-16 w-[200px] max-w-[200px] flex-[0_0_200px] object-contain max-2xl:h-[54px] max-2xl:w-[170px] max-2xl:max-w-[170px] max-2xl:flex-[0_0_170px] max-lg:h-[45px] max-lg:w-[140px] max-lg:max-w-[140px] max-lg:flex-[0_0_140px] upto-420:hidden"
               width={200}
               height={64}
             />
-            {/* icon-only logo for narrow screens (≤420px). The file is the left
-                386px of logotext.png, so it's drawn at the same 64px height and
-                shifted by the same centering gap the full logo gets inside its
-                200px box — the icon doesn't move or resize when they swap. */}
+            {/* icon-only logo for narrow screens (≤420px), which are always below lg,
+                so it matches the short header's 45px logo height and the 140px box.
+                It's shifted by the same centering gap the full logo gets inside that
+                box, so the icon doesn't move or resize when they swap; the file is
+                shown whole, with the left margin subtracting its own cream padding
+                (45px*76/385). */}
             <Image
-              src="/assets/images/logo%20small.png"
+              src="/assets/images/logo%20medium.png"
               alt="Meemeow logo"
-              className="hidden h-16 w-auto ml-[calc((200px_-_64px*1096/366)/2)] upto-420:block"
-              width={386}
-              height={366}
+              className="hidden h-[45px] w-auto max-w-none shrink-0 ml-[calc((140px_-_45px*1096/366)/2_+_45px*34/366_-_45px*76/385)] upto-420:block"
+              width={480}
+              height={385}
             />
           </Link>
         </div>
@@ -208,28 +219,32 @@ export default function Navbar() {
             e.stopPropagation();
           }}
         >
-          {open ? (
-            <span
-              className="z-401 inline-block cursor-pointer text-[1.6rem] leading-none font-bold text-white select-none [transform:translateY(-1px)]"
-              aria-hidden
-            >
-              ×
-            </span>
-          ) : (
-            <>
-              <span className="my-1 block h-[3px] w-6 bg-white" />
-              <span className="my-1 block h-[3px] w-6 bg-white" />
-              <span className="my-1 block h-[3px] w-6 bg-white" />
-            </>
-          )}
+          {/* Bars stay in the DOM so they can animate: when open the outer two
+              slide to the middle (they sit 7px apart) and cross into an X while
+              the middle one fades out. */}
+          <span
+            className={`my-1 block h-[3px] w-6 origin-center bg-white [transition:transform_300ms_cubic-bezier(.2,.9,.2,1)] ${
+              open ? "[transform:translateY(7px)_rotate(45deg)]" : "[transform:none]"
+            }`}
+          />
+          <span
+            className={`my-1 block h-[3px] w-6 bg-white [transition:opacity_200ms_ease] ${
+              open ? "opacity-0" : "opacity-100"
+            }`}
+          />
+          <span
+            className={`my-1 block h-[3px] w-6 origin-center bg-white [transition:transform_300ms_cubic-bezier(.2,.9,.2,1)] ${
+              open ? "[transform:translateY(-7px)_rotate(-45deg)]" : "[transform:none]"
+            }`}
+          />
         </button>
 
         <nav
           className={`relative z-400 flex items-center gap-14 above-1279:upto-1535:gap-10 min-[1001px]:upto-1279:gap-7 upto-1000:z-201 upto-1000:box-border upto-1000:flex-col ${
             open
               ? // mobile dropdown panel
-                "upto-1000:fixed upto-1000:top-[118px] upto-1000:right-8 upto-1000:w-[235px] upto-1000:max-w-[calc(100%-3.5rem)] upto-1000:origin-top-right upto-1000:animate-dropdown-in upto-1000:items-end upto-1000:gap-0.5 upto-1000:rounded-xl upto-1000:bg-[rgba(30,33,36,0.92)] upto-1000:px-4 upto-1000:py-[0.4rem] upto-1000:opacity-0 upto-1000:[box-shadow:0_12px_40px_rgba(8,10,12,0.6)] upto-1000:[transform:translateY(-8px)_scale(0.995)] upto-1000:backdrop-blur-[6px]"
-              : "upto-1000:absolute upto-1000:top-[116px] upto-1000:right-0 upto-1000:hidden upto-1000:w-full upto-1000:bg-[#1e2124] upto-1000:p-4"
+                "upto-1000:fixed upto-1000:top-[118px] max-lg:top-[83px]! upto-1000:right-8 upto-1000:w-[235px] upto-1000:max-w-[calc(100%-3.5rem)] upto-1000:origin-top-right upto-1000:animate-dropdown-in upto-1000:items-end upto-1000:gap-0.5 upto-1000:rounded-xl upto-1000:bg-[rgba(30,33,36,0.92)] upto-1000:px-4 upto-1000:py-[0.4rem] upto-1000:opacity-0 upto-1000:[box-shadow:0_12px_40px_rgba(8,10,12,0.6)] upto-1000:[transform:translateY(-8px)_scale(0.995)] upto-1000:backdrop-blur-[6px]"
+              : "upto-1000:absolute upto-1000:top-[116px] max-lg:top-[81px]! upto-1000:right-0 upto-1000:hidden upto-1000:w-full upto-1000:bg-[#1e2124] upto-1000:p-4"
           }`}
         >
           {NAV_ITEMS.map((item, i) => (
@@ -249,7 +264,11 @@ export default function Navbar() {
                 scheduleHoverCollapse();
                 if (!open) scheduleCollapse();
               }}
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                setOpen(false);
+                // tap/click keeps this clip looping after the pointer leaves
+                setPinned(item.key);
+              }}
             >
               {/* white underline grows in under the text on hover */}
               <span className="relative inline-block after:absolute after:bottom-[-6px] after:left-0 after:h-1 after:w-[0%] after:rounded-[2px] after:bg-transparent after:[transition:width_200ms_ease,background-color_200ms_ease] after:content-[''] [a:hover>&]:after:w-full [a:hover>&]:after:bg-white">
@@ -270,7 +289,7 @@ export default function Navbar() {
       </div>
     </header>
       {/* spacer keeps page content from being overlapped by the fixed navbar */}
-      <div className="block h-[116px] w-full shrink-0" />
+      <div className="block h-[116px] w-full shrink-0 max-2xl:h-[99px] max-lg:h-[81px]" />
     </>
   );
 }
