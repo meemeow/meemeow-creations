@@ -11,7 +11,7 @@ export const CARD_SHELL =
  */
 export const cardBackground = (hasPreview: boolean, masonry: boolean) =>
   hasPreview
-    ? "bg-[url('/assets/images/library_preview.png')] bg-[length:100%_auto] bg-center bg-no-repeat upto-940:bg-cover"
+    ? "bg-[url('/assets/images/PKC_preview1.png')] bg-[length:100%_auto] bg-center bg-no-repeat upto-940:bg-cover"
     : `bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))]${masonry ? " bg-cover bg-center" : ""}`;
 
 /** Alternate screenshot layer; the page toggles `visible` to cross-fade it in. */
