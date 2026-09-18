@@ -66,7 +66,7 @@ export default function Footer() {
   let index = 0;
 
   return (
-    <footer className="relative z-6 mt-auto w-full shrink-0 bg-[#0A0A0A] py-6 font-rubber text-[#dcdcdc] max-2xl:py-5 max-lg:py-4 upto-420:py-3">
+    <footer className="relative z-6 mt-auto w-full shrink-0 border-t border-white/[0.06] bg-[#0A0A0A] py-6 font-rubber text-[#dcdcdc] max-2xl:py-5 max-lg:py-4 upto-420:py-3">
       <div
         className="mx-auto flex max-w-[1200px] cursor-default flex-col items-center justify-center gap-[0.6rem] px-12 py-2 text-center select-none max-2xl:gap-[0.5rem] max-2xl:px-10 max-lg:gap-[0.4rem] max-lg:px-8 max-lg:py-1 upto-420:gap-[0.3rem] upto-420:px-4"
         ref={containerRef}

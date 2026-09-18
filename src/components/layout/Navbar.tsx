@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 type NavKey = "home" | "about" | "projects" | "contact";
 
@@ -22,6 +23,19 @@ const VIDEO_POSITION: Record<NavKey, string> = {
   contact: "object-[center_25%]",
 };
 
+// The clip that belongs to a route. A refresh, a shared link or a browser
+// back/forward gives no click to pin from, so the route itself supplies one.
+// "/" is left out on purpose: the logo clears to the plain #0A0A0A header, so
+// that's home's resting look.
+const ROUTE_KEYS: { prefix: string; key: NavKey }[] = [
+  { prefix: "/about", key: "about" },
+  { prefix: "/projects", key: "projects" },
+  { prefix: "/contact", key: "contact" },
+];
+
+const keyForPath = (path: string | null): NavKey | null =>
+  ROUTE_KEYS.find(({ prefix }) => path === prefix || path?.startsWith(`${prefix}/`))?.key ?? null;
+
 // Mobile dropdown: links drop in one after another.
 const OPEN_LINK_ANIMATION = [
   "animate-[linkStagger_240ms_ease_35ms_forwards]",
@@ -31,6 +45,8 @@ const OPEN_LINK_ANIMATION = [
 ];
 
 export default function Navbar() {
+  const pathname = usePathname();
+  const routeKey = keyForPath(pathname);
   const [open, setOpen] = useState(false);
   const [, setLinkHover] = useState(false);
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -40,16 +56,16 @@ export default function Navbar() {
   >(null);
   const [lastHover, setLastHover] = useState<
     "home" | "about" | "projects" | "contact" | null
-  >(null);
+  >(routeKey);
   // A clicked/tapped link keeps its clip playing after the pointer leaves, so the
   // videos work on phones too. Clicking the logo clears it, leaving the plain
   // #0A0A0A header. Hovering another link still wins while the pointer is on it.
-  const [pinned, setPinned] = useState<NavKey | null>(null);
+  const [pinned, setPinned] = useState<NavKey | null>(routeKey);
   const target = activeHover ?? pinned;
   // Sweeping the pointer across the links used to rewind and restart a 1080p
   // decoder per link passed, which could stall the page. The clip only switches
   // once the pointer settles for a moment; leaving still clears instantly.
-  const [active, setActive] = useState<NavKey | null>(null);
+  const [active, setActive] = useState<NavKey | null>(routeKey);
 
   useEffect(() => {
     if (target === active) return;
@@ -64,6 +80,10 @@ export default function Navbar() {
   // instead of swapping `src` + load(), which re-downloaded a ~70MB file and
   // rebuilt the decoder on every hover and could freeze the page.
   const videoRefs = useRef<Partial<Record<NavKey, HTMLVideoElement | null>>>({});
+
+  useEffect(() => {
+    setPinned(keyForPath(pathname));
+  }, [pathname]);
 
   useEffect(() => {
     if (active) setLastHover(active);
