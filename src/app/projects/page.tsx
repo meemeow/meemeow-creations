@@ -214,7 +214,7 @@ export default function Projects() {
                 >
                   <ProjectCard p={p} isEven={isEven} />
                   <div
-                    className={`${META} w-full md:w-2/5 above-639:upto-940:text-right above-940:[.project-item:hover_&]:[transform:translateY(-6px)_scale(1.02)] ${
+                    className={`${META} w-full md:w-2/5 above-639:upto-940:text-right above-940:[.project-item:hover_&]:[transform:translateY(-6px)] ${
                       isEven ? "md:pr-4 above-940:text-left" : "md:pl-4 above-940:text-right"
                     }`}
                   >
@@ -238,7 +238,7 @@ export default function Projects() {
                 className={`project-row flex items-center gap-8 ${REVEAL} upto-940:flex-col upto-940:items-stretch upto-467:gap-4`}
               >
                 <ProjectRow p={p} />
-                <div className={`${META} w-full text-right above-940:w-2/5 above-940:[.project-row:hover_&]:[transform:translateY(-6px)_scale(1.02)]`}>
+                <div className={`${META} w-full text-right above-940:w-2/5 above-940:[.project-row:hover_&]:[transform:translateY(-6px)]`}>
                   <div className={`mb-2 ${TITLE} ${TITLE_STACKED}`}>{p.title}</div>
                   <div className={`whitespace-pre-line ${DESC} ${DESC_STACKED}`}>{p.desc}</div>
                   <div className="mt-4">

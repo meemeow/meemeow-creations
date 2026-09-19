@@ -10,7 +10,7 @@ import { ALT_LAYER, CARD_SHELL, cardBackground } from "./project-card-classes";
 // Hovering the row lifts the card; hovering the card itself shows a small
 // "images will cycle" dot after 1.5s.
 const STACKED_CARD =
-  "[.project-row:hover_&]:[transform:translateY(-4px)_rotate(-0.15deg)] [.project-row:hover_&]:[box-shadow:0_18px_36px_rgba(0,0,0,0.6)] " +
+  "[.project-row:hover_&]:[transform:translateY(-4px)] [.project-row:hover_&]:[box-shadow:0_18px_36px_rgba(0,0,0,0.6)] " +
   "upto-1620:h-auto upto-1620:aspect-[16/8] upto-1620:overflow-visible upto-1620:[transition:none] " +
   "above-1620:[&:not(:hover)]:h-48 above-1620:[&:not(:hover)]:aspect-auto above-1620:[&:not(:hover)]:[transition:height_320ms_cubic-bezier(.2,.9,.2,1),transform_200ms_ease,box-shadow_200ms_ease] " +
   "above-1620:[&:hover]:h-auto above-1620:[&:hover]:aspect-[16/8] above-1620:[&:hover]:[transition:height_360ms_cubic-bezier(.2,.9,.2,1),aspect-ratio_360ms_ease] " +
