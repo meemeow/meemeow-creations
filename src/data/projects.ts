@@ -10,9 +10,9 @@ export const projects: Project[] = [
     id: 1,
     title: "ePasigLib",
     desc: "A Web and Mobile Application OPAC and Library Management System for Pasig Knowledge Center, Using NFC and Barcodes for Borrowing and Returns",
-    url: "https://epasiglibrary.com/opac/home",
+    url: "https://meemeow.github.io/ePasigLib_portfolio/",
   },
-  { id: 2, title: "Cattachasm", desc: "A Platforming Game inspired by Mario and Terraria (as well as cat memes)", url: "https://meemeow.github.io/cattachasm/games" },
+  { id: 2, title: "Cattachasm", desc: "A Platforming Game inspired by Mario and Terraria (as well as cat memes)", url: "https://meemeow.github.io/cattachasm/" },
   { id: 3, title: "Meemeow's GitCafe", desc: "A Simple Coffee Ordering Platform", url: "https://meemeow.github.io/AWD-FINALS/" },
 ];
 
