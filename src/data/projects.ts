@@ -12,7 +12,7 @@ export const projects: Project[] = [
     desc: "A Web and Mobile Application OPAC and Library Management System for Pasig Knowledge Center, Using NFC and Barcodes for Borrowing and Returns",
     url: "https://epasiglibrary.com/opac/home",
   },
-  { id: 2, title: "Cattachasm", desc: "A Platforming Game inspired by Mario and Terraria (as well as cat memes)", url: "https://catplatformer.vercel.app/games" },
+  { id: 2, title: "Cattachasm", desc: "A Platforming Game inspired by Mario and Terraria (as well as cat memes)", url: "https://meemeow.github.io/cattachasm/games" },
   { id: 3, title: "Meemeow's GitCafe", desc: "A Simple Coffee Ordering Platform", url: "https://meemeow.github.io/AWD-FINALS/" },
 ];
 
