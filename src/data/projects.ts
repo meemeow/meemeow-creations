@@ -20,11 +20,11 @@ export const projects: Project[] = [
 export const previewMap: Record<number, string> = {
   1: "PKC_preview1.png",
   2: "cattachasm_preview1.png",
-  3: "cafe_preview.png",
+  3: "MGC_preview1.png",
 };
 
 export const altImagesMap: Record<number, string[]> = {
   1: ["/assets/images/PKC_preview2.png", "/assets/images/PKC_preview3.png", "/assets/images/PKC_preview4.png", "/assets/images/PKC_preview1.png"],
   2: ["/assets/images/cattachasm_preview2.png", "/assets/images/cattachasm_preview3.png", "/assets/images/cattachasm_preview4.png", "/assets/images/cattachasm_preview1.png"],
-  3: ["/assets/images/cafe1.png", "/assets/images/cafe2.png", "/assets/images/cafe3.png", "/assets/images/cafe_preview.png"],
+  3: ["/assets/images/MGC_preview2.png", "/assets/images/MGC_preview3.png", "/assets/images/MGC_preview4.png", "/assets/images/MGC_preview1.png"],
 };
