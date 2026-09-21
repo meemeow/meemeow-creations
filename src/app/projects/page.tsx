@@ -155,7 +155,10 @@ export default function Projects() {
 
   return (
     <main className="min-h-screen bg-[#191b1dff] text-white">
-      <div className="max-w-8xl mx-8 px-6 py-12 [transition:margin-inline_220ms_ease,padding_220ms_ease] upto-639:mx-4 min-[768px]:mx-12 min-[1024px]:mx-20 min-[1280px]:mx-24 min-[1440px]:mx-28 min-[1600px]:mx-32 min-[1920px]:mx-36 min-[2560px]:mx-42 min-[3200px]:mx-48 upto-467:px-[12px]">
+      {/* Content stops growing past 1920px, so zoomed-out (and ultra-wide)
+          viewports keep the 1920px layout centered instead of stretching. */}
+      <div className="mx-auto w-full max-w-[1920px]">
+      <div className="mx-8 px-6 py-12 [transition:margin-inline_220ms_ease,padding_220ms_ease] upto-639:mx-4 min-[768px]:mx-12 min-[1024px]:mx-20 min-[1280px]:mx-24 min-[1440px]:mx-28 min-[1600px]:mx-32 upto-467:px-[12px]">
         <header className="mb-12 flex items-center justify-between upto-467:mb-[0.9rem] upto-376:justify-center">
           <h2 className="font-rye text-4xl font-semibold md:text-5xl min-[941px]:upto-1023:text-[clamp(2.5rem,2.4vw+1rem,3rem)]! min-[941px]:upto-1023:leading-[1.08]! min-[1024px]:upto-1279:text-[clamp(2.6rem,2.4vw+1rem,3rem)]! min-[1024px]:upto-1279:leading-[1.06]! upto-467:mb-[24px] upto-376:w-full upto-376:text-center">
             My Projects
@@ -251,6 +254,7 @@ export default function Projects() {
             ))}
           </section>
         )}
+      </div>
       </div>
     </main>
   );
