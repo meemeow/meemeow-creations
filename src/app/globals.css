@@ -116,6 +116,7 @@
   --animate-indicator-in: fadeIn 0.3s ease 1.5s forwards;
   --animate-arrow-bounce: arrowBounce 1.8s cubic-bezier(.4,0,.2,1) infinite;
   --animate-arrow-nudge: arrowNudge 1.2s cubic-bezier(.4,0,.2,1) infinite;
+  --animate-arrow-bounce-down: arrowBounceDown 1.8s cubic-bezier(.4,0,.2,1) infinite;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -189,6 +190,13 @@
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* "email directly" arrow: arrowBounce mirrored, so the hop goes downward */
+@keyframes arrowBounceDown {
+  0%, 55%, 100% { transform: translateY(0); }
+  25% { transform: translateY(4px); }
+  40% { transform: translateY(1px); }
 }
 
 /* send-button chevron: the same rhythm as arrowBounce, nudged sideways instead */

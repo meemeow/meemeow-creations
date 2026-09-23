@@ -46,6 +46,40 @@ const MC_BUTTON =
 
 const ERROR_TEXT = "mt-1 font-gotham text-sm text-[var(--mc-red)]";
 
+// Stone face from the back-to-top button (ScrollToTop.tsx), widened so the label
+// sits inside it next to the arrow; the button spans half the contact slots' width.
+const STONE_FACE =
+    "relative flex h-12 w-full shrink-0 items-center justify-center gap-4 bg-[#8b8b8b] px-4 text-white [image-rendering:pixelated] " +
+    "[box-shadow:inset_3px_3px_0_0_#c6c6c6,inset_-3px_-3px_0_0_#4f4f4f,0_0_0_3px_#000000,0_5px_0_3px_rgba(0,0,0,0.35)] " +
+    "[transition:background-color_100ms_steps(2),box-shadow_100ms_steps(2),transform_100ms_steps(2)] " +
+    "group-hover:bg-[#a4a4a4] " +
+    "group-hover:[box-shadow:inset_3px_3px_0_0_#dcdcdc,inset_-3px_-3px_0_0_#5f5f5f,0_0_0_3px_#000000,0_0_0_5px_rgba(255,255,255,0.35),0_5px_0_3px_rgba(0,0,0,0.35)] " +
+    "group-active:[transform:translateY(4px)] " +
+    "group-active:[box-shadow:inset_3px_3px_0_0_#4f4f4f,inset_-3px_-3px_0_0_#c6c6c6,0_0_0_3px_#000000,0_1px_0_3px_rgba(0,0,0,0.35)] " +
+    "group-focus-visible:[box-shadow:inset_3px_3px_0_0_#dcdcdc,inset_-3px_-3px_0_0_#5f5f5f,0_0_0_3px_#000000,0_0_0_6px_rgba(255,255,160,0.7),0_5px_0_3px_rgba(0,0,0,0.35)] " +
+    "max-lg:h-11";
+
+// The back-to-top arrow's 9x9 sprite, mirrored vertically so it points down.
+const ARROW_DOWN_ROWS: [x: number, y: number, w: number][] = [
+    [4, 8, 1],
+    [3, 7, 3],
+    [2, 6, 5],
+    [1, 5, 7],
+    [0, 4, 9],
+    [3, 3, 3],
+    [3, 2, 3],
+    [3, 1, 3],
+    [3, 0, 3],
+];
+
+// One contact per slot: same bevel as the form panel, lit on hover.
+const MC_SLOT =
+    "flex items-center gap-4 border-[3px] bg-[#2f2d2c] px-5 py-4 font-gotham font-medium text-gray-200 " +
+    "border-t-[#3d3938] border-r-[#3d3938] border-b-[#000000] border-l-[#000000] " +
+    "[box-shadow:0_6px_18px_rgba(0,0,0,0.45)] [transition:background-color_140ms_ease,color_140ms_ease,transform_100ms_ease] " +
+    "hover:bg-[#3a3735] hover:text-white active:[transform:translateY(2px)] " +
+    "text-[1.05rem] break-all above-992:upto-1200:text-[0.98rem] upto-768:gap-3 upto-768:px-4 upto-768:py-3 upto-768:text-[0.9rem]";
+
 // Per-letter glow for "Email me directly" and "Send Message"; each letter's delay is set inline.
 const GLOW_LETTER = "inline-block animate-contact-glow will-change-[transform,filter,opacity] [text-shadow:0_0_6px_rgba(255,200,160,0.12)]";
 const LETTER_SPACE = "inline-block w-[0.42rem]";
@@ -91,6 +125,15 @@ export default function Contact() {
     const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         validateField(name, value);
+    };
+
+    const toForm = () => {
+        // Honour a reduced-motion preference by jumping instead of gliding.
+        const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        document.getElementById("email-form")?.scrollIntoView({
+            behavior: reduced ? "auto" : "smooth",
+            block: "center",
+        });
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -140,60 +183,101 @@ export default function Contact() {
 
     return (
         <main className="min-h-screen bg-[#171615] text-white">
-            {/* Section 1 — socials + quote, on the lighter of the two blacks */}
+            {/* Section 1 — intro on the left, contact slots on the right */}
             <section className="bg-[#0f0e0d]">
-                <div className="max-w-9xl mx-2 md:mx-10 px-6 py-10 md:py-18">
-                    {/* Hero card */}
-                    <div
-                        className="relative flex min-h-[390px] items-center overflow-hidden rounded-lg border-2 border-white/20 bg-white/5 [transition:min-height_220ms_ease,padding_220ms_ease] min-[1200px]:min-h-[760px] above-1200:px-[7rem] above-1200:py-[6.5rem] above-992:upto-1200:p-[3.5rem] upto-992:justify-center above-768:upto-992:px-8 above-768:upto-992:py-16 upto-768:min-h-[340px] upto-768:px-4 upto-768:pt-[2.75rem] upto-768:pb-[1.75rem]"
-                    >
-                        <div className="relative z-11 flex w-full flex-col items-center text-center md:items-start md:text-left">
-                            <h1 className="mb-3 text-[clamp(1.6rem,6vw,3.5rem)] leading-[1.1] font-extrabold whitespace-nowrap min-[1200px]:text-[clamp(2rem,5.6vw,5rem)] min-[1200px]:leading-[1.02] upto-992:leading-[1.05] upto-768:mx-auto upto-768:text-center above-420:upto-768:text-[clamp(1.2rem,5vw,2.2rem)] upto-420:text-[clamp(1rem,5vw,1.4rem)]">
-                                From Memo to Memory
-                            </h1>
-                            <p className={`mb-6 text-xl text-gray-200 ${HERO_INFO_SIZE} upto-768:mx-auto upto-768:text-center`}>
-                                Ideas start with a conversation. Let's make something memorable.
-                            </p>
-
-                            <div className={`flex flex-col items-center space-y-2 text-lg text-gray-200 md:items-start md:text-xl ${HERO_INFO_SIZE} upto-768:text-center`}>
-                                <div className="flex items-center gap-3 font-medium upto-768:justify-center">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                        <path
-                                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 3.09 4.18 2 2 0 0 1 5 2h3a2 2 0 0 1 2 1.72c.12.93.37 1.82.73 2.65a2 2 0 0 1-.45 2.11L9.91 9.91a16 16 0 0 0 6 6l1.33-1.33a2 2 0 0 1 2.11-.45c.83.36 1.72.61 2.65.73A2 2 0 0 1 22 16.92z"
-                                            fill="currentColor"
-                                        />
-                                    </svg>
-                                    +63 9152669845
-                                </div>
-
-                                <div className="flex items-center gap-3 break-words upto-768:justify-center">
-                                    <img src="/assets/images/gmail.jpg" alt="Gmail" className="w-5 h-5 object-contain" />
-                                    <a href="mailto:emerson.clamor.dev@gmail.com" className="underline-offset-2 hover:underline">
-                                        emerson.clamor.dev@gmail.com
-                                    </a>
-                                </div>
-
-                                <div className={`flex items-center gap-3 text-lg text-gray-300 md:text-xl ${HERO_INFO_SIZE} upto-768:justify-center`}>
-                                    <img src="/assets/images/linkedin.jpg" alt="LinkedIn" className="w-5 h-5 object-contain" />
-                                    <a href="https://www.linkedin.com/in/emerson-clamor" target="_blank" rel="noopener noreferrer" className="hover:underline">
-                                        www.linkedin.com/in/emerson-clamor
-                                    </a>
-                                </div>
-
-                                <div className={`flex items-center gap-3 text-lg text-gray-300 md:text-xl ${HERO_INFO_SIZE} upto-768:justify-center`}>
-                                    <img src="/assets/images/github.png" alt="GitHub" className="w-5 h-5 object-contain" />
-                                    <a href="https://github.com/meemeow" target="_blank" rel="noopener noreferrer" className="hover:underline">
-                                        https://github.com/meemeow
-                                    </a>
-                                </div>
+                <div className="max-w-9xl mx-2 md:mx-10 px-6 py-14 md:py-20">
+                    <div className="grid w-full items-center gap-10 lg:grid-cols-12 lg:gap-20 upto-768:gap-8">
+                        {/* Intro, in the original translucent card */}
+                        <div className={`flex min-h-[560px] items-center p-12 lg:order-2 lg:col-span-8 min-[1200px]:min-h-[760px] above-1200:px-[5rem] above-768:upto-992:p-8 upto-768:min-h-[320px] upto-768:p-6 rounded-lg border-2 border-white/20 bg-white/5`}>
+                            <div className="w-full text-center md:text-right">
+                                <h1 className="mb-3 text-[clamp(1.6rem,6vw,3.5rem)] leading-[1.1] font-extrabold whitespace-nowrap min-[1200px]:text-[clamp(2rem,5.6vw,5rem)] min-[1200px]:leading-[1.02] upto-992:leading-[1.05] upto-768:mx-auto upto-768:text-center above-420:upto-768:text-[clamp(1.2rem,5vw,2.2rem)] upto-420:text-[clamp(1rem,5vw,1.4rem)]">
+                                    From Me to You
+                                </h1>
+                                <p className={`text-xl text-gray-200 ${HERO_INFO_SIZE} upto-768:mx-auto upto-768:text-center`}>
+                                    Questions, projects, or just to say hi &mdash; my inbox is open.
+                                </p>
                             </div>
+                        </div>
+
+                        {/* Contacts stay unboxed, on the remaining 3 columns */}
+                        <div className="flex w-full flex-col gap-4 lg:order-1 lg:col-span-4 lg:mr-auto lg:max-w-[540px] lg:[transform:translateY(-1.5rem)] upto-768:gap-3">
+                            {/* Pixel label with a rule running out to the edge */}
+                            <div className="mb-1 flex items-center gap-4">
+                                <span className={`${MC_PIXEL} text-[0.7rem] uppercase tracking-[0.12em] text-white upto-420:text-[0.6rem]`}>
+                                    Contact via
+                                </span>
+                                <span aria-hidden="true" className="h-px flex-1 bg-[#1c1a19] [box-shadow:0_1px_0_#454140]" />
+                            </div>
+
+                            <a href="tel:+639152669845" className={MC_SLOT}>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="shrink-0">
+                                    <path
+                                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 3.09 4.18 2 2 0 0 1 5 2h3a2 2 0 0 1 2 1.72c.12.93.37 1.82.73 2.65a2 2 0 0 1-.45 2.11L9.91 9.91a16 16 0 0 0 6 6l1.33-1.33a2 2 0 0 1 2.11-.45c.83.36 1.72.61 2.65.73A2 2 0 0 1 22 16.92z"
+                                        fill="currentColor"
+                                    />
+                                </svg>
+                                +63 9152669845
+                            </a>
+
+                            <a href="https://www.linkedin.com/in/emerson-clamor" target="_blank" rel="noopener noreferrer" className={MC_SLOT}>
+                                <img src="/assets/images/linkedin.png" alt="" aria-hidden="true" className="h-5 w-5 shrink-0 object-contain" />
+                                www.linkedin.com/in/emerson-clamor
+                            </a>
+
+                            <a href="https://github.com/meemeow" target="_blank" rel="noopener noreferrer" className={MC_SLOT}>
+                                <img src="/assets/images/github.webp" alt="" aria-hidden="true" className="h-5 w-5 shrink-0 object-contain" />
+                                https://github.com/meemeow
+                            </a>
+
+                            {/* "OR" divider: the "Contact via" rule, run out on both sides */}
+                            <div aria-hidden="true" className="my-3 flex items-center gap-4 upto-768:my-2">
+                                <span className="h-px flex-1 bg-[#1c1a19] [box-shadow:0_1px_0_#454140]" />
+                                <span className={`${MC_PIXEL} text-[0.7rem] uppercase tracking-[0.12em] text-gray-400 upto-420:text-[0.6rem]`}>
+                                    or
+                                </span>
+                                <span className="h-px flex-1 bg-[#1c1a19] [box-shadow:0_1px_0_#454140]" />
+                            </div>
+
+                            {/* Same stone button as back-to-top, pointing down at the form */}
+                            <button
+                                type="button"
+                                onClick={toForm}
+                                className="group w-1/2 min-w-fit cursor-pointer self-center [outline:none]"
+                            >
+                                <span className={STONE_FACE}>
+                                    <svg
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 9 9"
+                                        shapeRendering="crispEdges"
+                                        aria-hidden="true"
+                                        className="-ml-1 shrink-0 animate-arrow-bounce-down will-change-transform motion-reduce:animate-none"
+                                    >
+                                        {/* dark drop shadow one pixel down-right, the way in-game glyphs are drawn */}
+                                        <g fill="#3f3f3f">
+                                            {ARROW_DOWN_ROWS.map(([x, y, w]) => (
+                                                <rect key={`s${y}`} x={x + 1} y={y + 1} width={w} height={1} />
+                                            ))}
+                                        </g>
+                                        <g fill="#ffffff">
+                                            {ARROW_DOWN_ROWS.map(([x, y, w]) => (
+                                                <rect key={y} x={x} y={y} width={w} height={1} />
+                                            ))}
+                                        </g>
+                                    </svg>
+                                    {/* same one-pixel dark shadow as the arrow glyph */}
+                                    <span className="font-pixel text-[0.68rem] uppercase tracking-[0.08em] text-white [text-shadow:2px_2px_0_#3f3f3f] upto-420:text-[0.6rem]">
+                                        email directly
+                                    </span>
+                                </span>
+                            </button>
                         </div>
                     </div>
                 </div>
             </section>
 
             {/* Section 2 — email pitch + form, on the darker band */}
-            <section className="border-t border-white/[0.08] bg-[#171615]">
+            <section id="email-form" className="border-t border-white/[0.08] bg-[#171615]">
                 <div className="max-w-9xl mx-2 md:mx-10 px-6 py-10 md:py-18">
                     {/* Contact form + callout */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
@@ -310,6 +394,10 @@ export default function Contact() {
                             </h1>
                             <p className="font-gotham text-xl font-medium text-gray-300 upto-420:text-[clamp(0.8rem,4vw,1.05rem)]">
                                 You can reach me more quickly via email by filling out the form.
+                            </p>
+                            <p className="mt-4 flex items-center justify-center gap-2 font-gotham text-base font-medium text-gray-400 upto-420:text-[0.85rem]">
+                                <img src="/assets/images/gmail.webp" alt="" aria-hidden="true" className="h-4 w-4 shrink-0 object-contain" />
+                                Sent to: <span className="text-gray-200">emerson.clamor.dev@gmail.com</span>
                             </p>
                         </aside>
                     </div>
