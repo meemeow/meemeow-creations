@@ -12,14 +12,39 @@ import {
     ContactForm,
 } from "@/lib/contact-validation";
 
-// Frosted white input/textarea that lifts slightly on focus.
+/* ---------- Minecraft panel chrome ----------
+   Mirrors the containers on minecraft.net: flat dark fill, a beveled 2px edge and
+   square corners — no rounding, no blur, no glow. */
+const MC_PANEL =
+    "border-[3px] bg-[#2f2d2c] " +
+    // Beveled edge, as in the game UI: lit grey on top/right, black on bottom/left.
+    "border-t-[#3d3938] border-r-[#3d3938] border-b-[#000000] border-l-[#000000] " +
+    "[box-shadow:0_12px_34px_rgba(0,0,0,0.55)]";
+
+// Sunken dark field with a light edge; the edge brightens on hover and goes white on focus.
 const FIELD =
-    "rounded-lg border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.82)] px-3 py-2 font-gotham font-medium text-[#171717] " +
-    "placeholder:w-full placeholder:font-gotham placeholder:font-medium placeholder:text-[#515151] placeholder:[transition:border-color_160ms_ease,box-shadow_160ms_ease,transform_120ms_ease] " +
-    "focus:border-[rgba(255,255,255,0.72)] focus:[outline:none] focus:[box-shadow:0_0_0_3px_rgba(255,230,216,0.12)] focus:[transform:translateY(-1px)] " +
+    "border-2 border-[#4f4f4f] bg-[var(--mc-field)] px-3 py-[0.45rem] font-gotham font-medium text-white " +
+    "placeholder:font-gotham placeholder:font-medium placeholder:text-[#6f6f6f] " +
+    "[box-shadow:inset_0_2px_0_rgba(0,0,0,0.45)] [transition:border-color_120ms_ease,background-color_120ms_ease] " +
+    "hover:border-[#6e6e6e] focus:border-white focus:bg-[#232323] focus:[outline:none] " +
     "upto-768:w-full upto-768:py-[0.6rem] upto-768:text-[0.98rem]";
 
-const LABEL = "mb-2 font-gotham text-sm font-medium text-gray-200";
+const LABEL = "mb-1.5 font-gotham text-sm font-medium tracking-wide text-white";
+
+// Pixel type with Minecraft's hard offset drop shadow.
+const MC_PIXEL = "font-pixel [text-shadow:2px_2px_0_rgba(0,0,0,0.75)]";
+
+// Green "submit" button: lit top edge, shaded bottom edge, presses down on click.
+const MC_BUTTON =
+    "group inline-flex cursor-pointer items-center gap-3 border-2 border-[var(--mc-green-dark)] " +
+    "bg-[linear-gradient(180deg,var(--mc-green-lit)_0%,var(--mc-green)_48%,#4a942f_100%)] px-6 py-[0.65rem] " +
+    MC_PIXEL + " text-[0.72rem] uppercase text-white " +
+    "[box-shadow:inset_0_2px_0_rgba(255,255,255,0.28),inset_0_-3px_0_rgba(0,0,0,0.28),0_0_0_2px_var(--mc-panel-dark)] " +
+    "[transition:filter_120ms_ease,transform_80ms_ease] hover:brightness-110 active:[transform:translateY(2px)] " +
+    "disabled:cursor-not-allowed disabled:[filter:grayscale(0.55)_brightness(0.8)] " +
+    "upto-768:w-full upto-768:justify-center upto-768:px-4 upto-768:py-[0.7rem] upto-768:text-[0.62rem]";
+
+const ERROR_TEXT = "mt-1 font-gotham text-sm text-[var(--mc-red)]";
 
 // Per-letter glow for "Email me directly" and "Send Message"; each letter's delay is set inline.
 const GLOW_LETTER = "inline-block animate-contact-glow will-change-[transform,filter,opacity] [text-shadow:0_0_6px_rgba(255,200,160,0.12)]";
@@ -174,12 +199,16 @@ export default function Contact() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                         {/* Wider-looking form without moving grid */}
                         <div className="flex justify-start order-2 lg:order-1">
-                            {/* glassmorphism card with a peach glow */}
-                            <div className="mx-auto w-full max-w-[680px] border-2 border-[color:rgba(var(--peach-r),var(--peach-g),var(--peach-b),0.7)] bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.02))] p-10 backdrop-blur-[8px] [box-shadow:0_0_38px_0_rgba(var(--peach-r),var(--peach-g),var(--peach-b),0.22),0_0_8px_0_rgba(var(--peach-r),var(--peach-g),var(--peach-b),0.12),0_10px_36px_rgba(2,6,23,0.7)] [transition:box-shadow_220ms_ease,border-color_220ms_ease,transform_160ms_ease] above-992:upto-1200:max-w-[720px] above-992:upto-1200:p-[2.25rem] above-768:upto-992:p-[1.75rem] upto-768:w-[calc(100%-2rem)] upto-768:max-w-none upto-768:rounded-[10px] above-420:upto-768:mx-4 above-420:upto-768:px-4 above-420:upto-768:pt-4 above-420:upto-768:pb-5 upto-420:mx-[0.6rem] upto-420:px-3 upto-420:pt-3 upto-420:pb-4">
-                                <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+                            {/* Minecraft-style container: flat panel, hard edges, pixel headline */}
+                            <div className={`mx-auto w-full max-w-[680px] p-8 above-992:upto-1200:max-w-[720px] above-992:upto-1200:p-[1.85rem] above-768:upto-992:p-[1.5rem] upto-768:w-[calc(100%-2rem)] upto-768:max-w-none above-420:upto-768:mx-4 above-420:upto-768:px-4 above-420:upto-768:pt-5 above-420:upto-768:pb-5 upto-420:mx-[0.6rem] upto-420:px-3 upto-420:pt-4 upto-420:pb-4 ${MC_PANEL}`}>
+                                <h2 className={`${MC_PIXEL} mb-6 text-[1.45rem] leading-[1.35] text-white above-768:upto-992:text-[1.2rem] upto-768:mb-5 upto-768:text-[1rem] upto-420:text-[0.85rem]`}>
+                                    SEND A MESSAGE!
+                                </h2>
+
+                                <form className="space-y-3" onSubmit={handleSubmit} noValidate>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <label className="flex flex-col">
-                                            <span className={LABEL}>First Name <span className="text-red-500">*</span></span>
+                                            <span className={LABEL}>First Name <span className="text-[var(--mc-red)]">*</span></span>
                                             <input
                                                 name="firstName"
                                                 value={formData.firstName}
@@ -189,11 +218,11 @@ export default function Contact() {
                                                 className={FIELD}
                                                 placeholder="First name"
                                             />
-                                            {errors.firstName && <p className="text-sm text-red-400 mt-1">{errors.firstName}</p>}
+                                            {errors.firstName && <p className={ERROR_TEXT}>{errors.firstName}</p>}
                                         </label>
 
                                         <label className="flex flex-col">
-                                            <span className={LABEL}>Last Name <span className="text-red-500">*</span></span>
+                                            <span className={LABEL}>Last Name <span className="text-[var(--mc-red)]">*</span></span>
                                             <input
                                                 name="lastName"
                                                 value={formData.lastName}
@@ -203,12 +232,12 @@ export default function Contact() {
                                                 className={FIELD}
                                                 placeholder="Last name"
                                             />
-                                            {errors.lastName && <p className="text-sm text-red-400 mt-1">{errors.lastName}</p>}
+                                            {errors.lastName && <p className={ERROR_TEXT}>{errors.lastName}</p>}
                                         </label>
                                     </div>
 
                                     <label className="flex flex-col">
-                                        <span className={LABEL}>Email <span className="text-red-500">*</span></span>
+                                        <span className={LABEL}>Email <span className="text-[var(--mc-red)]">*</span></span>
                                         <input
                                             type="email"
                                             name="email"
@@ -219,55 +248,38 @@ export default function Contact() {
                                             className={FIELD}
                                             placeholder="you@example.com"
                                         />
-                                        {errors.email && <p className="text-sm text-red-400 mt-1">{errors.email}</p>}
+                                        {errors.email && <p className={ERROR_TEXT}>{errors.email}</p>}
                                     </label>
 
                                     <label className="flex flex-col">
-                                        <span className={LABEL}>Message <span className="text-red-500">*</span></span>
+                                        <span className={LABEL}>Message <span className="text-[var(--mc-red)]">*</span></span>
                                         <textarea
                                             name="message"
                                             value={formData.message}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
                                             required
-                                            rows={5}
-                                            className={`${FIELD} min-h-[140px] resize-y above-420:upto-768:min-h-[120px] upto-420:min-h-[100px]`}
+                                            rows={4}
+                                            className={`${FIELD} min-h-[104px] resize-y above-420:upto-768:min-h-[96px] upto-420:min-h-[88px]`}
                                             placeholder="Write your message..."
                                         />
-                                        {errors.message && <p className="text-sm text-red-400 mt-1">{errors.message}</p>}
+                                        {errors.message && <p className={ERROR_TEXT}>{errors.message}</p>}
                                     </label>
 
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 mt-6">
-                                        <div />
-                                        <div className="flex justify-end">
-                                            {/* whitish-pink gradient button with a peach glow; presses down on click */}
-                                            <button
-                                                type="submit"
-                                                className="inline-block cursor-pointer rounded-[10px] border border-[rgba(255,230,216,0.9)] bg-[linear-gradient(90deg,#ffe6f0_0%,#fff0f5_100%)] px-4 py-[0.6rem] font-gotham font-medium text-[#171717] [box-shadow:0_0_8px_1px_rgba(255,230,216,0.65)] [transition:transform_160ms_cubic-bezier(.2,.9,.2,1),box-shadow_160ms_ease,background_160ms_ease,border-color_160ms_ease,color_160ms_ease] focus:[box-shadow:0_0_0_3px_rgba(255,230,216,0.12)] active:[transform:scale(0.96)_translateY(2px)] [&:active:not(:focus)]:[box-shadow:0_2px_8px_rgba(2,6,23,0.18)] upto-768:w-[70%] upto-768:min-w-[120px] upto-768:max-w-[220px] upto-768:justify-center upto-768:px-3 upto-768:py-[0.55rem] upto-768:text-[0.95rem] above-639:upto-768:inline-flex upto-639:mx-auto upto-639:flex"
-                                                disabled={loading}
-                                                onMouseDown={e => e.currentTarget.classList.add('pressed')}
-                                                onMouseUp={e => e.currentTarget.classList.remove('pressed')}
-                                                onMouseLeave={e => e.currentTarget.classList.remove('pressed')}
+                                    <div className="flex items-center justify-between gap-4 pt-1 upto-639:flex-col upto-639:items-stretch upto-639:gap-3">
+                                        <p className={`${MC_PIXEL} text-[0.6rem] leading-[1.6] text-[var(--mc-text-dim)] upto-639:text-right upto-420:text-[0.55rem]`}>
+                                            <span className="text-[var(--mc-red)]">*</span> Required Fields
+                                        </p>
+                                        <button type="submit" className={MC_BUTTON} disabled={loading}>
+                                            <span>{loading ? "Sending…" : "Send Message"}</span>
+                                            {/* nudges sideways while the button is hovered */}
+                                            <span
+                                                aria-hidden="true"
+                                                className="inline-block will-change-transform group-hover:animate-arrow-nudge motion-reduce:animate-none"
                                             >
-                                                {loading ? (
-                                                    <span className="text-sm text-gray-700">Sending…</span>
-                                                ) : (
-                                                    "Send Message".split("").map((ch, i) =>
-                                                        ch === " " ? (
-                                                            <span key={i} className={LETTER_SPACE} aria-hidden="true">&nbsp;</span>
-                                                        ) : (
-                                                            <span
-                                                                key={i}
-                                                                className={`${GLOW_LETTER} text-[#171717]`}
-                                                                style={{ animationDelay: `${i * 80}ms` }}
-                                                            >
-                                                                {ch}
-                                                            </span>
-                                                        )
-                                                    )
-                                                )}
-                                            </button>
-                                        </div>
+                                                &gt;
+                                            </span>
+                                        </button>
                                     </div>
                                     {outcome && (
                                         <SetOutcomeModal

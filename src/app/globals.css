@@ -1,12 +1,5 @@
 @import "tailwindcss";
 
-/* ---------- Breakpoints ----------
-   Tailwind's built-in `max-[Npx]:` means `width < N`, but the site's layout was
-   designed around inclusive `max-width: Npx` queries. These keep that exact
-   behaviour (including fractional widths when the browser is zoomed):
-     upto-N:  width <= N
-     above-N: width >  N
-   Lower bounds that were `min-width: Npx` use Tailwind's own `min-[Npx]:`. */
 @custom-variant upto-376 (@media (width <= 376px));
 @custom-variant upto-420 (@media (width <= 420px));
 @custom-variant upto-467 (@media (width <= 467px));
@@ -87,6 +80,17 @@
   --peach-g: 230;
   --peach-b: 216;
   --peach-a: 0.9;
+
+  /* ---- Minecraft panel palette (contact form) ---- */
+  /* Panel fill and bevel edges live in contact/page.tsx (MC_PANEL) so colour
+     tweaks hot-reload; the dev server caches this file's :root block. */
+  --mc-panel-dark: #151515; /* hard outline / field fill */
+  --mc-field: #1b1b1b;
+  --mc-text-dim: #9b9b9b;
+  --mc-red: #ff5555;        /* required-field asterisk */
+  --mc-green: #58a83b;
+  --mc-green-lit: #6fc74a;
+  --mc-green-dark: #2f6b1c;
 }
 
 @theme inline {
@@ -102,6 +106,8 @@
   --font-fleur: 'FleurDeLeah', cursive, serif;
   --font-gotham: 'Gotham', Arial, Helvetica, sans-serif;
   --font-rye: 'Rye', var(--font-gotham), Arial, sans-serif;
+  /* Minecraft-style pixel face (loaded in layout.tsx via next/font) */
+  --font-pixel: var(--font-press-start), 'Courier New', monospace;
 
   --animate-pulse-float: pulseFloat 2000ms ease-in-out infinite;
   --animate-dropdown-in: dropdownIn 260ms cubic-bezier(.2,.9,.2,1) forwards;
@@ -109,6 +115,7 @@
   --animate-visit-glow: visitGlow 3.2s ease-in-out infinite;
   --animate-indicator-in: fadeIn 0.3s ease 1.5s forwards;
   --animate-arrow-bounce: arrowBounce 1.8s cubic-bezier(.4,0,.2,1) infinite;
+  --animate-arrow-nudge: arrowNudge 1.2s cubic-bezier(.4,0,.2,1) infinite;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -182,6 +189,13 @@
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* send-button chevron: the same rhythm as arrowBounce, nudged sideways instead */
+@keyframes arrowNudge {
+  0%, 55%, 100% { transform: translateX(0); }
+  25% { transform: translateX(4px); }
+  40% { transform: translateX(1px); }
 }
 
 /* back-to-top arrow: a small hop upward, with a pause between hops */
