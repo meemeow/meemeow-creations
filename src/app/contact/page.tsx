@@ -188,8 +188,8 @@ export default function Contact() {
                 <div className="max-w-9xl mx-2 md:mx-10 px-6 py-14 md:py-20">
                     <div className="grid w-full items-center gap-10 lg:grid-cols-12 lg:gap-20 upto-768:gap-8">
                         {/* Intro, in the original translucent card */}
-                        <div className={`flex min-h-[560px] items-center p-12 lg:order-2 lg:col-span-8 min-[1200px]:min-h-[760px] above-1200:px-[5rem] above-768:upto-992:p-8 upto-768:min-h-[320px] upto-768:p-6 rounded-lg border-2 border-white/20 bg-white/5`}>
-                            <div className="w-full text-center md:text-right">
+                        <div className={`flex min-h-[560px] items-center p-12 lg:order-1 lg:col-span-8 min-[1200px]:min-h-[760px] above-1200:px-[5rem] above-768:upto-992:p-8 upto-768:min-h-[320px] upto-768:p-6 rounded-lg border-2 border-white/20 bg-white/5`}>
+                            <div className="w-full text-center md:text-left">
                                 <h1 className="mb-3 text-[clamp(1.6rem,6vw,3.5rem)] leading-[1.1] font-extrabold whitespace-nowrap min-[1200px]:text-[clamp(2rem,5.6vw,5rem)] min-[1200px]:leading-[1.02] upto-992:leading-[1.05] upto-768:mx-auto upto-768:text-center above-420:upto-768:text-[clamp(1.2rem,5vw,2.2rem)] upto-420:text-[clamp(1rem,5vw,1.4rem)]">
                                     From Me to You
                                 </h1>
@@ -200,7 +200,7 @@ export default function Contact() {
                         </div>
 
                         {/* Contacts stay unboxed, on the remaining 3 columns */}
-                        <div className="flex w-full flex-col gap-4 lg:order-1 lg:col-span-4 lg:mr-auto lg:max-w-[540px] lg:[transform:translateY(-1.5rem)] upto-768:gap-3">
+                        <div className="flex w-full flex-col gap-4 lg:order-2 lg:col-span-4 lg:ml-auto lg:max-w-[540px] lg:[transform:translateY(-1.5rem)] upto-768:gap-3">
                             {/* Pixel label with a rule running out to the edge */}
                             <div className="mb-1 flex items-center gap-4">
                                 <span className={`${MC_PIXEL} text-[0.7rem] uppercase tracking-[0.12em] text-white upto-420:text-[0.6rem]`}>
@@ -251,7 +251,7 @@ export default function Contact() {
                                         viewBox="0 0 9 9"
                                         shapeRendering="crispEdges"
                                         aria-hidden="true"
-                                        className="-ml-1 shrink-0 animate-arrow-bounce-down will-change-transform motion-reduce:animate-none"
+                                        className="-ml-1 -translate-x-1.5 shrink-0 animate-arrow-bounce-down will-change-transform motion-reduce:animate-none"
                                     >
                                         {/* dark drop shadow one pixel down-right, the way in-game glyphs are drawn */}
                                         <g fill="#3f3f3f">
@@ -266,7 +266,7 @@ export default function Contact() {
                                         </g>
                                     </svg>
                                     {/* same one-pixel dark shadow as the arrow glyph */}
-                                    <span className="font-pixel text-[0.68rem] uppercase tracking-[0.08em] text-white [text-shadow:2px_2px_0_#3f3f3f] upto-420:text-[0.6rem]">
+                                    <span className="-translate-x-0.5 font-pixel text-[0.68rem] uppercase tracking-[0.08em] text-white [text-shadow:2px_2px_0_#3f3f3f] upto-420:text-[0.6rem]">
                                         email directly
                                     </span>
                                 </span>
@@ -282,7 +282,7 @@ export default function Contact() {
                     {/* Contact form + callout */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                         {/* Wider-looking form without moving grid */}
-                        <div className="flex justify-start order-2 lg:order-1">
+                        <div className="flex justify-end order-2 lg:order-2">
                             {/* Minecraft-style container: flat panel, hard edges, pixel headline */}
                             <div className={`mx-auto w-full max-w-[680px] p-8 above-992:upto-1200:max-w-[720px] above-992:upto-1200:p-[1.85rem] above-768:upto-992:p-[1.5rem] upto-768:w-[calc(100%-2rem)] upto-768:max-w-none above-420:upto-768:mx-4 above-420:upto-768:px-4 above-420:upto-768:pt-5 above-420:upto-768:pb-5 upto-420:mx-[0.6rem] upto-420:px-3 upto-420:pt-4 upto-420:pb-4 ${MC_PANEL}`}>
                                 <h2 className={`${MC_PIXEL} mb-6 text-[1.45rem] leading-[1.35] text-white above-768:upto-992:text-[1.2rem] upto-768:mb-5 upto-768:text-[1rem] upto-420:text-[0.85rem]`}>
@@ -376,7 +376,7 @@ export default function Contact() {
                             </div>
                         </div>
 
-                        <aside className="flex flex-col items-center text-center order-1 lg:order-2 lg:self-center lg:px-6">
+                        <aside className="flex flex-col items-center text-center order-1 lg:order-1 lg:self-center lg:px-6">
                             <h1 className="mb-5 font-fleur text-7xl font-semibold whitespace-nowrap upto-768:text-[clamp(2rem,10vw,4rem)] upto-768:leading-[1.02]">
                                 {"Email me directly".split("").map((ch, i) =>
                                     ch === " " ? (
