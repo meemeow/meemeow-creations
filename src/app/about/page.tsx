@@ -33,11 +33,19 @@ const HEADING =
 const SHOWCASE_INNER =
   "[transition:min-height_800ms_cubic-bezier(.4,0,.2,1)] group-data-[state=intro]/show:min-h-svh! " +
   "group-data-[state=done]/show:[transition:none]";
+// Pressing (or tapping) the curtain lifts it too, like scrolling (see AboutShowcase).
 const CURTAIN =
-  "pointer-events-none absolute inset-x-0 top-0 z-10 flex items-center justify-center px-6 text-center " +
+  "absolute inset-x-0 top-0 z-10 flex cursor-pointer flex-col items-center justify-center px-6 text-center select-none " +
   "[transition:transform_800ms_cubic-bezier(.4,0,.2,1),opacity_800ms_ease] " +
+  "group-data-[state=settled]/show:pointer-events-none " +
   "group-data-[state=settled]/show:[transform:translateY(-30%)] group-data-[state=settled]/show:opacity-0 " +
   "group-data-[state=done]/show:hidden";
+// Navigation hint under the curtain heading: hidden until the visitor has been idle
+// for a while, then AboutShowcase blinks it slowly. Positioned below the centred heading
+// (clearing its enlarged size) so it doesn't push the heading off centre.
+const CURTAIN_HINT =
+  "absolute inset-x-6 top-[calc(50%+76px)] font-pixel text-[0.65rem] uppercase tracking-[0.12em] text-gray-300 opacity-0 " +
+  "[text-shadow:2px_2px_0_rgba(0,0,0,0.75)] max-2xl:top-[calc(50%+62px)] upto-639:top-[calc(50%+40px)] upto-420:text-[0.55rem]";
 // The first curtain sits under the navbar (116 / 99 / 81px on the 2xl / lg tiers).
 const OVERLAY_FIRST = "h-[calc(100svh-116px)] max-2xl:h-[calc(100svh-99px)] max-lg:h-[calc(100svh-81px)]";
 // Curtain heading is the section heading, enlarged (normal size on phones so it fits).
@@ -104,6 +112,81 @@ const INTRO_SLOT_BUTTON =
   "max-2xl:min-w-0 max-2xl:gap-2 max-2xl:px-4 max-2xl:tracking-[0.04em] " +
   "max-lg:h-11 upto-420:min-w-0 upto-420:text-[0.6rem]";
 
+// Background block, laid out like the Introduction: school seal beside the school
+// name (headline), degree (role line) and place/dates (meta), then certifications as
+// beveled slots like the contact page's links.
+const SCHOOL = "mt-5 flex items-center gap-5 upto-639:mt-4 upto-639:gap-4";
+const SCHOOL_SEAL = "h-[84px] w-auto shrink-0 max-lg:h-[72px] upto-639:h-[60px] upto-420:h-[52px]";
+const SCHOOL_NAME =
+  "font-extrabold leading-[1.1] text-white text-[2.5rem] max-2xl:text-[2.25rem] max-lg:text-[2rem] " +
+  "upto-639:text-[1.625rem] upto-420:text-[1.375rem] upto-376:text-[1.25rem]";
+const DEGREE =
+  "mt-5 max-w-[640px] font-gotham font-semibold text-gray-200 text-[1.25rem] leading-[1.4] max-2xl:text-[1.125rem] " +
+  "upto-639:mt-4 upto-639:text-[1.0625rem]";
+const DEGREE_TRACK = "mt-1 block font-medium text-gray-300 text-[1.0625rem] max-2xl:text-[1rem] upto-639:text-[0.9375rem]";
+const SCHOOL_META =
+  "mt-3 flex flex-wrap items-center gap-x-5 gap-y-1.5 font-gotham font-medium text-gray-400 text-[1rem] upto-639:text-[0.9375rem]";
+const META_ITEM = "flex items-center gap-1.5";
+const SUB_EYEBROW =
+  "mt-10 flex max-w-[640px] items-center gap-4 font-pixel text-[0.62rem] uppercase tracking-[0.12em] text-gray-300 " +
+  "[text-shadow:2px_2px_0_rgba(0,0,0,0.75)] upto-639:mt-8 upto-420:text-[0.56rem] " +
+  "after:h-px after:flex-1 after:bg-[#1c1a19] after:[box-shadow:0_1px_0_#454140] after:content-['']";
+// Credly badges in a two-column grid (one column on phones), each slot linking to
+// its verification page; lightens on hover and presses down like the slot button.
+// Groups sit on a two-column grid too: a group with several badges takes the full
+// row (its badges two across), single-badge groups pair up side by side.
+const CERT_GROUPS_GRID = "mt-4 grid max-w-[640px] grid-cols-2 gap-x-3 gap-y-5 upto-639:grid-cols-1 upto-639:gap-y-4";
+const CERT_GROUP_WIDE = "col-span-full";
+const CERTS = "grid grid-cols-2 gap-3 upto-639:grid-cols-1";
+const CERTS_SINGLE = "grid grid-cols-1 gap-3";
+// Topic label above each group of badges.
+const CERT_GROUP_LABEL = "mb-2.5 font-gotham font-semibold text-gray-400 text-[0.875rem] tracking-[0.02em] upto-639:text-[0.8125rem]";
+const CERT =
+  "flex h-full items-center gap-3.5 border-[3px] bg-[#2f2d2c] px-3.5 py-3 font-gotham no-underline " +
+  "border-t-[#3d3938] border-r-[#3d3938] border-b-[#000000] border-l-[#000000] [box-shadow:0_6px_18px_rgba(0,0,0,0.45)] " +
+  "[transition:background-color_140ms_ease,transform_100ms_ease] hover:bg-[#3a3735] active:[transform:translateY(2px)] " +
+  "focus-visible:[outline:2px_solid_rgba(255,255,160,0.7)] focus-visible:[outline-offset:2px]";
+const CERT_BADGE = "h-14 w-14 shrink-0 object-contain max-lg:h-12 max-lg:w-12";
+// Badges drawn in black on transparent (CCST) sit on a white tile so they read on the dark slot.
+const CERT_TILE = "rounded-md bg-white p-1";
+const CERT_NAME = "block font-semibold leading-[1.3] text-white text-[0.9375rem] upto-639:text-[0.875rem]";
+const CERT_DETAIL = "mt-0.5 block font-medium text-gray-400 text-[0.8125rem]";
+
+// Credly badges (images saved from Credly), grouped by topic, each group in the
+// order they were earned.
+const CERT_GROUPS = [
+  {
+    label: "Programming",
+    items: [
+      { id: "56e40311-f63a-456c-8a18-1f0178296c17", img: "it-specialist-python", name: "IT Specialist: Python", issuer: "Certiport", date: "Mar 2024" },
+      { id: "946cf358-2c54-4635-abd9-c5281df2ac47", img: "it-specialist-html-and-css", name: "IT Specialist: HTML and CSS", issuer: "Certiport", date: "Nov 2024" },
+      { id: "968ee7ae-4637-4b5a-8b44-429b497fbb34", img: "it-specialist-javascript", name: "IT Specialist: JavaScript", issuer: "Certiport", date: "Nov 2025" },
+    ],
+  },
+  {
+    label: "Networking",
+    items: [
+      { id: "0d1e16fa-b1fc-43ef-97bf-085273d6f5b7", img: "ccna-introduction-to-networks", name: "CCNA: Introduction to Networks", issuer: "Cisco", date: "Mar 2024" },
+      { id: "0331903d-35e0-490f-b097-e0e214cbb270", img: "ccna-switching-routing-wireless", name: "CCNA: Switching, Routing, and Wireless Essentials", issuer: "Cisco", date: "Jul 2024" },
+      { id: "b99f16a9-04a3-464a-bd0b-e6f3402d465c", img: "ccna-enterprise-networking", name: "CCNA: Enterprise Networking, Security, and Automation", issuer: "Cisco", date: "Jan 2025" },
+      { id: "01d6ee35-d548-4caf-a654-da2e47ee7365", img: "it-specialist-networking", name: "IT Specialist: Networking", issuer: "Certiport", date: "Jul 2024" },
+      { id: "753b7f65-da75-4ba0-abf2-1ce6ec86f531", img: "devnet-associate", name: "DevNet Associate", issuer: "Cisco", date: "Mar 2025" },
+    ],
+  },
+  {
+    label: "Cybersecurity",
+    items: [
+      { id: "4812b8be-2e8d-41e7-aaab-20add5794987", img: "ccst-cybersecurity", tile: true, name: "Cisco Certified Support Technician: Cybersecurity", issuer: "Cisco", date: "Nov 2025" },
+    ],
+  },
+  {
+    label: "Project Management",
+    items: [
+      { id: "9e363fc8-280f-45c9-a244-59b2fdf442b4", img: "pmi-project-management-ready", name: "Project Management Ready", issuer: "PMI", date: "Mar 2025" },
+    ],
+  },
+];
+
 // Plain body copy for now, taken from the resume; styling to be refined later.
 const BODY = "mt-6 max-w-[900px] font-gotham font-medium text-[1.0625rem] leading-[1.6] text-gray-300 max-lg:text-[1rem] upto-639:mt-4 upto-639:text-[0.9375rem]";
 const SUBHEADING = "mt-8 font-gotham text-[1.25rem] font-semibold text-white first:mt-0 upto-639:mt-6 upto-639:text-[1.125rem]";
@@ -113,7 +196,9 @@ const LIST = "mt-3 list-disc space-y-2 pl-5";
 // `aside` puts something beside the heading and copy, stacking on top of them below
 // `asideFrom`: "lg" (1024px, the default) or "2xl" (1536px, for wide asides that
 // would squeeze the copy).
-type Section = { title: string | null; content?: ReactNode; aside?: ReactNode; asideFrom?: "lg" | "2xl" };
+// `eyebrow` shows the section title as the small pixel label (like the Introduction)
+// instead of the big heading, leaving the content to carry the headline.
+type Section = { title: string | null; content?: ReactNode; aside?: ReactNode; asideFrom?: "lg" | "2xl"; eyebrow?: boolean };
 
 // Row layouts for a section with an aside (literal strings so Tailwind sees them).
 const ASIDE_ROW = {
@@ -139,6 +224,7 @@ const LANDSCAPE =
 const SECTIONS: Section[] = [
   {
     title: "Introduction",
+    eyebrow: true,
     aside: (
       <PhotoCarousel
         priority
@@ -206,18 +292,62 @@ const SECTIONS: Section[] = [
         className={LANDSCAPE}
       />
     ),
+    eyebrow: true,
     content: (
-      <div className={BODY}>
-        <h3 className={SUBHEADING}>FEU Institute of Technology · Manila, Philippines</h3>
-        <p className="mt-2">Bachelor of Science in Information Technology, Specialization in Web and Mobile Applications</p>
-        <p className={META}>August 2022 – September 2026</p>
+      <div>
+        <div className={SCHOOL}>
+          <Image src="/assets/images/feu-tech-seal.png" alt="FEU Institute of Technology seal" width={286} height={349} className={SCHOOL_SEAL} />
+          <h3 className={SCHOOL_NAME}>FEU Institute of Technology</h3>
+        </div>
+        <p className={DEGREE}>
+          Bachelor of Science in Information Technology
+          <span className={DEGREE_TRACK}>Specialization in Web and Mobile Applications</span>
+        </p>
+        <p className={SCHOOL_META}>
+          <span className={META_ITEM}>
+            {/* map pin */}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="shrink-0">
+              <path
+                d="M12 22s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12zm0-9.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"
+                fill="currentColor"
+                fillRule="evenodd"
+              />
+            </svg>
+            Manila, Philippines
+          </span>
+          <span className={META_ITEM}>
+            {/* calendar */}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="shrink-0">
+              <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="2" />
+              <path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            August 2022 – September 2026
+          </span>
+        </p>
 
-        <h3 className={SUBHEADING}>Certifications</h3>
-        <ul className={LIST}>
-          <li>Information Technology Specialist – HTML &amp; CSS · JavaScript · Networking · Python (Certiport, 2024–2025)</li>
-          <li>Cisco Certified Support Technician – Cybersecurity (Cisco, 2024)</li>
-          <li>PMI Project Management Ready (PMI, 2025)</li>
-        </ul>
+        <h3 className={SUB_EYEBROW}>Certifications</h3>
+        <div className={CERT_GROUPS_GRID}>
+          {CERT_GROUPS.map((group) => (
+            <div key={group.label} className={group.items.length > 1 ? CERT_GROUP_WIDE : ""}>
+              <h4 className={CERT_GROUP_LABEL}>{group.label}</h4>
+              <ul className={group.items.length > 1 ? CERTS : CERTS_SINGLE}>
+                {group.items.map((c) => (
+                  <li key={c.id}>
+                    <a href={`https://www.credly.com/badges/${c.id}`} target="_blank" rel="noopener noreferrer" className={CERT}>
+                      <Image src={`/assets/images/badges/${c.img}.png`} alt="" aria-hidden="true" width={112} height={112} className={`${CERT_BADGE} ${"tile" in c && c.tile ? CERT_TILE : ""}`} />
+                      <span>
+                        <span className={CERT_NAME}>{c.name}</span>
+                        <span className={CERT_DETAIL}>
+                          {c.issuer} · {c.date}
+                        </span>
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       </div>
     ),
   },
@@ -306,7 +436,7 @@ const SECTIONS: Section[] = [
 export default function About() {
   return (
     <AboutShowcase>
-      {SECTIONS.map(({ title, content, aside, asideFrom = "lg" }, i) => (
+      {SECTIONS.map(({ title, content, aside, asideFrom = "lg", eyebrow }, i) => (
         // Titled sections open as a full-screen card with only their heading (see AboutShowcase).
         <section
           key={i}
@@ -323,7 +453,15 @@ export default function About() {
                     <div data-showcase-body className={REVEAL}>
                       {/* The curtain already shows "Introduction" big, so inside it's only a small
                           label and the name below is the page heading. */}
-                      {i === 0 ? <p className={EYEBROW}>{title}</p> : <h2 className={HEADING}>{title}</h2>}
+                      {/* Eyebrow sections keep their title as the small label; the Introduction's is a
+                          plain label (the name is the page heading), the others stay headings. */}
+                      {i === 0 ? (
+                        <p className={EYEBROW}>{title}</p>
+                      ) : eyebrow ? (
+                        <h2 className={EYEBROW}>{title}</h2>
+                      ) : (
+                        <h2 className={HEADING}>{title}</h2>
+                      )}
                     </div>
                   )}
                   {content && <div data-showcase-body className={REVEAL}>{content}</div>}
@@ -336,12 +474,16 @@ export default function About() {
             // Decorative copy of the heading; the real one above is what screen readers get.
             <div
               aria-hidden="true"
+              data-showcase-curtain
               className={`${CURTAIN} ${BACKGROUNDS[i % BACKGROUNDS.length]} ${i === 0 ? OVERLAY_FIRST : "h-svh"}`}
             >
               <div className={OVERLAY_SCALE}>
                 {/* Every curtain uses the glowing script headline, as on the Introduction. */}
                 <GlowHeading as="div" text={title} />
               </div>
+              <p data-showcase-hint className={CURTAIN_HINT}>
+                Press or Scroll Down to navigate
+              </p>
             </div>
           )}
         </section>

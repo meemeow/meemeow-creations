@@ -9,6 +9,8 @@ let played = false;
 const LIFT_MS = 800; // curtain rise + fade; keep in sync with CURTAIN in about/page.tsx
 const BODY_DELAY_MS = 400; // content starts popping in halfway through the curtain fade
 const BODY_STAGGER_MS = 90;
+const HINT_IDLE_MS = 10000; // no scrolling, pressing or keys for this long shows the hint
+const HINT_BLINK_MS = 3000; // one slow fade in and out
 
 const SCROLL_KEYS = new Set(["ArrowDown", "PageDown", "End", " "]);
 
@@ -16,8 +18,10 @@ const SCROLL_KEYS = new Set(["ArrowDown", "PageDown", "End", " "]);
  * About page section showcase. Each `[data-showcase]` section opens behind a
  * full-screen curtain showing only its heading. Scrolling it into place (the
  * first section: the first scroll down; the rest: when their top reaches the
- * top of the screen) lifts the curtain as it fades while the `[data-showcase-body]`
- * blocks beneath pop in (same animation as the projects page).
+ * top of the screen) or pressing the curtain (`[data-showcase-curtain]`, so phones
+ * can tap it) lifts it as it fades while the `[data-showcase-body]` blocks beneath
+ * pop in (same animation as the projects page). After a while without input, each
+ * waiting curtain's `[data-showcase-hint]` blinks slowly until the next input.
  *
  * States on the section's `data-state`: "intro" (server render: curtain down),
  * "settled" (curtain lifting), "done" (no curtain, no animation). The page's
@@ -52,8 +56,33 @@ export default function AboutShowcase({ children }: { children: ReactNode }) {
     let lockedUntil = 0;
     const locked = () => performance.now() < lockedUntil;
 
+    // Idle hint: every input hides it and restarts the countdown.
+    let hintTimer = 0;
+    const blinks: Animation[] = [];
+    const hideHints = () => blinks.splice(0).forEach((a) => a.cancel());
+    const showHints = () => {
+      pending.forEach((s) => {
+        const hint = s.querySelector<HTMLElement>("[data-showcase-hint]");
+        if (hint) {
+          blinks.push(
+            hint.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }], {
+              duration: HINT_BLINK_MS,
+              iterations: Infinity,
+              easing: "ease-in-out",
+            })
+          );
+        }
+      });
+    };
+    const resetIdle = () => {
+      hideHints();
+      clearTimeout(hintTimer);
+      if (pending.length) hintTimer = window.setTimeout(showHints, HINT_IDLE_MS);
+    };
+
     const settle = (s: HTMLElement, snap: boolean) => {
       pending.splice(pending.indexOf(s), 1);
+      resetIdle();
       played = true;
       // Hold scrolling while the curtain lifts so the reveal plays in full view.
       lockedUntil = performance.now() + LIFT_MS;
@@ -92,6 +121,16 @@ export default function AboutShowcase({ children }: { children: ReactNode }) {
         settle(first, false);
       }
     };
+
+    // Pressing a curtain lifts it like scrolling would; later sections also snap
+    // into place, as when their top reaches the top of the screen.
+    const presses = sections.map((s) => {
+      const onPress = () => {
+        if (!locked() && pending.includes(s)) settle(s, s !== first);
+      };
+      s.querySelector("[data-showcase-curtain]")?.addEventListener("click", onPress);
+      return () => s.querySelector("[data-showcase-curtain]")?.removeEventListener("click", onPress);
+    });
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (!SCROLL_KEYS.has(e.key)) return;
@@ -133,6 +172,9 @@ export default function AboutShowcase({ children }: { children: ReactNode }) {
     window.addEventListener("touchmove", onTouchMove, { passive: false });
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("scroll", onScroll, { passive: true });
+    const IDLE_EVENTS = ["wheel", "touchstart", "pointerdown", "keydown", "scroll"] as const;
+    IDLE_EVENTS.forEach((type) => window.addEventListener(type, resetIdle, { passive: true }));
+    resetIdle();
 
     return () => {
       window.removeEventListener("wheel", onWheel, { capture: true });
@@ -140,6 +182,10 @@ export default function AboutShowcase({ children }: { children: ReactNode }) {
       window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("scroll", onScroll);
+      IDLE_EVENTS.forEach((type) => window.removeEventListener(type, resetIdle));
+      presses.forEach((off) => off());
+      clearTimeout(hintTimer);
+      hideHints();
       if (frame) cancelAnimationFrame(frame);
       cancelAnimationFrame(restoreCheck);
       timers.forEach(clearTimeout);
