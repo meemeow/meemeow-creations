@@ -4,46 +4,36 @@ import ProjectCard from "@/components/sections/ProjectCard";
 import ProjectRow from "@/components/sections/ProjectRow";
 import WaveText from "@/components/sections/WaveText";
 import { projects } from "@/data/projects";
-
-// Each project pops in (fade + slide up) when the page adds `in-view`;
-// `already-seen` shows it instantly when returning within the same tab.
-const REVEAL =
-  "opacity-0 will-change-[transform,opacity] [transform:translateY(18px)] [transition:transform_420ms_ease-out,opacity_420ms_ease] " +
-  "[&.in-view]:opacity-100 [&.in-view:not(.already-seen)]:[transform:translateY(0)] " +
-  "[&.already-seen]:opacity-100 [&.already-seen]:[transform:translateY(0)_scale(1)] [&.already-seen]:[transition:none]";
+import { REVEAL } from "@/hooks/use-scroll-reveal";
 
 // Title / description / button block beside each card. Lifts slightly when the project is hovered (>940px).
 const META =
   "[transition:transform_220ms_cubic-bezier(.2,.9,.2,1),opacity_220ms_ease] will-change-[transform,opacity] " +
   "upto-639:text-center upto-467:px-2 upto-467:py-1 min-[1024px]:upto-1279:gap-[0.4rem]";
 
-// Project title and description scale down fluidly on mid-size and small screens.
+// Type steps down on the same tiers as the navbar and footer: 2xl (1536px),
+// lg (1024px), then the footer's small-phone stops at 639 / 420 / 376px.
 const TITLE =
-  "font-rye font-semibold text-[2.2rem] tracking-[0.2px] " +
-  "upto-940:text-[clamp(2.1rem,2.4vw+1rem,2.4rem)] upto-940:leading-[1.05] " +
-  "min-[1024px]:upto-1279:text-[clamp(1.4rem,1vw+0.9rem,1.9rem)] above-1279:upto-1439:text-[clamp(1.6rem,1.2vw+1rem,2rem)]";
-const TITLE_STACKED = "min-[941px]:upto-1023:text-[clamp(1.3rem,2.1rem+0.85rem,1.54rem)]";
+  "font-rye font-semibold tracking-[0.2px] leading-[1.1] text-[2.25rem] " +
+  "max-2xl:text-[1.875rem] max-lg:text-[1.75rem] upto-639:text-[1.625rem] upto-420:text-[1.5rem] upto-376:text-[1.375rem]";
 
 const DESC =
   "font-gotham font-medium text-gray-300 text-[1.0625rem] leading-[1.5] " +
-  "upto-940:text-[clamp(0.88rem,0.6vw+0.56rem,1rem)] upto-940:leading-[1.45] " +
-  "min-[1024px]:upto-1279:text-[clamp(0.8rem,0.6vw+0.55rem,0.95rem)] min-[1024px]:upto-1279:leading-[1.4] " +
-  "above-1279:upto-1439:text-[clamp(0.875rem,0.8vw+0.6rem,1rem)] above-1279:upto-1439:leading-[1.45]";
-const DESC_STACKED = "min-[941px]:upto-1023:text-[clamp(0.78rem,0.5vw+0.56rem,0.92rem)] min-[941px]:upto-1023:leading-[1.42]";
+  "max-2xl:text-[1rem] max-lg:text-[0.9375rem] max-lg:leading-[1.45] " +
+  "upto-639:text-[0.9rem] upto-420:text-[0.875rem] upto-376:text-[0.8125rem]";
 
 // Black "Visit Page" pill (same visual language as the contact submit button).
-// Compact at 1024–1279px, 70% wide and centered on small screens, full-width block ≤467px.
+// Sized on the navbar tiers; 70% wide and centered on small screens, full-width block ≤467px.
 const VISIT =
-  "inline-flex cursor-pointer items-center justify-center rounded-[10px] border border-[rgba(255,255,255,0.08)] bg-black px-6 py-[0.64rem] font-gotham font-medium text-white no-underline " +
+  "inline-flex cursor-pointer items-center justify-center rounded-[10px] border border-[rgba(255,255,255,0.08)] bg-black px-6 py-[0.64rem] font-gotham font-medium text-[1rem] text-white no-underline " +
   "[box-shadow:0_6px_22px_rgba(0,0,0,0.6),0_0_10px_rgba(255,255,255,0.04)_inset] " +
   "[transition:transform_160ms_cubic-bezier(.2,.9,.2,1),box-shadow_160ms_ease,background_160ms_ease,border-color_160ms_ease,color_160ms_ease] " +
   "focus:[outline:none] focus:[box-shadow:0_0_0_3px_rgba(255,230,216,0.12)] active:[transform:scale(0.96)_translateY(2px)] [&:active:not(:focus)]:[box-shadow:0_2px_8px_rgba(0,0,0,0.6)] " +
-  "min-[1024px]:upto-1279:rounded-lg min-[1024px]:upto-1279:px-4 min-[1024px]:upto-1279:py-2 min-[1024px]:upto-1279:text-[clamp(0.85rem,0.4vw+0.7rem,0.95rem)] " +
-  "upto-940:min-w-[120px] upto-940:max-w-[220px] above-467:upto-940:w-[70%] above-467:upto-940:px-[0.9rem] above-467:upto-940:py-[0.65rem] above-467:upto-940:text-[0.95rem] " +
+  "max-2xl:px-5 max-2xl:py-[0.55rem] max-2xl:text-[0.9375rem] max-lg:rounded-lg max-lg:px-4 max-lg:py-2 max-lg:text-[0.9rem] " +
+  "upto-639:text-[0.875rem] upto-420:text-[0.85rem] upto-376:text-[0.8rem] " +
+  "upto-940:min-w-[120px] upto-940:max-w-[220px] above-467:upto-940:w-[70%] " +
   "above-467:upto-639:mx-auto above-467:upto-639:flex " +
-  "upto-467:mx-auto upto-467:my-2 upto-467:block upto-467:w-[90%] upto-467:px-[0.7rem] upto-467:py-[0.48rem] upto-467:text-[0.85rem]";
-const VISIT_STACKED =
-  "min-[941px]:upto-1023:rounded-lg min-[941px]:upto-1023:px-[0.9rem] min-[941px]:upto-1023:py-[0.45rem] min-[941px]:upto-1023:text-[clamp(0.8rem,0.36vw+0.68rem,0.95rem)]";
+  "upto-467:mx-auto upto-467:my-2 upto-467:block upto-467:w-[90%] upto-467:py-[0.48rem]";
 
 export default function Projects() {
   const [view, setView] = useState<"masonry" | "stacked">("masonry");
@@ -125,7 +115,10 @@ export default function Projects() {
             }
           });
         },
-        { root: null, rootMargin: "0px 0px -25% 0px", threshold: 0 }
+        // Pop in as soon as a project peeks into view. A percentage margin hid
+        // projects already sitting in the empty space at the bottom of shorter
+        // viewports, so nothing hinted there was more to scroll to.
+        { root: null, rootMargin: "0px 0px -48px 0px", threshold: 0 }
       );
 
       els.forEach((el) => obs.observe(el));
@@ -158,9 +151,9 @@ export default function Projects() {
       {/* Content stops growing past 1920px, so zoomed-out (and ultra-wide)
           viewports keep the 1920px layout centered instead of stretching. */}
       <div className="mx-auto w-full max-w-[1920px]">
-      <div className="mx-8 px-6 py-12 [transition:margin-inline_220ms_ease,padding_220ms_ease] upto-639:mx-4 min-[768px]:mx-12 min-[1024px]:mx-20 min-[1280px]:mx-24 min-[1440px]:mx-28 min-[1600px]:mx-32 upto-467:px-[12px]">
-        <header className="mb-12 flex items-center justify-between upto-467:mb-[0.9rem] upto-376:justify-center">
-          <h2 className="font-rye text-4xl font-semibold md:text-5xl min-[941px]:upto-1023:text-[clamp(2.5rem,2.4vw+1rem,3rem)]! min-[941px]:upto-1023:leading-[1.08]! min-[1024px]:upto-1279:text-[clamp(2.6rem,2.4vw+1rem,3rem)]! min-[1024px]:upto-1279:leading-[1.06]! upto-467:mb-[24px] upto-376:w-full upto-376:text-center">
+      <div className="mx-8 px-6 py-12 max-2xl:py-10 max-lg:py-8 upto-420:py-6 [transition:margin-inline_220ms_ease,padding_220ms_ease] upto-639:mx-4 min-[768px]:mx-12 min-[1024px]:mx-20 min-[1280px]:mx-24 min-[1440px]:mx-28 min-[1600px]:mx-32 upto-467:px-[12px]">
+        <header className="mb-12 flex items-center justify-between max-2xl:mb-10 max-lg:mb-8 upto-420:mb-6 upto-376:justify-center">
+          <h2 className="font-rye text-[3rem] leading-[1.1] font-semibold max-2xl:text-[2.75rem] max-lg:text-[2.5rem] upto-639:text-[2.25rem] upto-420:text-[2rem] upto-376:w-full upto-376:text-[1.75rem] upto-376:text-center">
             My Projects
           </h2>
           {showViewToggle && (
@@ -172,7 +165,7 @@ export default function Projects() {
               title="Masonry view"
             >
               {/* masonry icon: tall left tile + stacked right tiles */}
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="text-white w-7 h-7 md:w-8 md:h-8" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="text-white h-8 w-8 max-2xl:h-7 max-2xl:w-7" aria-hidden="true">
                 <rect x="2" y="4" width="12" height="4" rx="1" stroke="currentColor" strokeWidth="1.5" />
                 <rect x="16" y="4" width="6" height="4" rx="1" stroke="currentColor" strokeWidth="1.5" />
                 <rect x="2" y="10" width="6" height="4" rx="1" stroke="currentColor" strokeWidth="1.5" />
@@ -189,7 +182,7 @@ export default function Projects() {
               title="Stacked list view"
             >
               {/* list icon */}
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="text-white w-7 h-7 md:w-8 md:h-8">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="text-white h-8 w-8 max-2xl:h-7 max-2xl:w-7">
                 <rect x="3" y="4" width="12" height="4" rx="1" stroke="currentColor" strokeWidth="1.5" />
                 <rect x="17" y="4" width="4" height="4" rx="1" stroke="currentColor" strokeWidth="1.5" />
                 <rect x="3" y="10" width="12" height="4" rx="1" stroke="currentColor" strokeWidth="1.5" />
@@ -223,7 +216,7 @@ export default function Projects() {
                   >
                     <div className={`mb-1 ${TITLE}`}>{p.title}</div>
                     <div className={DESC}>{p.desc}</div>
-                    <div className="mt-4">
+                    <div className="mt-4 max-lg:mt-3">
                       <a aria-label={`Visit ${p.title}`} href={p.url ?? "#"} target="_blank" rel="noopener noreferrer" className={VISIT}>
                         <WaveText text="Visit Page" />
                       </a>
@@ -242,10 +235,10 @@ export default function Projects() {
               >
                 <ProjectRow p={p} />
                 <div className={`${META} w-full text-right above-940:w-2/5 above-940:[.project-row:hover_&]:[transform:translateY(-6px)]`}>
-                  <div className={`mb-2 ${TITLE} ${TITLE_STACKED}`}>{p.title}</div>
-                  <div className={`whitespace-pre-line ${DESC} ${DESC_STACKED}`}>{p.desc}</div>
-                  <div className="mt-4">
-                    <a aria-label={`Visit ${p.title}`} href={p.url ?? "#"} target="_blank" rel="noopener noreferrer" className={`${VISIT} ${VISIT_STACKED}`}>
+                  <div className={`mb-2 ${TITLE}`}>{p.title}</div>
+                  <div className={`whitespace-pre-line ${DESC}`}>{p.desc}</div>
+                  <div className="mt-4 max-lg:mt-3">
+                    <a aria-label={`Visit ${p.title}`} href={p.url ?? "#"} target="_blank" rel="noopener noreferrer" className={`${VISIT}`}>
                       <WaveText text="Visit page" />
                     </a>
                   </div>

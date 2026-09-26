@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import SetOutcomeModal from "@/components/ui/SetOutcomeModal";
+import { REVEAL, useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { ZodError } from "zod";
 import {
     firstNameSchema,
@@ -27,9 +28,12 @@ const FIELD =
     "placeholder:font-gotham placeholder:font-medium placeholder:text-[#6f6f6f] " +
     "[box-shadow:inset_0_2px_0_rgba(0,0,0,0.45)] [transition:border-color_120ms_ease,background-color_120ms_ease] " +
     "hover:border-[#6e6e6e] focus:border-white focus:bg-[#232323] focus:[outline:none] " +
-    "upto-768:w-full upto-768:py-[0.6rem] upto-768:text-[0.98rem]";
+    // Text stays at 16px on phones (smaller makes iOS zoom in on focus); only the padding tightens.
+    "w-full text-[1rem] upto-639:px-2.5 upto-639:py-[0.4rem] upto-420:py-[0.35rem]";
 
-const LABEL = "mb-1.5 font-gotham text-sm font-medium tracking-wide text-white";
+const LABEL =
+    "mb-1.5 font-gotham text-[0.875rem] font-medium tracking-wide text-white " +
+    "upto-639:mb-1 upto-639:text-[0.8125rem] upto-420:text-[0.78rem]";
 
 // Pixel type with Minecraft's hard offset drop shadow.
 const MC_PIXEL = "font-pixel [text-shadow:2px_2px_0_rgba(0,0,0,0.75)]";
@@ -42,9 +46,10 @@ const MC_BUTTON =
     "[box-shadow:inset_0_2px_0_rgba(255,255,255,0.28),inset_0_-3px_0_rgba(0,0,0,0.28),0_0_0_2px_var(--mc-panel-dark)] " +
     "[transition:filter_120ms_ease,transform_80ms_ease] hover:brightness-110 active:[transform:translateY(2px)] " +
     "disabled:cursor-not-allowed disabled:[filter:grayscale(0.55)_brightness(0.8)] " +
-    "upto-768:w-full upto-768:justify-center upto-768:px-4 upto-768:py-[0.7rem] upto-768:text-[0.62rem]";
+    "max-lg:text-[0.68rem] upto-639:w-full upto-639:justify-center upto-639:px-4 upto-639:py-[0.6rem] upto-639:text-[0.62rem] " +
+    "upto-420:py-[0.55rem] upto-420:text-[0.58rem]";
 
-const ERROR_TEXT = "mt-1 font-gotham text-sm text-[var(--mc-red)]";
+const ERROR_TEXT = "mt-1 font-gotham text-[0.875rem] text-[var(--mc-red)] upto-639:text-[0.78rem]";
 
 // Stone face from the back-to-top button (ScrollToTop.tsx), widened so the label
 // sits inside it next to the arrow; the button spans half the contact slots' width.
@@ -57,7 +62,7 @@ const STONE_FACE =
     "group-active:[transform:translateY(4px)] " +
     "group-active:[box-shadow:inset_3px_3px_0_0_#4f4f4f,inset_-3px_-3px_0_0_#c6c6c6,0_0_0_3px_#000000,0_1px_0_3px_rgba(0,0,0,0.35)] " +
     "group-focus-visible:[box-shadow:inset_3px_3px_0_0_#dcdcdc,inset_-3px_-3px_0_0_#5f5f5f,0_0_0_3px_#000000,0_0_0_6px_rgba(255,255,160,0.7),0_5px_0_3px_rgba(0,0,0,0.35)] " +
-    "max-lg:h-11";
+    "max-lg:h-11 upto-639:gap-3 upto-639:px-5";
 
 // The back-to-top arrow's 9x9 sprite, mirrored vertically so it points down.
 const ARROW_DOWN_ROWS: [x: number, y: number, w: number][] = [
@@ -73,19 +78,40 @@ const ARROW_DOWN_ROWS: [x: number, y: number, w: number][] = [
 ];
 
 // One contact per slot: same bevel as the form panel, lit on hover.
+// Always one line: the section stacks below 2xl so the slots get the full width,
+// and the text steps down on the footer's phone tiers so the longest link still fits.
 const MC_SLOT =
-    "flex items-center gap-4 border-[3px] bg-[#2f2d2c] px-5 py-4 font-gotham font-medium text-gray-200 " +
+    "flex items-center gap-4 overflow-hidden border-[3px] bg-[#2f2d2c] px-5 py-4 font-gotham font-medium text-gray-200 " +
     "border-t-[#3d3938] border-r-[#3d3938] border-b-[#000000] border-l-[#000000] " +
     "[box-shadow:0_6px_18px_rgba(0,0,0,0.45)] [transition:background-color_140ms_ease,color_140ms_ease,transform_100ms_ease] " +
     "hover:bg-[#3a3735] hover:text-white active:[transform:translateY(2px)] " +
-    "text-[1.05rem] break-all above-992:upto-1200:text-[0.98rem] upto-768:gap-3 upto-768:px-4 upto-768:py-3 upto-768:text-[0.9rem]";
+    "text-[1.05rem] whitespace-nowrap upto-639:gap-3 upto-639:px-4 upto-639:py-3 upto-639:text-[0.9rem] " +
+    "upto-420:text-[0.85rem] upto-376:px-3 upto-376:text-[clamp(0.625rem,calc(5.2vw-0.33rem),0.8rem)]";
+
+// Link text inside a slot; ellipsis is only a last resort on unusually narrow screens.
+const SLOT_TEXT = "min-w-0 truncate";
 
 // Per-letter glow for "Email me directly" and "Send Message"; each letter's delay is set inline.
 const GLOW_LETTER = "inline-block animate-contact-glow will-change-[transform,filter,opacity] [text-shadow:0_0_6px_rgba(255,200,160,0.12)]";
-const LETTER_SPACE = "inline-block w-[0.42rem]";
+// Word gap in em so it scales with the headline's responsive size.
+const LETTER_SPACE = "inline-block w-[0.1em]";
 
-// Hero intro + contact lines shrink to a fluid size on large (≥1200px) and small (≤992px) screens.
-const HERO_INFO_SIZE = "min-[1200px]:text-[clamp(1rem,1.8vw,1.25rem)]! upto-992:text-[clamp(0.92rem,1.7vw,1.08rem)]!";
+// Both sections' grids stop growing from 1920px and center (mx-auto), so ultra-wide
+// screens get breathing space on both sides. Never narrower than the 1920px layout
+// (1920 - 2 x 64px gutters = 1792px); past ~2370px the side space grows at ~25vw - 304px.
+const WIDE_GRID = "min-[1920px]:mx-auto min-[1920px]:max-w-[max(1792px,calc(50vw+608px))]";
+
+// Hero heading + line step down on the navbar/footer tiers (back to the original 5rem
+// heading from 1920px, where the box is wide enough for it). The heading never wraps,
+// so each step keeps it to roughly 60–70% of the box's inner width. Below 640px the box is
+// about (100vw - 100px) wide inside and the heading is ~8.6em long, so it scales with the
+// viewport there (~80% of the box, capped at 2.5rem) and stays on one line down to ~300px.
+const HERO_TITLE =
+    "mb-3 text-[4rem] leading-[1.05] font-extrabold whitespace-nowrap min-[1920px]:text-[5rem] min-[1920px]:leading-[1.02] max-2xl:text-[3.75rem] max-lg:text-[3.25rem] " +
+    "upto-768:mx-auto upto-768:text-center upto-768:text-[2.75rem] upto-639:mb-2 upto-639:text-[clamp(1.2rem,calc(9.6vw-0.5rem),2.5rem)]";
+const HERO_LINE =
+    "text-[1.25rem] text-gray-200 max-2xl:text-[1.125rem] max-lg:text-[1.0625rem] upto-768:mx-auto upto-768:text-center " +
+    "upto-639:text-[1rem] upto-639:text-balance upto-420:text-[0.9375rem] upto-376:text-[0.875rem]";
 
 export default function Contact() {
     const [formData, setFormData] = useState<ContactForm>({
@@ -126,6 +152,10 @@ export default function Contact() {
         const { name, value } = e.target;
         validateField(name, value);
     };
+
+    // Same scroll pop-in as the projects page, once per tab.
+    const mainRef = useRef<HTMLElement | null>(null);
+    useScrollReveal(mainRef, "__contactAnimated");
 
     const toForm = () => {
         // Honour a reduced-motion preference by jumping instead of gliding.
@@ -182,25 +212,44 @@ export default function Contact() {
     };
 
     return (
-        <main className="min-h-screen bg-[#171615] text-white">
+        <main ref={mainRef} className="min-h-screen bg-[#171615] text-white">
             {/* Section 1 — intro on the left, contact slots on the right */}
             <section className="bg-[#0f0e0d]">
-                <div className="max-w-9xl mx-2 md:mx-10 px-6 py-14 md:py-20">
-                    <div className="grid w-full items-center gap-10 lg:grid-cols-12 lg:gap-20 upto-768:gap-8">
-                        {/* Intro, in the original translucent card */}
-                        <div className={`flex min-h-[560px] items-center p-12 lg:order-1 lg:col-span-8 min-[1200px]:min-h-[760px] above-1200:px-[5rem] above-768:upto-992:p-8 upto-768:min-h-[320px] upto-768:p-6 rounded-lg border-2 border-white/20 bg-white/5`}>
-                            <div className="w-full text-center md:text-left">
-                                <h1 className="mb-3 text-[clamp(1.6rem,6vw,3.5rem)] leading-[1.1] font-extrabold whitespace-nowrap min-[1200px]:text-[clamp(2rem,5.6vw,5rem)] min-[1200px]:leading-[1.02] upto-992:leading-[1.05] upto-768:mx-auto upto-768:text-center above-420:upto-768:text-[clamp(1.2rem,5vw,2.2rem)] upto-420:text-[clamp(1rem,5vw,1.4rem)]">
+                {/* Same gutters as section 2. Side by side only from 2xl (1536px): below
+                    that the contacts column is too narrow to keep each link on one line. */}
+                <div className="max-w-9xl mx-10 px-6 py-20 max-2xl:py-16 max-lg:py-14 upto-768:mx-2 upto-639:px-4 upto-639:py-10 upto-420:px-3 upto-420:py-8">
+                    <div className={`grid w-full grid-cols-1 items-center gap-10 2xl:grid-cols-12 2xl:gap-20 upto-768:gap-8 ${WIDE_GRID}`}>
+                        {/* Intro card over the contacts_bg clip. Stacked, it holds 500px up to 1135px, then
+                            grows with the viewport to meet the 600px side-by-side height at 1536px. */}
+                        <div data-reveal className={`${REVEAL} relative flex min-h-[500px] items-center overflow-hidden px-20 py-12 min-[1135px]:min-h-[clamp(500px,calc(500px+(100vw-1135px)*0.25),600px)] max-lg:min-h-[320px] upto-639:min-h-[260px] upto-420:min-h-[220px] upto-376:min-h-[200px] max-lg:p-8 2xl:order-1 2xl:col-span-8 2xl:min-h-[600px] upto-768:p-6 upto-420:p-5 rounded-lg border-2 border-white/20 bg-white/5`}>
+                            <video
+                                className="pointer-events-none absolute inset-0 h-full w-full object-cover motion-reduce:hidden"
+                                src="/assets/others/contacts_bg.mp4"
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                aria-hidden="true"
+                            />
+                            {/* Darkens the clip, most behind the text, so the heading stays readable. */}
+                            <div
+                                aria-hidden="true"
+                                className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.72)_0%,rgba(0,0,0,0.45)_60%,rgba(0,0,0,0.3)_100%)] upto-768:bg-[rgba(0,0,0,0.55)]"
+                            />
+                            <div className="relative w-full text-center md:text-left">
+                                <h1 className={HERO_TITLE}>
                                     From Me to You
                                 </h1>
-                                <p className={`text-xl text-gray-200 ${HERO_INFO_SIZE} upto-768:mx-auto upto-768:text-center`}>
+                                <p className={HERO_LINE}>
                                     Questions, projects, or just to say hi &mdash; my inbox is open.
                                 </p>
                             </div>
                         </div>
 
-                        {/* Contacts stay unboxed, on the remaining 3 columns */}
-                        <div className="flex w-full flex-col gap-4 lg:order-2 lg:col-span-4 lg:ml-auto lg:max-w-[540px] lg:[transform:translateY(-1.5rem)] upto-768:gap-3">
+                        {/* Contacts stay unboxed: right-aligned on the remaining 4 columns from 2xl,
+                            centered and capped below the box when stacked */}
+                        {/* Raised with `top` (not transform) so it doesn't fight the pop-in's transform; trails the box slightly. */}
+                        <div data-reveal style={{ transitionDelay: "120ms" }} className={`${REVEAL} mx-auto flex w-full min-w-0 max-w-[660px] flex-col gap-4 2xl:relative 2xl:-top-6 2xl:order-2 2xl:col-span-4 2xl:mr-0 2xl:ml-auto 2xl:max-w-[540px] upto-768:gap-3`}>
                             {/* Pixel label with a rule running out to the edge */}
                             <div className="mb-1 flex items-center gap-4">
                                 <span className={`${MC_PIXEL} text-[0.7rem] uppercase tracking-[0.12em] text-white upto-420:text-[0.6rem]`}>
@@ -216,17 +265,17 @@ export default function Contact() {
                                         fill="currentColor"
                                     />
                                 </svg>
-                                +63 9152669845
+                                <span className={SLOT_TEXT}>+63 9152669845</span>
                             </a>
 
                             <a href="https://www.linkedin.com/in/emerson-clamor" target="_blank" rel="noopener noreferrer" className={MC_SLOT}>
                                 <img src="/assets/images/linkedin.png" alt="" aria-hidden="true" className="h-5 w-5 shrink-0 object-contain" />
-                                www.linkedin.com/in/emerson-clamor
+                                <span className={SLOT_TEXT}>www.linkedin.com/in/emerson-clamor</span>
                             </a>
 
                             <a href="https://github.com/meemeow" target="_blank" rel="noopener noreferrer" className={MC_SLOT}>
                                 <img src="/assets/images/github.webp" alt="" aria-hidden="true" className="h-5 w-5 shrink-0 object-contain" />
-                                https://github.com/meemeow
+                                <span className={SLOT_TEXT}>https://github.com/meemeow</span>
                             </a>
 
                             {/* "OR" divider: the "Contact via" rule, run out on both sides */}
@@ -251,7 +300,7 @@ export default function Contact() {
                                         viewBox="0 0 9 9"
                                         shapeRendering="crispEdges"
                                         aria-hidden="true"
-                                        className="-ml-1 -translate-x-1.5 shrink-0 animate-arrow-bounce-down will-change-transform motion-reduce:animate-none"
+                                        className="-ml-1 -translate-x-1.5 shrink-0 upto-639:ml-0 upto-639:translate-x-0 animate-arrow-bounce-down will-change-transform motion-reduce:animate-none"
                                     >
                                         {/* dark drop shadow one pixel down-right, the way in-game glyphs are drawn */}
                                         <g fill="#3f3f3f">
@@ -266,7 +315,7 @@ export default function Contact() {
                                         </g>
                                     </svg>
                                     {/* same one-pixel dark shadow as the arrow glyph */}
-                                    <span className="-translate-x-0.5 font-pixel text-[0.68rem] uppercase tracking-[0.08em] text-white [text-shadow:2px_2px_0_#3f3f3f] upto-420:text-[0.6rem]">
+                                    <span className="-translate-x-0.5 upto-639:translate-x-0 font-pixel text-[0.68rem] uppercase tracking-[0.08em] text-white [text-shadow:2px_2px_0_#3f3f3f] upto-420:text-[0.6rem]">
                                         email directly
                                     </span>
                                 </span>
@@ -278,19 +327,21 @@ export default function Contact() {
 
             {/* Section 2 — email pitch + form, on the darker band */}
             <section id="email-form" className="border-t border-white/[0.08] bg-[#171615]">
-                <div className="max-w-9xl mx-2 md:mx-10 px-6 py-10 md:py-18">
-                    {/* Contact form + callout */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                {/* Spacing steps down on the navbar/footer tiers: 2xl, lg, then 639 / 420px. */}
+                <div className="max-w-9xl mx-10 px-6 py-18 max-2xl:py-16 max-lg:py-12 upto-768:mx-2 upto-639:px-4 upto-639:py-10 upto-420:px-3 upto-420:py-8">
+                    {/* Contact form + callout: pop in together as one block */}
+                    <div data-reveal className={`${REVEAL} grid grid-cols-1 lg:grid-cols-2 gap-8 items-center upto-639:gap-6 ${WIDE_GRID}`}>
                         {/* Wider-looking form without moving grid */}
                         <div className="flex justify-end order-2 lg:order-2">
-                            {/* Minecraft-style container: flat panel, hard edges, pixel headline */}
-                            <div className={`mx-auto w-full max-w-[680px] p-8 above-992:upto-1200:max-w-[720px] above-992:upto-1200:p-[1.85rem] above-768:upto-992:p-[1.5rem] upto-768:w-[calc(100%-2rem)] upto-768:max-w-none above-420:upto-768:mx-4 above-420:upto-768:px-4 above-420:upto-768:pt-5 above-420:upto-768:pb-5 upto-420:mx-[0.6rem] upto-420:px-3 upto-420:pt-4 upto-420:pb-4 ${MC_PANEL}`}>
-                                <h2 className={`${MC_PIXEL} mb-6 text-[1.45rem] leading-[1.35] text-white above-768:upto-992:text-[1.2rem] upto-768:mb-5 upto-768:text-[1rem] upto-420:text-[0.85rem]`}>
+                            {/* Minecraft-style container: flat panel, hard edges, pixel headline.
+                                From 1920px it sits flush right, lining up with section 1's contacts. */}
+                            <div className={`mx-auto w-full min-[1920px]:mr-0 max-w-[680px] p-8 max-2xl:p-7 max-lg:max-w-[640px] max-lg:p-6 upto-639:p-5 upto-420:p-4 upto-376:p-3.5 ${MC_PANEL}`}>
+                                <h2 className={`${MC_PIXEL} mb-6 text-[1.45rem] leading-[1.35] text-white max-2xl:text-[1.3rem] max-lg:mb-5 max-lg:text-[1.15rem] upto-639:mb-4 upto-639:text-[1rem] upto-420:text-[0.875rem] upto-376:text-[0.8rem]`}>
                                     SEND A MESSAGE!
                                 </h2>
 
                                 <form className="space-y-3" onSubmit={handleSubmit} noValidate>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 upto-639:gap-3">
                                         <label className="flex flex-col">
                                             <span className={LABEL}>First Name <span className="text-[var(--mc-red)]">*</span></span>
                                             <input
@@ -344,7 +395,7 @@ export default function Contact() {
                                             onBlur={handleBlur}
                                             required
                                             rows={4}
-                                            className={`${FIELD} min-h-[104px] resize-y above-420:upto-768:min-h-[96px] upto-420:min-h-[88px]`}
+                                            className={`${FIELD} h-[128px] min-h-[72px] resize-y max-lg:h-[112px] upto-639:h-[96px] upto-420:h-[84px]`}
                                             placeholder="Write your message..."
                                         />
                                         {errors.message && <p className={ERROR_TEXT}>{errors.message}</p>}
@@ -376,8 +427,8 @@ export default function Contact() {
                             </div>
                         </div>
 
-                        <aside className="flex flex-col items-center text-center order-1 lg:order-1 lg:self-center lg:px-6">
-                            <h1 className="mb-5 font-fleur text-7xl font-semibold whitespace-nowrap upto-768:text-[clamp(2rem,10vw,4rem)] upto-768:leading-[1.02]">
+                        <aside className={`flex flex-col items-center text-center order-1 lg:order-1 lg:self-center lg:px-6`}>
+                            <h1 className="mb-5 font-fleur text-[4.5rem] leading-[1.1] font-semibold whitespace-nowrap max-2xl:text-[4rem] max-lg:mb-4 max-lg:text-[3.5rem] upto-639:mb-3 upto-639:text-[2.75rem] upto-420:text-[2.4rem] upto-376:text-[2.1rem]">
                                 {"Email me directly".split("").map((ch, i) =>
                                     ch === " " ? (
                                         <span key={i} className={LETTER_SPACE} aria-hidden="true">&nbsp;</span>
@@ -392,10 +443,10 @@ export default function Contact() {
                                     )
                                 )}
                             </h1>
-                            <p className="font-gotham text-xl font-medium text-gray-300 upto-420:text-[clamp(0.8rem,4vw,1.05rem)]">
+                            <p className="font-gotham text-[1.25rem] font-medium text-gray-300 max-2xl:text-[1.125rem] max-lg:text-[1.0625rem] upto-639:text-[1rem] upto-420:text-[0.9375rem] upto-376:text-[0.875rem]">
                                 You can reach me more quickly via email by filling out the form.
                             </p>
-                            <p className="mt-4 flex items-center justify-center gap-2 font-gotham text-base font-medium text-gray-400 upto-420:text-[0.85rem]">
+                            <p className="mt-4 flex flex-wrap items-center justify-center gap-2 font-gotham text-[1rem] font-medium text-gray-400 upto-639:mt-3 upto-639:text-[0.9rem] upto-420:gap-1.5 upto-420:text-[0.82rem] upto-376:text-[0.78rem]">
                                 <img src="/assets/images/gmail.webp" alt="" aria-hidden="true" className="h-4 w-4 shrink-0 object-contain" />
                                 Sent to: <span className="text-gray-200">emerson.clamor.dev@gmail.com</span>
                             </p>

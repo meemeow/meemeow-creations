@@ -1,19 +1,22 @@
 @import "tailwindcss";
 
-@custom-variant upto-376 (@media (width <= 376px));
-@custom-variant upto-420 (@media (width <= 420px));
-@custom-variant upto-467 (@media (width <= 467px));
-@custom-variant upto-639 (@media (width <= 639px));
-@custom-variant upto-768 (@media (width <= 768px));
-@custom-variant upto-940 (@media (width <= 940px));
-@custom-variant upto-992 (@media (width <= 992px));
-@custom-variant upto-1000 (@media (width <= 1000px));
-@custom-variant upto-1023 (@media (width <= 1023px));
-@custom-variant upto-1200 (@media (width <= 1200px));
-@custom-variant upto-1279 (@media (width <= 1279px));
-@custom-variant upto-1439 (@media (width <= 1439px));
-@custom-variant upto-1535 (@media (width <= 1535px));
+/* Max-width variants are declared widest first: Tailwind emits variants in
+   declaration order, so the narrowest one lands last and wins when several
+   apply (e.g. upto-420 overrides upto-639 on a 400px screen). */
 @custom-variant upto-1620 (@media (width <= 1620px));
+@custom-variant upto-1535 (@media (width <= 1535px));
+@custom-variant upto-1439 (@media (width <= 1439px));
+@custom-variant upto-1279 (@media (width <= 1279px));
+@custom-variant upto-1200 (@media (width <= 1200px));
+@custom-variant upto-1023 (@media (width <= 1023px));
+@custom-variant upto-1000 (@media (width <= 1000px));
+@custom-variant upto-992 (@media (width <= 992px));
+@custom-variant upto-940 (@media (width <= 940px));
+@custom-variant upto-768 (@media (width <= 768px));
+@custom-variant upto-639 (@media (width <= 639px));
+@custom-variant upto-467 (@media (width <= 467px));
+@custom-variant upto-420 (@media (width <= 420px));
+@custom-variant upto-376 (@media (width <= 376px));
 @custom-variant above-420 (@media (width > 420px));
 @custom-variant above-467 (@media (width > 467px));
 @custom-variant above-639 (@media (width > 639px));
