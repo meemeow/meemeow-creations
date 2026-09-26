@@ -2,13 +2,6 @@
 
 import { useEffect, type RefObject } from "react";
 
-// Each block pops in (fade + slide up) when `in-view` is added;
-// `already-seen` shows it instantly when returning within the same tab.
-export const REVEAL =
-  "opacity-0 will-change-[transform,opacity] [transform:translateY(18px)] [transition:transform_420ms_ease-out,opacity_420ms_ease] " +
-  "[&.in-view]:opacity-100 [&.in-view:not(.already-seen)]:[transform:translateY(0)] " +
-  "[&.already-seen]:opacity-100 [&.already-seen]:[transform:translateY(0)_scale(1)] [&.already-seen]:[transition:none]";
-
 /**
  * Pops in every `[data-reveal]` element inside `containerRef` as it scrolls into view.
  * `tabFlag` is a window key: once anything has animated in this tab, later visits

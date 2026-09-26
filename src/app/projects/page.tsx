@@ -4,7 +4,7 @@ import ProjectCard from "@/components/sections/ProjectCard";
 import ProjectRow from "@/components/sections/ProjectRow";
 import WaveText from "@/components/sections/WaveText";
 import { projects } from "@/data/projects";
-import { REVEAL } from "@/hooks/use-scroll-reveal";
+import { REVEAL } from "@/lib/reveal";
 
 // Title / description / button block beside each card. Lifts slightly when the project is hovered (>940px).
 const META =
@@ -23,7 +23,7 @@ const DESC =
   "upto-639:text-[0.9rem] upto-420:text-[0.875rem] upto-376:text-[0.8125rem]";
 
 // Black "Visit Page" pill (same visual language as the contact submit button).
-// Sized on the navbar tiers; 70% wide and centered on small screens, full-width block ≤467px.
+// Sized on the navbar tiers; hugs its label and sits centered on phones.
 const VISIT =
   "inline-flex cursor-pointer items-center justify-center rounded-[10px] border border-[rgba(255,255,255,0.08)] bg-black px-6 py-[0.64rem] font-gotham font-medium text-[1rem] text-white no-underline " +
   "[box-shadow:0_6px_22px_rgba(0,0,0,0.6),0_0_10px_rgba(255,255,255,0.04)_inset] " +
@@ -31,9 +31,12 @@ const VISIT =
   "focus:[outline:none] focus:[box-shadow:0_0_0_3px_rgba(255,230,216,0.12)] active:[transform:scale(0.96)_translateY(2px)] [&:active:not(:focus)]:[box-shadow:0_2px_8px_rgba(0,0,0,0.6)] " +
   "max-2xl:px-5 max-2xl:py-[0.55rem] max-2xl:text-[0.9375rem] max-lg:rounded-lg max-lg:px-4 max-lg:py-2 max-lg:text-[0.9rem] " +
   "upto-639:text-[0.875rem] upto-420:text-[0.85rem] upto-376:text-[0.8rem] " +
-  "upto-940:min-w-[120px] upto-940:max-w-[220px] above-467:upto-940:w-[70%] " +
-  "above-467:upto-639:mx-auto above-467:upto-639:flex " +
-  "upto-467:mx-auto upto-467:my-2 upto-467:block upto-467:w-[90%] upto-467:py-[0.48rem]";
+  // Minimum width by tier: 140px on phones, 170px at md, a narrower 150px beside the
+  // tighter 941–1279px text column, 170px from xl and 180px at 2xl. Never stretched
+  // across the column; centered on phones.
+  // (Ranges don't overlap below xl, so CSS order can't let one tier override another.)
+  "max-md:min-w-[140px] md:max-[941px]:min-w-[170px] min-[941px]:max-xl:min-w-[150px] xl:min-w-[170px] 2xl:min-w-[180px] " +
+  "upto-940:px-7 upto-639:mx-auto upto-639:flex upto-639:w-fit upto-467:my-2 upto-467:py-[0.5rem]";
 
 export default function Projects() {
   const [view, setView] = useState<"masonry" | "stacked">("masonry");

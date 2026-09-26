@@ -2,7 +2,9 @@
 
 import React, { useRef, useState } from "react";
 import SetOutcomeModal from "@/components/ui/SetOutcomeModal";
-import { REVEAL, useScrollReveal } from "@/hooks/use-scroll-reveal";
+import GlowHeading from "@/components/sections/GlowHeading";
+import { useScrollReveal } from "@/hooks/use-scroll-reveal";
+import { REVEAL } from "@/lib/reveal";
 import { ZodError } from "zod";
 import {
     firstNameSchema,
@@ -91,10 +93,6 @@ const MC_SLOT =
 // Link text inside a slot; ellipsis is only a last resort on unusually narrow screens.
 const SLOT_TEXT = "min-w-0 truncate";
 
-// Per-letter glow for "Email me directly" and "Send Message"; each letter's delay is set inline.
-const GLOW_LETTER = "inline-block animate-contact-glow will-change-[transform,filter,opacity] [text-shadow:0_0_6px_rgba(255,200,160,0.12)]";
-// Word gap in em so it scales with the headline's responsive size.
-const LETTER_SPACE = "inline-block w-[0.1em]";
 
 // Both sections' grids stop growing from 1920px and center (mx-auto), so ultra-wide
 // screens get breathing space on both sides. Never narrower than the 1920px layout
@@ -265,7 +263,7 @@ export default function Contact() {
                                         fill="currentColor"
                                     />
                                 </svg>
-                                <span className={SLOT_TEXT}>+63 9152669845</span>
+                                <span className={SLOT_TEXT}>+63 915-266-9845</span>
                             </a>
 
                             <a href="https://www.linkedin.com/in/emerson-clamor" target="_blank" rel="noopener noreferrer" className={MC_SLOT}>
@@ -274,7 +272,8 @@ export default function Contact() {
                             </a>
 
                             <a href="https://github.com/meemeow" target="_blank" rel="noopener noreferrer" className={MC_SLOT}>
-                                <img src="/assets/images/github.webp" alt="" aria-hidden="true" className="h-5 w-5 shrink-0 object-contain" />
+                                {/* White tile behind the dark mark, matching the square LinkedIn badge beside it. */}
+                                <img src="/assets/images/github.webp" alt="" aria-hidden="true" className="h-5 w-5 shrink-0 rounded-[3px] bg-white p-[2px] object-contain" />
                                 <span className={SLOT_TEXT}>https://github.com/meemeow</span>
                             </a>
 
@@ -428,21 +427,7 @@ export default function Contact() {
                         </div>
 
                         <aside className={`flex flex-col items-center text-center order-1 lg:order-1 lg:self-center lg:px-6`}>
-                            <h1 className="mb-5 font-fleur text-[4.5rem] leading-[1.1] font-semibold whitespace-nowrap max-2xl:text-[4rem] max-lg:mb-4 max-lg:text-[3.5rem] upto-639:mb-3 upto-639:text-[2.75rem] upto-420:text-[2.4rem] upto-376:text-[2.1rem]">
-                                {"Email me directly".split("").map((ch, i) =>
-                                    ch === " " ? (
-                                        <span key={i} className={LETTER_SPACE} aria-hidden="true">&nbsp;</span>
-                                    ) : (
-                                        <span
-                                            key={i}
-                                            className={`${GLOW_LETTER} text-white`}
-                                            style={{ animationDelay: `${i * 80}ms` }}
-                                        >
-                                            {ch}
-                                        </span>
-                                    )
-                                )}
-                            </h1>
+                            <GlowHeading as="h1" text="Email me directly" className="mb-5 max-lg:mb-4 upto-639:mb-3" />
                             <p className="font-gotham text-[1.25rem] font-medium text-gray-300 max-2xl:text-[1.125rem] max-lg:text-[1.0625rem] upto-639:text-[1rem] upto-420:text-[0.9375rem] upto-376:text-[0.875rem]">
                                 You can reach me more quickly via email by filling out the form.
                             </p>

@@ -7,12 +7,13 @@ import { usePathname } from "next/navigation";
 
 type NavKey = "home" | "about" | "projects" | "contact";
 
-// Hover text color per link, each picked from its own hover video.
-const NAV_ITEMS: { key: NavKey; href: string; label: string; hoverColor: string }[] = [
-  { key: "home", href: "/", label: "Home", hoverColor: "[&:hover]:text-[#49f9ff]" },
-  { key: "about", href: "/about", label: "About", hoverColor: "[&:hover]:text-[#32CD32]" },
-  { key: "projects", href: "/projects", label: "Projects", hoverColor: "[&:hover]:text-[#FF00FF]" },
-  { key: "contact", href: "/contact", label: "Contact", hoverColor: "[&:hover]:text-[#ffff1f]" },
+// Hover text color per link, each picked from its own hover video. The current
+// page's link keeps that color (activeColor) on the full navbar (>1000px).
+const NAV_ITEMS: { key: NavKey; href: string; label: string; hoverColor: string; activeColor: string }[] = [
+  { key: "home", href: "/", label: "Home", hoverColor: "[&:hover]:text-[#49f9ff]", activeColor: "min-[1001px]:text-[#49f9ff]" },
+  { key: "about", href: "/about", label: "About", hoverColor: "[&:hover]:text-[#32CD32]", activeColor: "min-[1001px]:text-[#32CD32]" },
+  { key: "projects", href: "/projects", label: "Projects", hoverColor: "[&:hover]:text-[#FF00FF]", activeColor: "min-[1001px]:text-[#FF00FF]" },
+  { key: "contact", href: "/contact", label: "Contact", hoverColor: "[&:hover]:text-[#ffff1f]", activeColor: "min-[1001px]:text-[#ffff1f]" },
 ];
 
 // Vertical framing of each hover video inside the header.
@@ -47,6 +48,9 @@ const OPEN_LINK_ANIMATION = [
 export default function Navbar() {
   const pathname = usePathname();
   const routeKey = keyForPath(pathname);
+  // The page we're on, for the link highlight. Unlike routeKey (the video pin),
+  // "/" counts here so Home is highlighted on the home page.
+  const currentKey: NavKey | null = pathname === "/" ? "home" : routeKey;
   const [open, setOpen] = useState(false);
   const [, setLinkHover] = useState(false);
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -321,7 +325,8 @@ export default function Navbar() {
             <Link
               key={item.key}
               href={item.href}
-              className={`relative box-border inline-block w-full origin-right rounded-[4px] py-[0.45rem] pr-[1.2rem] pl-[0.45rem] text-right text-[1.125rem] text-inherit no-underline [transition:color_180ms_ease] above-1279:upto-1535:text-[1rem] min-[1001px]:upto-1279:text-[0.9375rem] ${item.hoverColor} ${
+              aria-current={item.key === currentKey ? "page" : undefined}
+              className={`relative box-border inline-block w-full origin-right rounded-[4px] py-[0.45rem] pr-[1.2rem] pl-[0.45rem] text-right text-[1.125rem] text-inherit no-underline [transition:color_180ms_ease] above-1279:upto-1535:text-[1rem] min-[1001px]:upto-1279:text-[0.9375rem] ${item.hoverColor} ${item.key === currentKey ? item.activeColor : ""} ${
                 open ? `opacity-0 [transform:translateY(-6px)_scale(0.995)] ${OPEN_LINK_ANIMATION[i]}` : ""
               }`}
               onMouseEnter={() => {
@@ -340,8 +345,11 @@ export default function Navbar() {
                 setPinned(item.key);
               }}
             >
-              {/* white underline grows in under the text on hover */}
-              <span className="relative inline-block after:absolute after:bottom-[-6px] after:left-0 after:h-1 after:w-[0%] after:rounded-[2px] after:bg-transparent after:[transition:width_200ms_ease,background-color_200ms_ease] after:content-[''] [a:hover>&]:after:w-full [a:hover>&]:after:bg-white">
+              {/* white underline grows in under the text on hover, and stays under the
+                  current page's link on the full navbar */}
+              <span className={`relative inline-block after:absolute after:bottom-[-6px] after:left-0 after:h-1 after:w-[0%] after:rounded-[2px] after:bg-transparent after:[transition:width_200ms_ease,background-color_200ms_ease] after:content-[''] [a:hover>&]:after:w-full [a:hover>&]:after:bg-white ${
+                item.key === currentKey ? "min-[1001px]:after:w-full min-[1001px]:after:bg-white" : ""
+              }`}>
                 {item.label}
               </span>
             </Link>
