@@ -574,6 +574,78 @@ const APPROACH_GROUPS: { title: string; points: [lead: string, text: string][] }
   },
 ];
 
+// Beyond Coding: the groups stacked, each a heading (My Approach's group heading, same
+// size as the focus line), a short note, then wrapping chips built like the skill cards
+// (text only, no tile).
+const HOBBY_LIST = "mt-5 space-y-14 max-lg:space-y-12 upto-639:mt-4 upto-639:space-y-10";
+const HOBBY_HEADING =
+  "font-gotham font-semibold leading-[1.3] text-white text-[1.5rem] max-2xl:text-[1.375rem] max-lg:text-[1.25rem] upto-639:text-[1.125rem]";
+const HOBBY_NOTE =
+  "mt-2 max-w-[720px] font-gotham font-medium leading-[1.7] text-gray-400 text-[1rem] upto-639:text-[0.9375rem] upto-639:leading-[1.65]";
+const HOBBY_CHIPS = "mt-5 flex flex-wrap gap-3 upto-639:mt-4";
+const HOBBY_CHIP =
+  "flex items-center gap-2.5 border-[3px] bg-[#2f2d2c] px-3.5 py-2 font-gotham font-semibold text-white text-[0.9375rem] upto-639:text-[0.875rem] " +
+  "border-t-[#3d3938] border-r-[#3d3938] border-b-[#000000] border-l-[#000000] [box-shadow:0_6px_18px_rgba(0,0,0,0.45)]";
+// Each game's own app icon in colour, leading its chip, slightly rounded like an app tile.
+// Files are renamed whenever an image changes so the browser doesn't serve cached copies.
+const HOBBY_ICON = "h-6 w-6 shrink-0 rounded-[4px] object-contain upto-639:h-5 upto-639:w-5";
+// Icons with no tile of their own (a bare mark or sprite) read larger than the tiled ones
+// at the same size, so they're inset a little within the same box (text stays aligned).
+const HOBBY_ICON_BARE = "p-[2px] upto-639:p-[1.5px]";
+const BARE_ICONS = new Set(["Valorant", "R.E.P.O.", "Stardew Valley", "Terraria"]);
+// The pixel sprites (Stardew's chicken, Terraria's tree) read small at that inset, so theirs is halved.
+const SPRITE_ICONS = new Set(["Stardew Valley", "Terraria"]);
+const HOBBY_ICON_SPRITE = "p-[1px] upto-639:p-[0.75px]";
+// Terraria's tree is tall and narrow, leaving empty space either side in its square box;
+// pull the name in so the gap matches the other chips.
+const TERRARIA_ICON = "-mr-[5px] upto-639:-mr-1";
+const GAME_ICONS: Record<string, string> = {
+  Valorant: "valorant-red",
+  Minecraft: "minecraft-icon",
+  "R.E.P.O.": "repo-robot",
+  "Genshin Impact": "genshin-impact-icon",
+  "Honkai: Star Rail": "honkai-star-rail-icon",
+  "Counter-Strike 2": "counterstrike-icon",
+  "Stardew Valley": "stardew-valley-icon",
+  Terraria: "terraria-icon",
+  "Dota 2": "dota2-cutout",
+  "Mobile Legends: Bang Bang": "mobile-legends-icon",
+};
+const HOBBY_GROUPS: { label: string; note: string; items: string[] }[] = [
+  {
+    label: "Online Games",
+    note:
+      "My go-to stress reliever after a long day. Whether it's ranked matches with friends or a slow evening " +
+      "on the farm, games are how I unwind.",
+    items: [
+      "Valorant",
+      "Minecraft",
+      "R.E.P.O.",
+      "Genshin Impact",
+      "Honkai: Star Rail",
+      "Counter-Strike 2",
+      "Stardew Valley",
+      "Terraria",
+      "Dota 2",
+      "Mobile Legends: Bang Bang",
+    ],
+  },
+  {
+    label: "Anime",
+    note:
+      "My way to switch off and get lost in another world. I'll happily binge anything from a lighthearted " +
+      "rom-com to an epic adventure.",
+    items: ["Romance", "Comedy", "Adventure", "Action", "Shounen", "School", "Slice of Life", "Isekai"],
+  },
+  {
+    label: "Food",
+    note:
+      "Good food is my favorite reward after finishing a project. Japanese food is my weakness, and there's " +
+      "always room for ice cream.",
+    items: ["Ice Cream", "Tempura", "Ramen", "Sushi", "Fried Chicken", "Fries", "Coffee"],
+  },
+];
+
 // `aside` puts something beside the heading and copy, stacking on top of them below
 // `asideFrom`: "lg" (1024px, the default), "xl" (1280px) or "2xl" (1536px, for wide asides that
 // would squeeze the copy).
@@ -1018,8 +1090,33 @@ const SECTIONS: Section[] = [
       </ol>
     ),
   },
-  // The resume has nothing outside work yet; hobbies and interests go here.
-  { title: "Beyond Coding" },
+  {
+    title: "Beyond Coding",
+    eyebrow: true,
+    eyebrowFull: true,
+    content: (
+      <div>
+        <div className={HOBBY_LIST}>
+          {HOBBY_GROUPS.map((group) => (
+            <div key={group.label}>
+              <h3 className={HOBBY_HEADING}>{group.label}</h3>
+              <p className={HOBBY_NOTE}>{group.note}</p>
+              <ul className={HOBBY_CHIPS}>
+                {group.items.map((item) => (
+                  <li key={item} className={HOBBY_CHIP}>
+                    {GAME_ICONS[item] && (
+                      <Image src={`/assets/images/games/${GAME_ICONS[item]}.png`} alt="" aria-hidden="true" width={48} height={48} className={`${HOBBY_ICON} ${SPRITE_ICONS.has(item) ? HOBBY_ICON_SPRITE : BARE_ICONS.has(item) ? HOBBY_ICON_BARE : ""} ${item === "Terraria" ? TERRARIA_ICON : ""}`} />
+                    )}
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+  },
   { title: null },
 ];
 
