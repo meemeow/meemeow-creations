@@ -4,6 +4,8 @@ import Link from "next/link";
 import AboutShowcase from "@/components/sections/AboutShowcase";
 import GlowHeading from "@/components/sections/GlowHeading";
 import PhotoCarousel from "@/components/sections/PhotoCarousel";
+import ProjectRow from "@/components/sections/ProjectRow";
+import { projects } from "@/data/projects";
 import { REVEAL } from "@/lib/reveal";
 
 // Section backgrounds cycle through three warm blacks: the contact page's two
@@ -102,11 +104,16 @@ const BUTTON_ICON = "h-[22px] w-[22px] shrink-0 [image-rendering:pixelated] upto
 const INTRO_SLOT_BUTTON =
   "inline-flex h-12 min-w-[200px] items-center justify-center gap-3 border-[3px] bg-[#2f2d2c] px-6 font-pixel uppercase tracking-[0.08em] " +
   "text-[0.68rem] text-gray-200 no-underline select-none [text-shadow:2px_2px_0_rgba(0,0,0,0.75)] " +
-  "border-t-[#3d3938] border-r-[#3d3938] border-b-[#000000] border-l-[#000000] " +
-  "[box-shadow:0_6px_18px_rgba(0,0,0,0.45)] [transition:background-color_140ms_ease,color_140ms_ease,transform_100ms_ease] " +
-  "hover:bg-[#3a3735] hover:text-white active:[transform:translateY(2px)] " +
+  // Shaded bottom/left edges in a dark tone of the face (not black), so they don't merge
+  // with the black outline into a thick band.
+  "border-t-[#3d3938] border-r-[#3d3938] border-b-[#1a1918] border-l-[#1a1918] " +
+  // 3px black outline and hard drop shadow like the stone button's, so the pair reads the
+  // same size side by side; pressing sinks it the same way.
+  "[box-shadow:0_0_0_3px_#000000,0_5px_0_3px_rgba(0,0,0,0.35)] [transition:background-color_140ms_ease,color_140ms_ease,transform_100ms_ease,box-shadow_100ms_ease] " +
+  "hover:bg-[#3a3735] hover:text-white active:[transform:translateY(4px)] " +
+  "active:[box-shadow:0_0_0_3px_#000000,0_1px_0_3px_rgba(0,0,0,0.35)] " +
   // Hover ring like the stone button's: black outline plus a soft white glow.
-  "hover:[box-shadow:0_0_0_2px_#000000,0_0_0_4px_rgba(255,255,255,0.35),0_6px_18px_rgba(0,0,0,0.45)] " +
+  "hover:[box-shadow:0_0_0_3px_#000000,0_0_0_5px_rgba(255,255,255,0.35),0_5px_0_3px_rgba(0,0,0,0.35)] " +
   "focus-visible:[outline:2px_solid_rgba(255,255,160,0.7)] focus-visible:[outline-offset:2px] " +
   // Compact below 2xl so both buttons (with icons) fit side by side in the narrower column.
   "max-2xl:min-w-0 max-2xl:gap-2 max-2xl:px-4 max-2xl:tracking-[0.04em] " +
@@ -391,6 +398,29 @@ const SKILL_GROUPS: { label: string; items: { logo: string; name: string; detail
   },
 ];
 
+// Featured Project: a centred two-line summary, the projects page's stacked preview card
+// (hover lifts it and cycles the screenshots) with the buttons under it, then the details
+// (Work Experience layout) beside the tech stack.
+const EPASIGLIB = projects.find((p) => p.title === "ePasigLib")!;
+const FEATURED_SUMMARY =
+  "mx-auto mt-5 max-w-[980px] text-center font-gotham font-medium leading-[1.7] text-gray-300 text-[1.125rem] " +
+  "max-2xl:text-[1.0625rem] max-lg:text-[1rem] upto-639:mt-4 upto-639:text-[0.9375rem]";
+const FEATURED_PREVIEW = "project-row mt-8 flex justify-center max-lg:mt-7 upto-639:mt-6";
+// Looping zombie-riding-a-chicken sprite (animated WebP, background keyed out) leading
+// the Visit button; a little larger than the other button icons since it's a full scene.
+// Pulled left: the sprite sits right of centre in its frame, which read as extra padding.
+const ZOMBIE_ICON = "-my-1 -ml-2.5 h-[38px] w-[38px] shrink-0 max-lg:h-9 max-lg:w-9 upto-420:h-8 upto-420:w-8";
+const FEATURED_ACTIONS = `${INTRO_ACTIONS} justify-center`;
+const FEATURED_ROW = `${JOB_ROW} mt-12 max-2xl:mt-10 upto-639:mt-8`;
+const EPASIGLIB_STACK: TechItem[] = [
+  { logo: "react", name: "React", detail: "Web interfaces" },
+  { logo: "typescript-white", name: "TypeScript", detail: "Typed codebase" },
+  { logo: "vite-color", name: "Vite", detail: "Build tool" },
+  { logo: "tailwindcss", name: "Tailwind CSS", detail: "Responsive layouts" },
+  { logo: "firebase-brand", name: "Firebase", detail: "Auth & Cloud Functions" },
+  { logo: "firebase-brand", name: "Firestore", detail: "Real-time data" },
+];
+
 // Plain body copy for now, taken from the resume; styling to be refined later.
 const BODY = "mt-6 max-w-[900px] font-gotham font-medium text-[1.0625rem] leading-[1.6] text-gray-300 max-lg:text-[1rem] upto-639:mt-4 upto-639:text-[0.9375rem]";
 const SUBHEADING = "mt-8 font-gotham text-[1.25rem] font-semibold text-white first:mt-0 upto-639:mt-6 upto-639:text-[1.125rem]";
@@ -402,7 +432,15 @@ const LIST = "mt-3 list-disc space-y-2 pl-5";
 // would squeeze the copy).
 // `eyebrow` shows the section title as the small pixel label (like the Introduction)
 // instead of the big heading, leaving the content to carry the headline.
-type Section = { title: string | null; content?: ReactNode; aside?: ReactNode; asideFrom?: "lg" | "2xl"; eyebrow?: boolean };
+// `eyebrowFull` runs the eyebrow's rule across the whole section (for full-width content).
+type Section = {
+  title: string | null;
+  content?: ReactNode;
+  aside?: ReactNode;
+  asideFrom?: "lg" | "2xl";
+  eyebrow?: boolean;
+  eyebrowFull?: boolean;
+};
 
 // Row layouts for a section with an aside (literal strings so Tailwind sees them).
 const ASIDE_ROW = {
@@ -732,31 +770,67 @@ const SECTIONS: Section[] = [
   },
   {
     title: "Featured Project",
+    eyebrow: true,
+    eyebrowFull: true,
     content: (
-      <div className={BODY}>
-        <h3 className={SUBHEADING}>ePasigLib · Pasig Knowledge Center</h3>
-        <p className={META}>Full Stack Developer · Capstone Project · December 2024 – September 2026</p>
-        <ul className={LIST}>
-          <li>
-            Developed a full-stack digital library management system for Pasig Knowledge Center, implementing automated
-            circulation, cataloging, user management, and real-time asset tracking through barcode and NFC integration.
-          </li>
-          <li>
-            Built responsive frontend interfaces using React, TypeScript, Vite, and Tailwind CSS, developing reusable
-            components and cross-browser compatible layouts.
-          </li>
-          <li>
-            Implemented backend services with Firebase Authentication, Firestore, and Cloud Functions to support
-            real-time data synchronization and application workflows.
-          </li>
-        </ul>
-        <p className="mt-4">
-          <a href="https://meemeow.github.io/ePasigLib_portfolio/" target="_blank" rel="noopener noreferrer" className="text-white underline underline-offset-4">
+      <div>
+        <p className={FEATURED_SUMMARY}>{EPASIGLIB.desc}.</p>
+
+        <div className={FEATURED_PREVIEW}>
+          <ProjectRow p={EPASIGLIB} />
+        </div>
+
+        <div className={FEATURED_ACTIONS}>
+          <a href={EPASIGLIB.url} target="_blank" rel="noopener noreferrer" className={INTRO_BUTTON}>
+            <Image src="/assets/images/mc-zombie-chicken.webp" alt="" aria-hidden="true" width={72} height={72} unoptimized className={ZOMBIE_ICON} />
             Visit ePasigLib
           </a>
-          {" · "}
-          <Link href="/projects" className="text-white underline underline-offset-4">See all projects</Link>
-        </p>
+          <Link href="/projects" className={INTRO_SLOT_BUTTON}>
+            <Image src="/assets/images/mc-crafting-table.png" alt="" aria-hidden="true" width={364} height={364} className={BUTTON_ICON} />
+            See All Projects
+          </Link>
+        </div>
+
+        <div className={FEATURED_ROW}>
+          <div className="w-full min-w-0 flex-1">
+            <h3 className={`${SCHOOL_NAME} ${SCHOOL}`}>ePasigLib</h3>
+            <p className={DEGREE}>
+              Full Stack Developer
+              <span className={DEGREE_TRACK}>Capstone Project · Pasig Knowledge Center</span>
+            </p>
+            <p className={SCHOOL_META}>
+              <span className={META_ITEM}>
+                <PinIcon />
+                Pasig City, Philippines
+              </span>
+              <span className={META_ITEM}>
+                <CalendarIcon />
+                December 2024 – September 2026
+              </span>
+            </p>
+
+            <h3 className={SUB_EYEBROW}>Highlights</h3>
+            <ul className={HIGHLIGHTS}>
+              <li className={HIGHLIGHT}>
+                Developed a full-stack digital library management system for Pasig Knowledge Center, implementing{" "}
+                <span className="text-white">automated circulation, cataloging, and user management</span>.
+              </li>
+              <li className={HIGHLIGHT}>
+                Added <span className="text-white">real-time asset tracking</span> through barcode and NFC integration for
+                borrowing and returns.
+              </li>
+              <li className={HIGHLIGHT}>
+                Built responsive frontend interfaces using React, TypeScript, Vite, and Tailwind CSS, developing{" "}
+                <span className="text-white">reusable components</span> and cross-browser compatible layouts.
+              </li>
+              <li className={HIGHLIGHT}>
+                Implemented backend services with Firebase Authentication, Firestore, and Cloud Functions to support{" "}
+                <span className="text-white">real-time data synchronization</span> and application workflows.
+              </li>
+            </ul>
+          </div>
+          <TechPanel items={EPASIGLIB_STACK} />
+        </div>
       </div>
     ),
   },
@@ -770,7 +844,7 @@ export default function About() {
   return (
     <AboutShowcase>
       <style>{OPEN_SLOT_CSS}</style>
-      {SECTIONS.map(({ title, content, aside, asideFrom = "lg", eyebrow }, i) => (
+      {SECTIONS.map(({ title, content, aside, asideFrom = "lg", eyebrow, eyebrowFull }, i) => (
         // Titled sections open as a full-screen card with only their heading (see AboutShowcase).
         <section
           key={i}
@@ -792,7 +866,7 @@ export default function About() {
                       {i === 0 ? (
                         <p className={EYEBROW}>{title}</p>
                       ) : eyebrow ? (
-                        <h2 className={EYEBROW}>{title}</h2>
+                        <h2 className={eyebrowFull ? `${EYEBROW} max-w-none` : EYEBROW}>{title}</h2>
                       ) : (
                         <h2 className={HEADING}>{title}</h2>
                       )}
