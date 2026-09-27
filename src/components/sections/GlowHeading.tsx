@@ -7,17 +7,20 @@ const GLOW_HEADING =
 
 // Per-letter glow; each letter's delay is set inline.
 const GLOW_LETTER = "inline-block animate-contact-glow will-change-[transform,filter,opacity] [text-shadow:0_0_6px_rgba(255,200,160,0.12)]";
-// Word gap in em so it scales with the headline's responsive size.
-const LETTER_SPACE = "inline-block w-[0.1em]";
+// Word gap in em so it scales with the headline's responsive size. `wordGap` widens it
+// for titles whose swash capitals (W, E, T...) reach back into the gap.
+const LETTER_SPACE = "inline-block";
 
 export default function GlowHeading({
   text,
   as: Tag = "h2",
   className = "",
+  wordGap = 0.1,
 }: {
   text: string;
   as?: "h1" | "h2" | "div";
   className?: string;
+  wordGap?: number;
 }) {
   return (
     // The letters are split into spans for the animation, so the heading carries
@@ -25,7 +28,7 @@ export default function GlowHeading({
     <Tag className={`${GLOW_HEADING} ${className}`} aria-label={text}>
       {text.split("").map((ch, i) =>
         ch === " " ? (
-          <span key={i} className={LETTER_SPACE} aria-hidden="true">&nbsp;</span>
+          <span key={i} className={LETTER_SPACE} style={{ width: `${wordGap}em` }} aria-hidden="true">&nbsp;</span>
         ) : (
           <span key={i} className={GLOW_LETTER} style={{ animationDelay: `${i * 80}ms` }} aria-hidden="true">
             {ch}

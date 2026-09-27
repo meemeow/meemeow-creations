@@ -9,7 +9,7 @@ let played = false;
 const LIFT_MS = 800; // curtain rise + fade; keep in sync with CURTAIN in about/page.tsx
 const BODY_DELAY_MS = 400; // content starts popping in halfway through the curtain fade
 const BODY_STAGGER_MS = 90;
-const HINT_IDLE_MS = 10000; // no scrolling, pressing or keys for this long shows the hint
+const HINT_IDLE_MS = 5000; // no scrolling, pressing or keys for this long shows the hint
 const HINT_BLINK_MS = 3000; // one slow fade in and out
 
 const SCROLL_KEYS = new Set(["ArrowDown", "PageDown", "End", " "]);

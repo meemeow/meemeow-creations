@@ -187,6 +187,210 @@ const CERT_GROUPS = [
   },
 ];
 
+// Work Experience reuses the Background layout (logo beside the company, role, meta),
+// then highlights with square pixel bullets (stone-button grey with its bevel). The
+// stack sits beside it as cards built like the certification slots: a logo tile in
+// place of the badge, the name, and what it was used for.
+const HIGHLIGHTS = "mt-4 max-w-[640px] space-y-3.5 upto-639:space-y-3";
+const HIGHLIGHT =
+  "relative pl-6 font-gotham font-medium leading-[1.65] text-gray-300 text-[1rem] upto-639:text-[0.9375rem] " +
+  "before:absolute before:left-0 before:top-[0.55em] before:h-2 before:w-2 before:bg-[#8b8b8b] before:content-[''] " +
+  "before:[box-shadow:inset_1px_1px_0_#c6c6c6,inset_-1px_-1px_0_#4f4f4f,0_0_0_1px_#000000]";
+const TECH_ASIDE = "w-[520px] max-2xl:w-full max-2xl:max-w-[640px]";
+const TECH_GRID = "mt-4 grid grid-cols-2 gap-3 upto-639:grid-cols-1";
+// Same slot as CERT, minus the link hover / press (these aren't links).
+const TECH_CARD =
+  "flex h-full items-center gap-3.5 border-[3px] bg-[#2f2d2c] px-3.5 py-3 font-gotham " +
+  "border-t-[#3d3938] border-r-[#3d3938] border-b-[#000000] border-l-[#000000] [box-shadow:0_6px_18px_rgba(0,0,0,0.45)]";
+// Logo on a dark rounded tile the size of a certification badge.
+const TECH_TILE =
+  "flex h-14 w-14 shrink-0 items-center justify-center rounded-md bg-[#1c1b1a] [box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.08)] " +
+  "max-lg:h-12 max-lg:w-12";
+const TECH_LOGO = "h-8 w-8 max-lg:h-7 max-lg:w-7";
+// An empty slot (no logo yet): dashed outline with a pixel "?".
+const TECH_TILE_OPEN = "open-slot rounded-none bg-transparent [box-shadow:none] font-pixel text-[0.9rem] text-gray-400";
+
+// Logos from Simple Icons, in each brand's colour; no logo = an open "?" slot.
+type TechItem = { logo?: string; name: string; detail: string };
+const SIMPLEVIA_STACK: TechItem[] = [
+  { logo: "react", name: "React", detail: "Components & navigation" },
+  { logo: "typescript-white", name: "TypeScript", detail: "Type-safe frontend" },
+  { logo: "tailwindcss", name: "Tailwind CSS", detail: "Responsive layouts" },
+  { logo: "mantine-white", name: "Mantine", detail: "UI component library" },
+];
+// All open "?" slots: whatever the next team uses.
+const OPEN_ROLE_STACK: TechItem[] = [
+  { name: "Your framework", detail: "Learned fast" },
+  { name: "Your language", detail: "Picked up fast" },
+  { name: "Your tooling", detail: "Set up day one" },
+  { name: "Your stack", detail: "Ready when you are" },
+];
+
+// Each job is a row: the copy, with its tech panel beside it (under it below 2xl).
+// Jobs are split by an engraved rule like the eyebrow rules.
+const JOB_ROW = "flex items-center gap-16 max-2xl:flex-col max-2xl:items-start max-2xl:gap-10 upto-639:gap-8";
+// Less margin below than above: the next job's logo row brings its own top gap (SCHOOL's
+// mt-5 / mt-4), so the space either side of the rule comes out even.
+const JOB_DIVIDER =
+  "mt-14 mb-9 h-px border-0 bg-[#1c1a19] [box-shadow:0_1px_0_#454140] max-2xl:mt-12 max-2xl:mb-7 upto-639:mt-10 upto-639:mb-6";
+// The open role's logo: an empty dashed slot the size of the company logo tiles.
+const OPEN_LOGO =
+  "open-slot flex h-[84px] w-[84px] shrink-0 items-center justify-center bg-white/[0.03] " +
+  "font-pixel text-[1.5rem] text-gray-400 max-lg:h-[72px] max-lg:w-[72px] " +
+  "upto-639:h-[60px] upto-639:w-[60px] upto-639:text-[1.2rem] upto-420:h-[52px] upto-420:w-[52px]";
+// Pixel diamond after "Your Company", sized to the heading text and kept crisp.
+const DIAMOND = "ml-[0.3em] inline-block h-[0.85em] w-auto align-[-0.08em] [image-rendering:pixelated]";
+// The open slots' "?": stretched taller (the pixel font's glyph is squat).
+const OPEN_MARK = "inline-block scale-y-[1.2]";
+const OPEN_LINK = "text-white underline decoration-white/40 underline-offset-4 hover:decoration-white";
+
+// Open slots (the "?" logo and tech tiles) wear a dashed outline that slowly marches
+// clockwise, like a selection box around an empty inventory slot waiting to be filled.
+// Drawn with gradients (a dashed border can't move) and stepped 2px at a time for a
+// pixel feel; still for visitors who prefer reduced motion. Kept here rather than in
+// globals.css (which the dev server caches).
+const OPEN_SLOT_CSS = `
+.open-slot {
+  --ants: rgba(255, 255, 255, 0.3);
+  background-image:
+    linear-gradient(90deg, var(--ants) 50%, transparent 0),
+    linear-gradient(90deg, var(--ants) 50%, transparent 0),
+    linear-gradient(0deg, var(--ants) 50%, transparent 0),
+    linear-gradient(0deg, var(--ants) 50%, transparent 0);
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  background-size: 12px 2px, 12px 2px, 2px 12px, 2px 12px;
+  background-position: 0 0, 0 100%, 0 0, 100% 0;
+  animation: open-slot-march 1.8s steps(6) infinite;
+}
+@keyframes open-slot-march {
+  to { background-position: 12px 0, -12px 100%, 0 -12px, 100% 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .open-slot { animation: none; } }
+`;
+
+// Tech panel beside a job: a label and certification-style cards.
+function TechPanel({ label = "Tech Used", items }: { label?: string; items: TechItem[] }) {
+  return (
+    <div className={TECH_ASIDE}>
+      <h4 className={`${SUB_EYEBROW} mt-0!`}>{label}</h4>
+      <ul className={TECH_GRID}>
+        {items.map((t) => (
+          <li key={t.name} className={TECH_CARD}>
+            <span className={t.logo ? TECH_TILE : `${TECH_TILE} ${TECH_TILE_OPEN}`}>
+              {t.logo ? (
+                <Image src={`/assets/images/tech/${t.logo}.svg`} alt="" aria-hidden="true" width={24} height={24} unoptimized className={TECH_LOGO} />
+              ) : (
+                <span aria-hidden="true" className={OPEN_MARK}>
+                  ?
+                </span>
+              )}
+            </span>
+            <span>
+              <span className={CERT_NAME}>{t.name}</span>
+              <span className={CERT_DETAIL}>{t.detail}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// Meta-line icons for the job entries.
+const PinIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="shrink-0">
+      <path
+        d="M12 22s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12zm0-9.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"
+        fill="currentColor"
+        fillRule="evenodd"
+      />
+    </svg>
+);
+const CalendarIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="shrink-0">
+    <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="2" />
+    <path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+const ClockIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="shrink-0">
+    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+    <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+// Skills & Technologies: groups paired two across the full width, so the block sits
+// evenly between the section margins (one column on smaller screens),
+// each a grid of compact certification-style cards: logo tile, name, what it is.
+// Logos from Simple Icons in brand colours (wireframe / UI/UX are drawn icons).
+const SKILL_GROUPS_GRID = "mt-6 grid w-full grid-cols-2 items-start gap-x-10 gap-y-8 max-lg:grid-cols-1 upto-639:mt-5 upto-639:gap-y-6";
+const SKILL_GRID = "grid grid-cols-2 gap-3 upto-420:grid-cols-1";
+const SKILL_CARD =
+  "flex h-full items-center gap-3 border-[3px] bg-[#2f2d2c] px-3 py-2.5 font-gotham " +
+  "border-t-[#3d3938] border-r-[#3d3938] border-b-[#000000] border-l-[#000000] [box-shadow:0_6px_18px_rgba(0,0,0,0.45)]";
+const SKILL_TILE =
+  "flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-[#1c1b1a] [box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.08)]";
+const SKILL_LOGO = "h-6 w-6";
+// For logos that read small at the standard size (tall or detailed marks).
+const SKILL_LOGO_LARGE = "h-8 w-8";
+// For wide logos (MySQL, PHP): nearly the full tile width.
+const SKILL_LOGO_WIDE = "h-8 w-10";
+const SKILL_GROUPS: { label: string; items: { logo: string; name: string; detail: string; large?: boolean; wide?: boolean }[] }[] = [
+  {
+    label: "Frontend",
+    items: [
+      { logo: "html5-color", name: "HTML5", detail: "Markup" },
+      { logo: "css3-color", name: "CSS3", detail: "Styling" },
+      { logo: "javascript-white", name: "JavaScript", detail: "Language" },
+      { logo: "typescript-white", name: "TypeScript", detail: "Typed JavaScript" },
+      { logo: "react", name: "React", detail: "UI library" },
+      { logo: "nextdotjs", name: "Next.js", detail: "React framework" },
+      { logo: "tailwindcss", name: "Tailwind CSS", detail: "Utility-first CSS" },
+      { logo: "mantine-white", name: "Mantine", detail: "Component library" },
+    ],
+  },
+  {
+    label: "Backend & Database",
+    items: [
+      { logo: "firebase-brand", name: "Firebase", detail: "Backend platform" },
+      { logo: "firebase-brand", name: "Firestore", detail: "NoSQL database" },
+      { logo: "php-color", name: "PHP", detail: "Server-side language", wide: true },
+      { logo: "mysql-logo", name: "MySQL", detail: "Relational database", wide: true },
+    ],
+  },
+  {
+    label: "Tools",
+    items: [
+      { logo: "git-full", name: "Git", detail: "Version control" },
+      { logo: "vite-color", name: "Vite", detail: "Build tool" },
+      { logo: "nodedotjs-color", name: "Node.js", detail: "JavaScript runtime" },
+    ],
+  },
+  {
+    label: "Other Languages",
+    items: [
+      { logo: "python-color", name: "Python", detail: "General purpose", large: true },
+      { logo: "java-color", name: "Java", detail: "Object-oriented", large: true },
+      { logo: "cplusplus-color", name: "C++", detail: "Systems programming" },
+    ],
+  },
+  {
+    label: "Design",
+    items: [
+      { logo: "figma-color", name: "Figma", detail: "Design & prototyping" },
+      { logo: "wireframe", name: "Wireframing", detail: "Layout planning" },
+      { logo: "uiux", name: "UI/UX Design", detail: "User-centred design" },
+    ],
+  },
+  {
+    label: "Mobile",
+    items: [
+      { logo: "react", name: "React Native", detail: "Cross-platform apps" },
+      { logo: "swift-white", name: "Swift", detail: "iOS apps" },
+    ],
+  },
+];
+
 // Plain body copy for now, taken from the resume; styling to be refined later.
 const BODY = "mt-6 max-w-[900px] font-gotham font-medium text-[1.0625rem] leading-[1.6] text-gray-300 max-lg:text-[1rem] upto-639:mt-4 upto-639:text-[0.9375rem]";
 const SUBHEADING = "mt-8 font-gotham text-[1.25rem] font-semibold text-white first:mt-0 upto-639:mt-6 upto-639:text-[1.125rem]";
@@ -277,6 +481,8 @@ const SECTIONS: Section[] = [
     asideFrom: "2xl",
     aside: (
       <PhotoCarousel
+        title="Commencement 2026"
+        subtitle="67th Commencement Exercises · PICC, Pasay City"
         photos={[
           { src: "/assets/images/feu-grad-1.png", alt: "FEU Institute of Technology 2026, 67th Commencement Exercises title screen" },
           { src: "/assets/images/feu-grad-2.png", alt: "Graduates seated at the 67th Commencement Exercises at the PICC, Pasay City" },
@@ -284,6 +490,19 @@ const SECTIONS: Section[] = [
           { src: "/assets/images/feu-grad-4.png", alt: "Graduation cap resting on an FEU Institute of Technology diploma cover" },
           { src: "/assets/images/feu-grad-5.png", alt: "The ceremonial mace at the commencement exercises" },
         ]}
+        // Hidden sixth photo, unlocked by moving past the last one (see PhotoCarousel).
+        // Dancing cats sit over the photo's top-left and bottom-right corners (the photo
+        // spans about 16–84% of the card's width at 90% of its height).
+        secret={{
+          src: "/assets/images/feu-grad-6.png",
+          alt: "Emerson Clamor's selfie at the 67th Commencement Exercises",
+          fit: "contain",
+          stickers: [
+            { src: "/assets/images/scuba-cat.webp", className: "left-[1%] top-[1%] w-[32%]" },
+            { src: "/assets/images/cat-dance.webp", className: "right-[1%] -bottom-[5%] w-[35%]" },
+          ],
+        }}
+        secretFlag="__aboutGradSecret"
         width={2048}
         height={2048}
         aspect="4 / 3"
@@ -352,49 +571,163 @@ const SECTIONS: Section[] = [
     ),
   },
   {
-    title: "What I Do",
+    title: "Work Experience",
+    eyebrow: true,
     content: (
-      <div className={BODY}>
-        <h3 className={SUBHEADING}>Frontend Developer Intern · Simplevia Technologies Inc.</h3>
-        <p className={META}>Pasig City, Philippines · January 2026 – June 2026 · 1,040 hours</p>
-        <ul className={LIST}>
-          <li>
-            Developed a responsive B2B school management system frontend using React, TypeScript, and Tailwind CSS,
-            implementing multi-level navigation and tab-based workflows for complex application interfaces.
-          </li>
-          <li>
-            Refactored the React component architecture across 7 feature modules, reducing component duplication and
-            improving maintainability for future feature development.
-          </li>
-          <li>
-            Translated UI/UX designs into reusable, production-ready React components using Mantine and Tailwind CSS,
-            maintaining consistent responsive layouts across screen sizes.
-          </li>
-        </ul>
+      <div>
+        {/* Newest first: an open template for the next role, then the internship. */}
+        <div className={JOB_ROW}>
+          <div className="w-full min-w-0 flex-1">
+            <div className={SCHOOL}>
+              <span className={OPEN_LOGO} aria-hidden="true">
+                <span className={OPEN_MARK}>?</span>
+              </span>
+              <h3 className={SCHOOL_NAME}>
+                Your Company
+                {/* Minecraft diamond: a small nod to the "find" this role would be. */}
+                <Image src="/assets/images/mc-diamond.png" alt="" aria-hidden="true" width={120} height={130} className={DIAMOND} />
+              </h3>
+            </div>
+            <p className={DEGREE}>
+              Entry-Level Frontend Developer
+              <span className={DEGREE_TRACK}>Your product, your team</span>
+            </p>
+            <p className={SCHOOL_META}>
+              <span className={META_ITEM}>
+                <PinIcon />
+                Your city (or remote)
+              </span>
+              <span className={META_ITEM}>
+                <CalendarIcon />
+                Soon – Present
+              </span>
+              <span className={META_ITEM}>
+                <ClockIcon />
+                Full-time
+              </span>
+            </p>
+
+            <h3 className={SUB_EYEBROW}>Highlights</h3>
+            <ul className={HIGHLIGHTS}>
+              <li className={HIGHLIGHT}>
+                Seeking an <span className="text-white">entry-level frontend developer role</span> where I can contribute to
+                production features from the start.
+              </li>
+              <li className={HIGHLIGHT}>
+                Quick to adapt to <span className="text-white">new codebases and tools</span>, and eager to learn from the
+                team.
+              </li>
+              <li className={HIGHLIGHT}>
+                Open to full-time opportunities, hybrid or fully remote.{" "}
+                <Link href="/contact" className={OPEN_LINK}>
+                  Get in touch
+                </Link>{" "}
+                to discuss how I can support your team.
+              </li>
+            </ul>
+          </div>
+          <TechPanel label="Your Tech Stack" items={OPEN_ROLE_STACK} />
+        </div>
+
+        <hr className={JOB_DIVIDER} />
+
+        <div className={JOB_ROW}>
+          <div className="w-full min-w-0 flex-1">
+            <div className={SCHOOL}>
+              {/* On its own white tile, like the CCST badge. */}
+              <Image src="/assets/images/simplevia-tile.png" alt="Simplevia Technologies logo" width={370} height={370} className={`${SCHOOL_SEAL} rounded-[14px] [box-shadow:0_6px_18px_rgba(0,0,0,0.45)] max-lg:rounded-xl upto-639:rounded-[10px]`} />
+              <h3 className={SCHOOL_NAME}>Simplevia Technologies Inc.</h3>
+            </div>
+            <p className={DEGREE}>
+              Frontend Developer Intern
+              <span className={DEGREE_TRACK}>B2B school management system</span>
+            </p>
+            <p className={SCHOOL_META}>
+              <span className={META_ITEM}>
+                <PinIcon />
+                Pasig City, Philippines
+              </span>
+              <span className={META_ITEM}>
+                <CalendarIcon />
+                January 2026 – June 2026
+              </span>
+              <span className={META_ITEM}>
+                <ClockIcon />
+                1,040 hours
+              </span>
+            </p>
+
+            <h3 className={SUB_EYEBROW}>Highlights</h3>
+            <ul className={HIGHLIGHTS}>
+              <li className={HIGHLIGHT}>
+                Developed a responsive B2B school management system frontend using React, TypeScript, and Tailwind CSS,
+                implementing <span className="text-white">multi-level navigation</span> and{" "}
+                <span className="text-white">tab-based workflows</span> for complex application interfaces.
+              </li>
+              <li className={HIGHLIGHT}>
+                Refactored the React component architecture across <span className="text-white">7 feature modules</span>,
+                reducing component duplication and improving maintainability for future feature development.
+              </li>
+              <li className={HIGHLIGHT}>
+                Translated UI/UX designs into <span className="text-white">reusable, production-ready React components</span>{" "}
+                using Mantine and Tailwind CSS, maintaining consistent responsive layouts across screen sizes.
+              </li>
+              <li className={HIGHLIGHT}>
+                Worked <span className="text-white">fully remote</span>, staying in sync with the team online throughout the
+                internship.
+              </li>
+            </ul>
+          </div>
+          <TechPanel items={SIMPLEVIA_STACK} />
+        </div>
       </div>
     ),
   },
   {
     title: "Skills & Technologies",
+    eyebrow: true,
     content: (
-      <ul className={`${BODY} space-y-2`}>
-        <li><span className="text-white">Frontend:</span> HTML5, CSS3, JavaScript, TypeScript, React, Next.js, React Native, Tailwind CSS, Mantine, Vite</li>
-        <li><span className="text-white">Backend &amp; Database:</span> Firebase, Firestore</li>
-        <li><span className="text-white">Tools &amp; Design:</span> Git, Figma, Wireframing, UI/UX Design</li>
-        <li><span className="text-white">Additional:</span> PHP, Python, Java, Swift, MySQL</li>
-      </ul>
+      <div className={SKILL_GROUPS_GRID}>
+        {SKILL_GROUPS.map((group) => (
+          <div key={group.label}>
+            <h3 className={CERT_GROUP_LABEL}>{group.label}</h3>
+            <ul className={SKILL_GRID}>
+              {group.items.map((t) => (
+                <li key={t.name} className={SKILL_CARD}>
+                  <span className={SKILL_TILE}>
+                    <Image src={`/assets/images/tech/${t.logo}.svg`} alt="" aria-hidden="true" width={24} height={24} unoptimized className={t.wide ? SKILL_LOGO_WIDE : t.large ? SKILL_LOGO_LARGE : SKILL_LOGO} />
+                  </span>
+                  <span>
+                    <span className={CERT_NAME}>{t.name}</span>
+                    <span className={CERT_DETAIL}>{t.detail}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
     ),
   },
   {
+    // What I do (focus areas) and how I work (process), then the principles behind it.
     // Drawn from how the resume describes the work; reword into your own voice.
     title: "My Approach",
     content: (
-      <ul className={`${BODY} list-disc space-y-2 pl-5`}>
-        <li>Build reusable UI components instead of one-off screens.</li>
-        <li>Keep layouts responsive and consistent across screen sizes and browsers.</li>
-        <li>Translate UI/UX designs faithfully into production-ready components.</li>
-        <li>Refactor component architecture to cut duplication and keep code maintainable for future features.</li>
-      </ul>
+      <div className={BODY}>
+        <h3 className={SUBHEADING}>Frontend • UI/UX • Backend Integration</h3>
+        <p className={META}>Problem Solving • Design • Development • Testing</p>
+        <ul className={LIST}>
+          <li>
+            Start from the problem, not the code: understand what users need, find the root cause, then pick the
+            simplest solution that holds up.
+          </li>
+          <li>Build reusable UI components instead of one-off screens.</li>
+          <li>Keep layouts responsive and consistent across screen sizes and browsers.</li>
+          <li>Translate UI/UX designs faithfully into production-ready components.</li>
+          <li>Refactor component architecture to cut duplication and keep code maintainable for future features.</li>
+        </ul>
+      </div>
     ),
   },
   {
@@ -436,6 +769,7 @@ const SECTIONS: Section[] = [
 export default function About() {
   return (
     <AboutShowcase>
+      <style>{OPEN_SLOT_CSS}</style>
       {SECTIONS.map(({ title, content, aside, asideFrom = "lg", eyebrow }, i) => (
         // Titled sections open as a full-screen card with only their heading (see AboutShowcase).
         <section
@@ -479,7 +813,8 @@ export default function About() {
             >
               <div className={OVERLAY_SCALE}>
                 {/* Every curtain uses the glowing script headline, as on the Introduction. */}
-                <GlowHeading as="div" text={title} />
+                {/* Wider word gap: the script's swash capitals crowd multi-word titles. */}
+                <GlowHeading as="div" text={title} wordGap={0.4} />
               </div>
               <p data-showcase-hint className={CURTAIN_HINT}>
                 Press or Scroll Down to navigate
