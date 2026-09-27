@@ -14,8 +14,11 @@ const STACKED_CARD =
   "[&:hover]:after:absolute [&:hover]:after:right-[10px] [&:hover]:after:bottom-[10px] [&:hover]:after:z-3 [&:hover]:after:h-[12px] [&:hover]:after:w-[12px] " +
   "[&:hover]:after:rounded-[50%] [&:hover]:after:bg-[rgba(255,255,255,0.4)] [&:hover]:after:opacity-0 [&:hover]:after:animate-indicator-in [&:hover]:after:content-['']";
 
-/** Stacked-view row: waits 2s on hover before cycling previews. */
-export default function ProjectRow({ p }: { p: Project }) {
+/**
+ * Stacked-view row: waits 2s on hover before cycling previews. `className` sets the
+ * wrapper width (default: full width, three fifths beside the text above 940px).
+ */
+export default function ProjectRow({ p, className = "w-full above-940:w-3/5" }: { p: Project; className?: string }) {
   const altImages = altImagesMap[p.id] ?? [];
   const previewName = previewMap[p.id];
   const hasPreview = !!previewName;
@@ -27,7 +30,7 @@ export default function ProjectRow({ p }: { p: Project }) {
   });
 
   return (
-    <div className="w-full above-940:w-3/5">
+    <div className={className}>
       <div
         className={`${CARD_SHELL} ${cardBackground(hasPreview, false)} ${STACKED_CARD}`}
         style={hasPreview ? { backgroundImage: `url('/assets/images/${previewName}')` } : undefined}

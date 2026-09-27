@@ -49,6 +49,11 @@ const CURTAIN_HINT =
   "absolute inset-x-6 top-[calc(50%+76px)] font-pixel text-[0.65rem] uppercase tracking-[0.12em] text-gray-300 opacity-0 " +
   "[text-shadow:2px_2px_0_rgba(0,0,0,0.75)] max-2xl:top-[calc(50%+62px)] upto-639:top-[calc(50%+40px)] upto-420:text-[0.55rem]";
 // The first curtain sits under the navbar (116 / 99 / 81px on the 2xl / lg tiers).
+// On desktop (lg+) every section is at least a screen tall with its content centred
+// vertically; the first allows for the navbar above it (116 / 99px on the 2xl / lg tiers).
+// Smaller screens, and sections with no content yet, keep content-height sections.
+const FULL_SCREEN = "flex flex-col justify-center lg:min-h-svh";
+const FULL_SCREEN_FIRST = "flex flex-col justify-center lg:min-h-[calc(100svh-116px)] lg:max-2xl:min-h-[calc(100svh-99px)]";
 const OVERLAY_FIRST = "h-[calc(100svh-116px)] max-2xl:h-[calc(100svh-99px)] max-lg:h-[calc(100svh-81px)]";
 // Curtain heading is the section heading, enlarged (normal size on phones so it fits).
 const OVERLAY_SCALE = "scale-150 max-2xl:scale-125 upto-639:scale-100";
@@ -72,7 +77,7 @@ const INTRO_ROLE =
 const INTRO_LOCATION =
   "mt-3 flex items-center gap-1.5 font-gotham font-medium text-gray-400 text-[1rem] upto-639:mt-2 upto-639:text-[0.9375rem]";
 const INTRO_SUMMARY =
-  "mt-6 max-w-[640px] font-gotham font-medium leading-[1.7] text-gray-300 text-[1.0625rem] max-lg:text-[1rem] " +
+  "mt-6 max-w-[640px] max-xl:max-w-none font-gotham font-medium leading-[1.7] text-gray-300 text-[1.0625rem] max-lg:text-[1rem] " +
   "upto-639:mt-5 upto-639:text-[0.9375rem] upto-639:leading-[1.65]";
 // Extra gap/margin so the stone buttons' 3px black outline doesn't touch.
 const INTRO_ACTIONS = "mt-9 flex flex-wrap gap-5 max-2xl:gap-4 px-[3px] max-lg:mt-8 upto-639:mt-7 upto-420:flex-col upto-420:gap-4";
@@ -366,11 +371,14 @@ const SKILL_GROUPS: { label: string; items: { logo: string; name: string; detail
     ],
   },
   {
-    label: "Tools",
+    label: "Tools & AI",
     items: [
       { logo: "git-full", name: "Git", detail: "Version control" },
       { logo: "vite-color", name: "Vite", detail: "Build tool" },
       { logo: "nodedotjs-color", name: "Node.js", detail: "JavaScript runtime" },
+      { logo: "claude-color", name: "Claude", detail: "AI-assisted development" },
+      { logo: "chatgpt-white", name: "ChatGPT", detail: "Research & general inquiries" },
+      { logo: "gemini-logo", name: "Gemini", detail: "Image editing & asset generation" },
     ],
   },
   {
@@ -398,6 +406,76 @@ const SKILL_GROUPS: { label: string; items: { logo: string; name: string; detail
   },
 ];
 
+// My Journey: a vertical timeline on an engraved rail (like the eyebrow rules). Each
+// milestone has a stone-grey pixel marker, a small pixel date, a title and one line of
+// detail; the last ("Present") is marked with the diamond from "Your Company".
+const JOURNEY_LIST =
+  "relative mt-8 max-w-[900px] pl-10 upto-639:mt-6 upto-639:pl-8 " +
+  "before:absolute before:top-2 before:bottom-2 before:left-[11px] before:w-[2px] before:bg-[#1c1a19] " +
+  "before:[box-shadow:1px_0_0_#454140] before:content-[''] upto-639:before:left-[7px]";
+const JOURNEY_ITEM = "relative pb-10 last:pb-0 max-lg:pb-8 upto-639:pb-7";
+const JOURNEY_MARKER =
+  "absolute top-[3px] left-[-34px] h-3.5 w-3.5 bg-[#8b8b8b] " +
+  "[box-shadow:inset_2px_2px_0_#c6c6c6,inset_-2px_-2px_0_#4f4f4f,0_0_0_2px_#000000] upto-639:left-[-30px]";
+const JOURNEY_DIAMOND = "absolute top-[-4px] left-[-38px] h-6 w-auto [image-rendering:pixelated] upto-639:left-[-34px]";
+const JOURNEY_DATE =
+  "font-pixel text-[0.62rem] uppercase tracking-[0.12em] text-gray-400 [text-shadow:2px_2px_0_rgba(0,0,0,0.75)] upto-420:text-[0.56rem]";
+const JOURNEY_TITLE = "mt-2.5 font-gotham font-semibold leading-[1.3] text-white text-[1.25rem] max-lg:text-[1.125rem] upto-639:text-[1.0625rem]";
+const JOURNEY_TEXT = "mt-1.5 font-gotham font-medium leading-[1.65] text-gray-400 text-[1rem] upto-639:text-[0.9375rem]";
+const JOURNEY: { date: string; title: string; text: string; now?: boolean }[] = [
+  {
+    date: "Aug 2022",
+    title: "Started at FEU Institute of Technology",
+    text: "Began a BS in Information Technology, specializing in Web and Mobile Applications.",
+  },
+  {
+    date: "2022 – 2023",
+    title: "Foundations",
+    text: "Completed my general education subjects and introductory courses in programming and web development.",
+  },
+  {
+    date: "Mar 2024",
+    title: "First certifications",
+    text: "Earned IT Specialist: Python and CCNA: Introduction to Networks.",
+  },
+  {
+    date: "Jul – Nov 2024",
+    title: "Networking and web foundations",
+    text: "Added CCNA: Switching, Routing, and Wireless Essentials, IT Specialist: Networking, and IT Specialist: HTML and CSS.",
+  },
+  {
+    date: "Dec 2024",
+    title: "Started ePasigLib",
+    text: "Began building a library management system for Pasig Knowledge Center as my capstone project.",
+  },
+  {
+    date: "Jan – Mar 2025",
+    title: "Broadening my skills",
+    text: "Completed CCNA: Enterprise Networking, Security, and Automation, DevNet Associate, and PMI Project Management Ready.",
+  },
+  {
+    date: "Nov 2025",
+    title: "JavaScript and cybersecurity",
+    text: "Earned IT Specialist: JavaScript and Cisco Certified Support Technician: Cybersecurity.",
+  },
+  {
+    date: "Jan – Jun 2026",
+    title: "Frontend Developer Intern at Simplevia Technologies Inc.",
+    text: "Built the frontend of a B2B school management system over 1,040 hours, fully remote.",
+  },
+  {
+    date: "Sep 2026",
+    title: "Graduated",
+    text: "Completed my degree at FEU Tech's 67th Commencement Exercises, with ePasigLib delivered.",
+  },
+  {
+    date: "Present",
+    title: "The next chapter",
+    text: "Looking for an entry-level frontend developer role where I can keep learning and building.",
+    now: true,
+  },
+];
+
 // Featured Project: a centred two-line summary, the projects page's stacked preview card
 // (hover lifts it and cycles the screenshots) with the buttons under it, then the details
 // (Work Experience layout) beside the tech stack.
@@ -406,11 +484,17 @@ const FEATURED_SUMMARY =
   "mx-auto mt-5 max-w-[980px] text-center font-gotham font-medium leading-[1.7] text-gray-300 text-[1.125rem] " +
   "max-2xl:text-[1.0625rem] max-lg:text-[1rem] upto-639:mt-4 upto-639:text-[0.9375rem]";
 const FEATURED_PREVIEW = "project-row mt-8 flex justify-center max-lg:mt-7 upto-639:mt-6";
+// Full width up to the desktop size, so it scales smoothly (the projects page's own
+// sizing drops it to three fifths at 941px, beside text that isn't here).
+const FEATURED_CARD = "w-full max-w-[960px]";
 // Looping zombie-riding-a-chicken sprite (animated WebP, background keyed out) leading
 // the Visit button; a little larger than the other button icons since it's a full scene.
 // Pulled left: the sprite sits right of centre in its frame, which read as extra padding.
 const ZOMBIE_ICON = "-my-1 -ml-2.5 h-[38px] w-[38px] shrink-0 max-lg:h-9 max-lg:w-9 upto-420:h-8 upto-420:w-8";
-const FEATURED_ACTIONS = `${INTRO_ACTIONS} justify-center`;
+// The two buttons as equal-width grid columns (both as wide as the wider one), centred;
+// stacked below 640px, still sharing one width.
+const FEATURED_ACTIONS =
+  "mx-auto mt-9 grid w-fit grid-cols-2 gap-5 px-[3px] max-2xl:gap-4 max-lg:mt-8 upto-639:mt-7 upto-639:grid-cols-1 upto-639:gap-4";
 const FEATURED_ROW = `${JOB_ROW} mt-12 max-2xl:mt-10 upto-639:mt-8`;
 const EPASIGLIB_STACK: TechItem[] = [
   { logo: "react", name: "React", detail: "Web interfaces" },
@@ -421,14 +505,77 @@ const EPASIGLIB_STACK: TechItem[] = [
   { logo: "firebase-brand", name: "Firestore", detail: "Real-time data" },
 ];
 
-// Plain body copy for now, taken from the resume; styling to be refined later.
-const BODY = "mt-6 max-w-[900px] font-gotham font-medium text-[1.0625rem] leading-[1.6] text-gray-300 max-lg:text-[1rem] upto-639:mt-4 upto-639:text-[0.9375rem]";
-const SUBHEADING = "mt-8 font-gotham text-[1.25rem] font-semibold text-white first:mt-0 upto-639:mt-6 upto-639:text-[1.125rem]";
-const META = "mt-1 text-gray-400";
-const LIST = "mt-3 list-disc space-y-2 pl-5";
+// My Approach: text only, across the full width. The focus line, then numbered groups two
+// across (one below 2xl), each a heading over short points: a white lead phrase and a
+// grey explanation, so the leads can be skimmed.
+const APPROACH_FOCUS =
+  "mt-5 font-gotham font-semibold leading-[1.3] text-white text-[1.5rem] max-2xl:text-[1.375rem] max-lg:text-[1.25rem] " +
+  "upto-639:mt-4 upto-639:text-[1.125rem]";
+// Two across only from 2xl, where every point fits on one line; narrower two-column
+// layouts made nearly every point wrap.
+const APPROACH_GRID = "mt-12 grid grid-cols-2 gap-x-16 gap-y-16 max-2xl:grid-cols-1 max-2xl:gap-y-14 max-lg:gap-y-12 upto-639:mt-9 upto-639:gap-y-10";
+const APPROACH_HEADING = "flex items-baseline gap-3 font-gotham font-semibold text-white text-[1.25rem] max-lg:text-[1.125rem]";
+const APPROACH_NUMBER = "font-pixel text-[0.7rem] text-gray-500 [text-shadow:2px_2px_0_rgba(0,0,0,0.75)]";
+// Tight on wide screens (one-line points); more room where points start wrapping, so a
+// wrapped point doesn't run into the next one.
+const APPROACH_POINTS = "mt-5 space-y-2 max-2xl:space-y-3 upto-639:space-y-3.5";
+// Leads are white at the body weight (not bold) so they don't compete with the group
+// headings; the explanation steps down a shade so the leads still read first.
+const APPROACH_LEAD = "text-gray-100";
+const APPROACH_POINT = `${HIGHLIGHT} text-gray-400!`; // ! beats HIGHLIGHT's own grey
+const APPROACH_GROUPS: { title: string; points: [lead: string, text: string][] }[] = [
+  {
+    title: "Problem Solving",
+    points: [
+      ["Problem first.", "Understand what users need before writing any code."],
+      ["Clear scope.", "Pin down requirements and edge cases, then ship in small pieces."],
+      ["Root causes.", "Fix why a bug happens, not just where it shows up."],
+    ],
+  },
+  {
+    title: "Design",
+    points: [
+      ["Faithful to the design.", "Turn UI/UX designs into production-ready components."],
+      ["Responsive by default.", "Consistent layouts across screen sizes and browsers."],
+      ["Accessible.", "Semantic HTML, keyboard support, and readable contrast."],
+    ],
+  },
+  {
+    title: "Development",
+    points: [
+      ["Reusable components.", "Build shared pieces instead of one-off screens."],
+      ["Typed and predictable.", "TypeScript, with clear state and data flow."],
+      ["Maintainable.", "Refactor to cut duplication before it slows new features down."],
+    ],
+  },
+  {
+    title: "Testing",
+    points: [
+      ["Every device.", "Check features across screens and browsers before they ship."],
+      ["Every state.", "Loading, empty, and error states, not just the happy path."],
+      ["Clean history.", "Review my own changes and keep Git easy to follow."],
+    ],
+  },
+  {
+    title: "Performance",
+    points: [
+      ["Fast loads.", "Optimized images, lazy loading, and lean bundles."],
+      ["Smooth UI.", "Avoid unnecessary re-renders and heavy main-thread work."],
+      ["Nothing wasted.", "Pause animations and media that are off screen."],
+    ],
+  },
+  {
+    title: "Collaboration",
+    points: [
+      ["Clean integration.", "APIs and backend services with clear loading and error handling."],
+      ["Talk early.", "Stay in sync with designers and backend developers, remote or on-site."],
+      ["Leave it better.", "Code and notes that make the next feature easier to build."],
+    ],
+  },
+];
 
 // `aside` puts something beside the heading and copy, stacking on top of them below
-// `asideFrom`: "lg" (1024px, the default) or "2xl" (1536px, for wide asides that
+// `asideFrom`: "lg" (1024px, the default), "xl" (1280px) or "2xl" (1536px, for wide asides that
 // would squeeze the copy).
 // `eyebrow` shows the section title as the small pixel label (like the Introduction)
 // instead of the big heading, leaving the content to carry the headline.
@@ -437,14 +584,20 @@ type Section = {
   title: string | null;
   content?: ReactNode;
   aside?: ReactNode;
-  asideFrom?: "lg" | "2xl";
+  asideFrom?: "lg" | "xl" | "2xl";
   eyebrow?: boolean;
   eyebrowFull?: boolean;
 };
 
 // Row layouts for a section with an aside (literal strings so Tailwind sees them).
+// Copy column width once an "xl" row has stacked: a wider 820px centred column (the
+// Introduction's summary and eyebrow widen to fill it; phones are narrower anyway).
+const COPY_STACKED = { lg: "", xl: "max-xl:max-w-[820px]", "2xl": "" };
 const ASIDE_ROW = {
   lg: "flex items-center gap-16 max-2xl:gap-12 max-lg:flex-col-reverse max-lg:items-start max-lg:gap-8 upto-639:items-center",
+  // Stacked below xl, centred: the portrait in the middle and the copy as a centred
+  // column at its 640px measure (see COPY_STACKED), so neither hugs the left edge.
+  xl: "flex items-center gap-16 max-2xl:gap-12 max-xl:flex-col-reverse max-xl:items-center max-xl:gap-8",
   "2xl": "flex items-center gap-16 max-2xl:flex-col-reverse max-2xl:items-center max-2xl:gap-10 upto-639:gap-8",
 };
 
@@ -466,6 +619,9 @@ const LANDSCAPE =
 const SECTIONS: Section[] = [
   {
     title: "Introduction",
+    // Beside the copy only from 1280px: below that the portrait (with its peeking
+    // neighbours) squeezed the name, summary and buttons into a narrow column.
+    asideFrom: "xl",
     eyebrow: true,
     aside: (
       <PhotoCarousel
@@ -506,10 +662,11 @@ const SECTIONS: Section[] = [
             <Image src="/assets/images/mc-crafting-table.png" alt="" aria-hidden="true" width={364} height={364} className={BUTTON_ICON} />
             View Projects
           </Link>
-          <Link href="/contact" className={INTRO_SLOT_BUTTON}>
+          {/* Downloads the resume PDF (saved under a readable file name). */}
+          <a href="/assets/files/Clamor_Emerson_Resume_2026.pdf" download="Clamor_Emerson_Resume_2026.pdf" className={INTRO_SLOT_BUTTON}>
             <Image src="/assets/images/mc-book-and-quill.png" alt="" aria-hidden="true" width={360} height={360} className={BUTTON_ICON} />
-            Get in Touch
-          </Link>
+            Download Resume
+          </a>
         </div>
       </div>
     ),
@@ -748,23 +905,30 @@ const SECTIONS: Section[] = [
     ),
   },
   {
-    // What I do (focus areas) and how I work (process), then the principles behind it.
-    // Drawn from how the resume describes the work; reword into your own voice.
+    // What I do (focus areas), then how I work, group by group.
     title: "My Approach",
+    eyebrow: true,
+    eyebrowFull: true,
     content: (
-      <div className={BODY}>
-        <h3 className={SUBHEADING}>Frontend • UI/UX • Backend Integration</h3>
-        <p className={META}>Problem Solving • Design • Development • Testing</p>
-        <ul className={LIST}>
-          <li>
-            Start from the problem, not the code: understand what users need, find the root cause, then pick the
-            simplest solution that holds up.
-          </li>
-          <li>Build reusable UI components instead of one-off screens.</li>
-          <li>Keep layouts responsive and consistent across screen sizes and browsers.</li>
-          <li>Translate UI/UX designs faithfully into production-ready components.</li>
-          <li>Refactor component architecture to cut duplication and keep code maintainable for future features.</li>
-        </ul>
+      <div>
+        <p className={APPROACH_FOCUS}>Frontend • UI/UX • Backend Integration</p>
+        <div className={APPROACH_GRID}>
+          {APPROACH_GROUPS.map((g, k) => (
+            <div key={g.title}>
+              <h3 className={APPROACH_HEADING}>
+                <span className={APPROACH_NUMBER}>{String(k + 1).padStart(2, "0")}</span>
+                {g.title}
+              </h3>
+              <ul className={APPROACH_POINTS}>
+                {g.points.map(([lead, text]) => (
+                  <li key={lead} className={APPROACH_POINT}>
+                    <span className={APPROACH_LEAD}>{lead}</span> {text}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       </div>
     ),
   },
@@ -777,7 +941,7 @@ const SECTIONS: Section[] = [
         <p className={FEATURED_SUMMARY}>{EPASIGLIB.desc}.</p>
 
         <div className={FEATURED_PREVIEW}>
-          <ProjectRow p={EPASIGLIB} />
+          <ProjectRow p={EPASIGLIB} className={FEATURED_CARD} />
         </div>
 
         <div className={FEATURED_ACTIONS}>
@@ -834,9 +998,28 @@ const SECTIONS: Section[] = [
       </div>
     ),
   },
+  {
+    title: "My Journey",
+    eyebrow: true,
+    content: (
+      <ol className={JOURNEY_LIST}>
+        {JOURNEY.map((m) => (
+          <li key={m.date} className={JOURNEY_ITEM}>
+            {m.now ? (
+              <Image src="/assets/images/mc-diamond.png" alt="" aria-hidden="true" width={120} height={130} className={JOURNEY_DIAMOND} />
+            ) : (
+              <span aria-hidden="true" className={JOURNEY_MARKER} />
+            )}
+            <p className={JOURNEY_DATE}>{m.date}</p>
+            <h3 className={JOURNEY_TITLE}>{m.title}</h3>
+            <p className={JOURNEY_TEXT}>{m.text}</p>
+          </li>
+        ))}
+      </ol>
+    ),
+  },
   // The resume has nothing outside work yet; hobbies and interests go here.
   { title: "Beyond Coding" },
-  { title: null },
   { title: null },
 ];
 
@@ -854,9 +1037,9 @@ export default function About() {
           className={`group/show relative overflow-hidden ${BACKGROUNDS[i % BACKGROUNDS.length]} ${i > 0 ? "border-t border-white/[0.08]" : ""}`}
         >
           <div className={SECTION_OUTER}>
-            <div className={`${SECTION_INNER} ${SHOWCASE_INNER} min-h-[320px] max-lg:min-h-[260px] upto-639:min-h-[200px]`}>
+            <div className={`${SECTION_INNER} ${SHOWCASE_INNER} ${content ? (i === 0 ? FULL_SCREEN_FIRST : FULL_SCREEN) : ""} min-h-[320px] max-lg:min-h-[260px] upto-639:min-h-[200px]`}>
               <div className={aside ? ASIDE_ROW[asideFrom] : ""}>
-                <div className="w-full min-w-0 flex-1">
+                <div className={`w-full min-w-0 flex-1 ${aside ? COPY_STACKED[asideFrom] : ""}`}>
                   {title && (
                     <div data-showcase-body className={REVEAL}>
                       {/* The curtain already shows "Introduction" big, so inside it's only a small
@@ -864,7 +1047,7 @@ export default function About() {
                       {/* Eyebrow sections keep their title as the small label; the Introduction's is a
                           plain label (the name is the page heading), the others stay headings. */}
                       {i === 0 ? (
-                        <p className={EYEBROW}>{title}</p>
+                        <p className={`${EYEBROW} max-xl:max-w-none`}>{title}</p>
                       ) : eyebrow ? (
                         <h2 className={eyebrowFull ? `${EYEBROW} max-w-none` : EYEBROW}>{title}</h2>
                       ) : (
