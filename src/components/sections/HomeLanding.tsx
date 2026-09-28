@@ -4,7 +4,8 @@ import Image from "next/image";
 import { useLayoutEffect, useRef, useState } from "react";
 import EndGateways, { GATEWAYS_LEFT } from "./EndGateways";
 import EndIsland from "./EndIsland";
-import Hud from "./Hud";
+import Hud, { PEARL_SLOT } from "./Hud";
+import PearlGame from "./PearlGame";
 import { createFireworkTrail } from "./fireworkTrail";
 import PixelParticles from "./PixelParticles";
 import Steve, { STEVE_VIEWBOX, type StevePose } from "./Steve";
@@ -108,6 +109,11 @@ const leftFor = (centre: number) => `${centre - SPRITE_W / 2}%`;
 // `replay`: forget that the intro has played and run it again (set on a hard reload).
 export default function HomeLanding({ replay = false }: { replay?: boolean }) {
   const [pose, setPose] = useState<StevePose>("fly");
+  const [ready, setReady] = useState(false); // the intro is over (he's standing, facing the viewer)
+  const [slot, setSlot] = useState(0); // the hotbar's chosen slot
+  const holding = ready && slot === PEARL_SLOT; // the ender pearl is in his hand
+  const sceneRef = useRef<HTMLDivElement | null>(null);
+  const worldRef = useRef<HTMLDivElement | null>(null);
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const steveRef = useRef<HTMLDivElement | null>(null);
   const headingRef = useRef<HTMLHeadingElement | null>(null);
@@ -205,6 +211,7 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
       // Deliberately set here, before the first paint: whether the intro has played lives in
       // sessionStorage, which the server render can't see.
       setPose("front");
+      setReady(true);
       revealHeading(true);
       revealLogo(true);
       return;
@@ -397,7 +404,10 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
         if (fly.startTime !== null) skid.startTime = Number(fly.startTime) + FLY_MS;
 
         // 4. Stopped: he turns to face the viewer.
-        skid.onfinish = () => setPose("front");
+        skid.onfinish = () => {
+          setPose("front");
+          setReady(true);
+        };
       };
     });
 
@@ -409,102 +419,113 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
   }, [replay]);
 
   return (
-    <>
-      <PixelParticles />
-      {/* Firework sparks from the elytra boost, behind the island so they fall past it. */}
-      <canvas
-        ref={sparksRef}
-        aria-hidden="true"
-        className="pointer-events-none"
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-        }}
-      />
-      {/* Position and sizes inline: the dev server doesn't always pick up new arbitrary classes. */}
-      <EndIsland
-        className="absolute"
-        style={{ bottom: 0, left: "15.32%", width: "69.36%" }}
-      >
-        {/* Everything here stands on the island, so it floats with it. */}
-        {/* First, so the sign draws over their beams. */}
-        <EndGateways />
-        {/* Lifted so the logo's bottom edge sits at Steve's waist (half his 1.8-block height; %
-            padding is relative to the island's width, like his size), level with his upper body.
-            A size container outside it, so the heading can be placed in island widths (cqw). */}
-        <div style={{ containerType: "inline-size" }}>
-          <div
-            style={{
-              paddingLeft: `${SIGN_LEFT}%`,
-              paddingBottom: `${SIGN_LIFT}%`,
-            }}
-          >
-            {/* Heading and logo as one column, the logo centred under the heading. */}
+    // The scene takes presses for the ender pearl mini-game; the world inside it is what zooms
+    // into Steve's point of view (the HUD stays put, as in the game).
+    <div ref={sceneRef} className="absolute inset-0 select-none" style={{ touchAction: "none" }}>
+      <div ref={worldRef} className="absolute inset-0">
+        <PixelParticles />
+        {/* Firework sparks from the elytra boost, behind the island so they fall past it. */}
+        <canvas
+          ref={sparksRef}
+          aria-hidden="true"
+          className="pointer-events-none"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+          }}
+        />
+        {/* Position and sizes inline: the dev server doesn't always pick up new arbitrary classes. */}
+        <EndIsland
+          className="absolute"
+          style={{ bottom: 0, left: "15.32%", width: "69.36%" }}
+        >
+          {/* Everything here stands on the island, so it floats with it. */}
+          {/* First, so the sign draws over their beams. */}
+          <EndGateways />
+          {/* Lifted so the logo's bottom edge sits at Steve's waist (half his 1.8-block height; %
+              padding is relative to the island's width, like his size), level with his upper body.
+              A size container outside it, so the heading can be placed in island widths (cqw). */}
+          <div style={{ containerType: "inline-size" }}>
             <div
               style={{
-                display: "inline-flex",
-                flexDirection: "column",
-                alignItems: "center",
+                paddingLeft: `${SIGN_LEFT}%`,
+                paddingBottom: `${SIGN_LIFT}%`,
               }}
             >
-              <h1
-                ref={headingRef}
-                className="font-pixel text-white [text-shadow:4px_4px_0_#3f3f3f]"
+              {/* Heading and logo as one column, the logo centred under the heading. */}
+              <div
                 style={{
-                  fontSize: "clamp(1rem, 2.55vw, 2.45rem)",
-                  // pulled left clear of the gateways (100% is its own width, as the column is
-                  // as wide as it is); its `top` is set to line it up with their portals
-                  position: "relative",
-                  left: `clamp(8px - ${SCREEN_EDGE}cqw, ${HEADING_END - SIGN_LEFT}cqw - 100%, 0px)`,
-                  lineHeight: 1,
-                  opacity: 0,
+                  display: "inline-flex",
+                  flexDirection: "column",
+                  alignItems: "center",
                 }}
               >
-                You Have Landed On...
-              </h1>
-              <div ref={logoRef} style={{ opacity: 0 }}>
-                <Image
-                  src="/assets/images/logotext.png"
-                  alt="Meemeow Creations"
-                  width={1096}
-                  height={366}
-                  priority
-                  className="block h-auto [box-shadow:0_8px_24px_rgba(0,0,0,0.5)]"
+                <h1
+                  ref={headingRef}
+                  className="font-pixel text-white [text-shadow:4px_4px_0_#3f3f3f]"
                   style={{
-                    width: "clamp(145px, 19vw, 320px)",
-                    marginTop: "clamp(12px, 2vw, 28px)",
-                    // nudged down a little from the heading without moving the heading
+                    fontSize: "clamp(1rem, 2.55vw, 2.45rem)",
+                    // pulled left clear of the gateways (100% is its own width, as the column is
+                    // as wide as it is); its `top` is set to line it up with their portals
                     position: "relative",
-                    top: "clamp(9px, 1.6vw, 23px)",
-                    left: "calc(-1 * clamp(8px, 1.6vw, 23px))", // and a little left of centre
+                    left: `clamp(8px - ${SCREEN_EDGE}cqw, ${HEADING_END - SIGN_LEFT}cqw - 100%, 0px)`,
+                    lineHeight: 1,
+                    opacity: 0,
                   }}
-                />
+                >
+                  You Have Landed On...
+                </h1>
+                <div ref={logoRef} style={{ opacity: 0 }}>
+                  <Image
+                    src="/assets/images/logotext.png"
+                    alt="Meemeow Creations"
+                    width={1096}
+                    height={366}
+                    priority
+                    className="block h-auto [box-shadow:0_8px_24px_rgba(0,0,0,0.5)]"
+                    style={{
+                      width: "clamp(145px, 19vw, 320px)",
+                      marginTop: "clamp(12px, 2vw, 28px)",
+                      // nudged down a little from the heading without moving the heading
+                      position: "relative",
+                      top: "clamp(9px, 1.6vw, 23px)",
+                      left: "calc(-1 * clamp(8px, 1.6vw, 23px))", // and a little left of centre
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div
-          ref={steveRef}
-          className="absolute"
-          style={{
-            bottom: 0,
-            left: leftFor(LAND_AT),
-            width: `${SPRITE_W}%`,
-            visibility: "hidden",
-          }}
-        >
-          <Steve pose={pose} />
-        </div>
-      </EndIsland>
+          <div
+            ref={steveRef}
+            className="absolute"
+            style={{
+              bottom: 0,
+              left: leftFor(LAND_AT),
+              width: `${SPRITE_W}%`,
+              visibility: "hidden",
+            }}
+          >
+            <Steve pose={pose} holding={holding} />
+          </div>
+        </EndIsland>
+      </div>
       {/* The HUD over the island's face, in the same box as the island but not floating with it. */}
       <div
         className="pointer-events-none absolute"
         style={{ bottom: 0, left: "15.32%", width: "69.36%", height: "100%", zIndex: 2 }}
       >
-        <Hud />
+        <Hud selected={slot} onSelect={setSlot} />
       </div>
+      <PearlGame
+        sceneRef={sceneRef}
+        worldRef={worldRef}
+        hideRefs={[steveRef, headingRef, logoRef]}
+        armed={holding && (pose === "front" || pose === "side")}
+        onTurn={(toGateways) => setPose(toGateways ? "side" : "front")}
+      />
       {/* Starts black over the whole screen (navbar and footer too) and fades away. */}
       <div
         ref={overlayRef}
@@ -517,6 +538,6 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
           background: "#000",
         }}
       />
-    </>
+    </div>
   );
 }

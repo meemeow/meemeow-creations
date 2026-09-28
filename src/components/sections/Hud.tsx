@@ -17,17 +17,58 @@ const TEX_H = 41;
 const SLOT_X = [6, 26, 46, 66, 86, 107, 127, 147, 167];
 const SLOT_Y = 22;
 const SLOT_IN = 14;
-const PEARL_SLOT = 4; // slot 5
+export const PEARL_SLOT = 4; // slot 5
 
 // The island, as EndIsland draws it: 17 blocks across, 2.5 rows of it showing.
 const ISLAND_BLOCKS = 17;
 const VISIBLE_ROWS = 2.5;
 const MAX_ROWS = 2.2; // the HUD's height at most, in rows, leaving a margin above and below
 
-export default function Hud() {
+// The game's font for the stack size: 5x7 pixel digits, a pixel apart, with a dark shadow one
+// pixel down and right.
+const DIGITS: Record<string, string[]> = {
+  "0": [".###.", "#...#", "#..##", "#.#.#", "##..#", "#...#", ".###."],
+  "1": ["..#..", ".##..", "..#..", "..#..", "..#..", "..#..", "#####"],
+  "2": [".###.", "#...#", "....#", "..##.", ".#...", "#...#", "#####"],
+  "3": [".###.", "#...#", "....#", "..##.", "....#", "#...#", ".###."],
+  "4": ["...##", "..#.#", ".#..#", "#...#", "#####", "....#", "....#"],
+  "5": ["#####", "#....", "####.", "....#", "....#", "#...#", ".###."],
+  "6": ["..##.", ".#...", "#....", "####.", "#...#", "#...#", ".###."],
+  "7": ["#####", "#...#", "....#", "...#.", "..#..", "..#..", "..#.."],
+  "8": [".###.", "#...#", "#...#", ".###.", "#...#", "#...#", ".###."],
+  "9": [".###.", "#...#", "#...#", ".####", "....#", "...#.", ".##.."],
+};
+
+// `text` in the game's font, as an SVG one texel per pixel (it's placed and scaled by `style`).
+function PixelText({ text, style }: { text: string; style: React.CSSProperties }) {
+  const width = text.length * 6; // 5 wide + 1 apart; the last gap holds the shadow
+  const pixels = [...text].flatMap((ch, i) =>
+    (DIGITS[ch] ?? []).flatMap((row, y) =>
+      [...row].flatMap((c, x) => (c === "#" ? [[i * 6 + x, y]] : [])),
+    ),
+  );
+  return (
+    <svg viewBox={`0 0 ${width} 8`} shapeRendering="crispEdges" aria-hidden="true" style={style}>
+      {pixels.map(([x, y]) => (
+        <rect key={`s${x},${y}`} x={x + 1} y={y + 1} width={1} height={1} fill="#3f3f3f" />
+      ))}
+      {pixels.map(([x, y]) => (
+        <rect key={`${x},${y}`} x={x} y={y} width={1} height={1} fill="#ffffff" />
+      ))}
+    </svg>
+  );
+}
+
+// `selected` (0-8) is the chosen slot, owned by the page so Steve can hold what's in it.
+export default function Hud({
+  selected,
+  onSelect: setSelected,
+}: {
+  selected: number;
+  onSelect: (slot: number) => void;
+}) {
   const boxRef = useRef<HTMLDivElement | null>(null);
   const [fit, setFit] = useState<{ texel: number; left: number; bottom: number } | null>(null);
-  const [selected, setSelected] = useState(0);
   const [hovered, setHovered] = useState<number | null>(null);
 
   // Size it from the island's block size (the same whole device pixels EndIsland uses).
@@ -63,7 +104,7 @@ export default function Hud() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [setSelected]);
 
   const t = (texels: number) => (fit ? texels * fit.texel : 0);
   const at = (x: number, y: number, w: number, h: number): React.CSSProperties => ({
@@ -92,20 +133,11 @@ export default function Hud() {
 
           {/* The ender pearls, with the stack size bottom right of the slot like the game. */}
           <Image src="/assets/images/ender-pearl.png" alt="" width={13} height={13} unoptimized draggable={false} className={PIXELATED} style={at(SLOT_X[PEARL_SLOT], SLOT_Y, 13, 13)} />
-          <span
-            className="font-pixel text-white"
-            style={{
-              position: "absolute",
-              left: t(SLOT_X[PEARL_SLOT] + SLOT_IN + 1),
-              top: t(SLOT_Y + SLOT_IN - 7),
-              transform: "translateX(-100%)",
-              fontSize: t(7),
-              lineHeight: 1,
-              textShadow: `${t(1)}px ${t(1)}px 0 #3f3f3f`,
-            }}
-          >
-            16
-          </span>
+          {/* As the game places it: right edge a pixel past the item, bottom level with it. */}
+          <PixelText
+            text="16"
+            style={at(SLOT_X[PEARL_SLOT] + SLOT_IN + 2 - 12, SLOT_Y + SLOT_IN - 7, 12, 8)}
+          />
 
           {/* Hover: the slot's inside lightens, as in the game's inventory. */}
           {hovered !== null && (

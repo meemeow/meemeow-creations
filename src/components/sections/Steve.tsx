@@ -4,7 +4,7 @@
 // viewBox is the same for every pose, with the feet on its bottom edge and the body centred,
 // so swapping poses keeps him in place.
 
-export type StevePose = "fly" | "walk" | "front";
+export type StevePose = "fly" | "walk" | "front" | "side";
 
 // Every pose shares this box: x -12..28, y -4..32 (feet at 32, body centred on x = 8).
 export const STEVE_VIEWBOX = { x: -12, y: -4, w: 40, h: 36 };
@@ -347,10 +347,12 @@ function Side({
   walking,
   flight = false,
   wing,
+  reach = false,
 }: {
   walking: boolean;
   flight?: boolean;
   wing?: React.ReactNode;
+  reach?: boolean; // near arm held out ahead, an ender pearl in the hand, ready to throw
 }) {
   const limb = (
     angle: number,
@@ -402,21 +404,35 @@ function Side({
         "--legs",
       )}
       {wing}
-      {limb(
-        STRIDE,
-        [8, 9],
-        <Part rows={ARM} hex flip x0={6} y0={8} />,
-        "--arms",
+      {reach ? (
+        <g transform="rotate(-75 8 9)">
+          <Part rows={ARM} hex flip x0={6} y0={8} />
+          <image href={PEARL} x={6} y={19} width={4} height={4} style={{ imageRendering: "pixelated" }} />
+        </g>
+      ) : (
+        limb(
+          STRIDE,
+          [8, 9],
+          <Part rows={ARM} hex flip x0={6} y0={8} />,
+          "--arms",
+        )
       )}
     </>
   );
 }
 
+const PEARL = "/assets/images/ender-pearl.png";
+
+// `holding`: an ender pearl in his hand. Facing the viewer it's held out in his right hand (on the
+// viewer's left), seen almost edge-on as a flat disc; side-on ("side" pose) his arm is raised
+// ahead, ready to throw.
 export default function Steve({
   pose,
+  holding = false,
   className = "",
 }: {
   pose: StevePose;
+  holding?: boolean;
   className?: string;
 }) {
   const { x, y, w, h } = STEVE_VIEWBOX;
@@ -431,9 +447,24 @@ export default function Steve({
           {/* still wearing the elytra, folded behind him */}
           <Part rows={FRONT_WING} hex x0={-4} y0={7} />
           <Part rows={FRONT} hex />
+          {holding && (
+            <image
+              href={PEARL}
+              x={-4.5}
+              y={18}
+              width={8}
+              height={2.75}
+              preserveAspectRatio="none"
+              style={{ imageRendering: "pixelated" }}
+            />
+          )}
         </>
       )}
       {pose === "walk" && <Side walking />}
+      {pose === "side" && (
+        // standing, turned to the right, the folded elytra along his back
+        <Side walking={false} reach={holding} wing={<Part rows={WING} x0={4} y0={8} />} />
+      )}
       {pose === "fly" && (
         // Leaning forward into the glide: the standing figure tipped head-first to the right by
         // --glide (90deg, lying flat, in flight; the landing animates it with --legs and --arms).
