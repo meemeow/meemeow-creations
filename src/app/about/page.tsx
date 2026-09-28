@@ -582,34 +582,66 @@ const HOBBY_HEADING =
   "font-gotham font-semibold leading-[1.3] text-white text-[1.5rem] max-2xl:text-[1.375rem] max-lg:text-[1.25rem] upto-639:text-[1.125rem]";
 const HOBBY_NOTE =
   "mt-2 max-w-[720px] font-gotham font-medium leading-[1.7] text-gray-400 text-[1rem] upto-639:text-[0.9375rem] upto-639:leading-[1.65]";
-const HOBBY_CHIPS = "mt-5 flex flex-wrap gap-3 upto-639:mt-4";
+const HOBBY_CHIPS = "mt-5 flex flex-wrap gap-4 upto-639:mt-4 upto-639:gap-3";
 const HOBBY_CHIP =
-  "flex items-center gap-2.5 border-[3px] bg-[#2f2d2c] px-3.5 py-2 font-gotham font-semibold text-white text-[0.9375rem] upto-639:text-[0.875rem] " +
-  "border-t-[#3d3938] border-r-[#3d3938] border-b-[#000000] border-l-[#000000] [box-shadow:0_6px_18px_rgba(0,0,0,0.45)]";
-// Each game's own app icon in colour, leading its chip, slightly rounded like an app tile.
+  "flex items-center gap-3 border-[3px] bg-[#2f2d2c] min-h-[62px] px-5 py-3 font-gotham font-semibold text-white text-[1.0625rem] upto-639:gap-2.5 upto-639:min-h-[50px] upto-639:px-4 upto-639:py-2.5 upto-639:text-[0.9375rem] " +
+  "border-t-[#3d3938] border-r-[#3d3938] border-b-[#000000] border-l-[#000000] [box-shadow:0_6px_18px_rgba(0,0,0,0.45)] " +
+  // Purely decorative, but it answers the cursor like the page's buttons: hovering lifts it
+  // with the same soft white glow ring and nudges the icon, and pressing sinks it.
+  "group select-none [transition:background-color_140ms_ease,transform_120ms_ease,box-shadow_120ms_ease] " +
+  "hover:bg-[#3a3735] hover:[transform:translateY(-3px)] " +
+  "hover:[box-shadow:0_0_0_2px_rgba(255,255,255,0.35),0_10px_22px_rgba(0,0,0,0.55)] " +
+  "active:[transform:translateY(2px)] active:[box-shadow:0_0_0_2px_rgba(255,255,255,0.2),0_2px_6px_rgba(0,0,0,0.5)] " +
+  "motion-reduce:hover:[transform:none] motion-reduce:active:[transform:none]";
+// Each game's own app icon (a character face for the anime genres, a snack for the foods) in colour, leading
+// its chip, slightly rounded like an app tile.
 // Files are renamed whenever an image changes so the browser doesn't serve cached copies.
-const HOBBY_ICON = "h-6 w-6 shrink-0 rounded-[4px] object-contain upto-639:h-5 upto-639:w-5";
+const HOBBY_ICON =
+  "h-8 w-8 shrink-0 rounded-[5px] object-contain upto-639:h-6 upto-639:w-6 " +
+  "[transition:transform_160ms_ease] group-hover:[transform:scale(1.12)_rotate(-4deg)] motion-reduce:group-hover:[transform:none]";
 // Icons with no tile of their own (a bare mark or sprite) read larger than the tiled ones
 // at the same size, so they're inset a little within the same box (text stays aligned).
-const HOBBY_ICON_BARE = "p-[2px] upto-639:p-[1.5px]";
+const HOBBY_ICON_BARE = "p-[3px] upto-639:p-[2px]";
 const BARE_ICONS = new Set(["Valorant", "R.E.P.O.", "Stardew Valley", "Terraria"]);
 // The pixel sprites (Stardew's chicken, Terraria's tree) read small at that inset, so theirs is halved.
 const SPRITE_ICONS = new Set(["Stardew Valley", "Terraria"]);
-const HOBBY_ICON_SPRITE = "p-[1px] upto-639:p-[0.75px]";
+const HOBBY_ICON_SPRITE = "p-[1.5px] upto-639:p-[1px]";
 // Terraria's tree is tall and narrow, leaving empty space either side in its square box;
 // pull the name in so the gap matches the other chips.
-const TERRARIA_ICON = "-mr-[5px] upto-639:-mr-1";
-const GAME_ICONS: Record<string, string> = {
-  Valorant: "valorant-red",
-  Minecraft: "minecraft-icon",
-  "R.E.P.O.": "repo-robot",
-  "Genshin Impact": "genshin-impact-icon",
-  "Honkai: Star Rail": "honkai-star-rail-icon",
-  "Counter-Strike 2": "counterstrike-icon",
-  "Stardew Valley": "stardew-valley-icon",
-  Terraria: "terraria-icon",
-  "Dota 2": "dota2-cutout",
-  "Mobile Legends: Bang Bang": "mobile-legends-icon",
+const TERRARIA_ICON = "-mr-[7px] upto-639:-mr-[5px]";
+// The anime genres use character faces rather than logos, which read small at icon size; they're drawn
+// larger and pulled into the chip's vertical padding so the chip stays the same height.
+const FACE_ICON = "h-10! w-10! -my-1 upto-639:h-8! upto-639:w-8!";
+const HOBBY_ICONS: Record<string, string> = {
+  Valorant: "games/valorant-red",
+  Minecraft: "games/minecraft-icon",
+  "R.E.P.O.": "games/repo-robot",
+  "Genshin Impact": "games/genshin-impact-icon",
+  "Honkai: Star Rail": "games/honkai-star-rail-icon",
+  "Counter-Strike 2": "games/counterstrike-icon",
+  "Stardew Valley": "games/stardew-valley-icon",
+  Terraria: "games/terraria-icon",
+  "Dota 2": "games/dota2-cutout",
+  "Mobile Legends: Bang Bang": "games/mobile-legends-icon",
+  Romance: "anime/romance-face-3",
+  Comedy: "anime/comedy-face-2",
+  Adventure: "anime/adventure-face-4",
+  Action: "anime/action-face",
+  Shounen: "anime/shounen-face-5",
+  Sports: "anime/sports-face",
+  Mystery: "anime/mystery-face",
+  School: "anime/school-face",
+  Drama: "anime/drama-face-4",
+  Isekai: "anime/isekai-face",
+  "Ice Cream": "food/samanco-3",
+  Bingsu: "food/bingsu",
+  Tempura: "food/tempura-4",
+  Ramen: "food/ramen",
+  Sushi: "food/sushi",
+  "Fried Chicken": "food/fried-chicken",
+  Fries: "food/fries",
+  Coffee: "food/coffee",
+  Curry: "food/curry",
 };
 const HOBBY_GROUPS: { label: string; note: string; items: string[] }[] = [
   {
@@ -635,14 +667,25 @@ const HOBBY_GROUPS: { label: string; note: string; items: string[] }[] = [
     note:
       "My way to switch off and get lost in another world. I'll happily binge anything from a lighthearted " +
       "rom-com to an epic adventure.",
-    items: ["Romance", "Comedy", "Adventure", "Action", "Shounen", "School", "Slice of Life", "Isekai"],
+    items: [
+      "Romance",
+      "Comedy",
+      "Adventure",
+      "Action",
+      "Shounen",
+      "School",
+      "Mystery",
+      "Sports",
+      "Drama",
+      "Isekai",
+    ],
   },
   {
     label: "Food",
     note:
       "Good food is my favorite reward after finishing a project. Japanese food is my weakness, and there's " +
       "always room for ice cream.",
-    items: ["Ice Cream", "Tempura", "Ramen", "Sushi", "Fried Chicken", "Fries", "Coffee"],
+    items: ["Ice Cream", "Bingsu", "Tempura", "Ramen", "Sushi", "Fried Chicken", "Fries", "Coffee", "Curry"],
   },
 ];
 
@@ -1104,8 +1147,8 @@ const SECTIONS: Section[] = [
               <ul className={HOBBY_CHIPS}>
                 {group.items.map((item) => (
                   <li key={item} className={HOBBY_CHIP}>
-                    {GAME_ICONS[item] && (
-                      <Image src={`/assets/images/games/${GAME_ICONS[item]}.png`} alt="" aria-hidden="true" width={48} height={48} className={`${HOBBY_ICON} ${SPRITE_ICONS.has(item) ? HOBBY_ICON_SPRITE : BARE_ICONS.has(item) ? HOBBY_ICON_BARE : ""} ${item === "Terraria" ? TERRARIA_ICON : ""}`} />
+                    {HOBBY_ICONS[item] && (
+                      <Image src={`/assets/images/${HOBBY_ICONS[item]}.png`} alt="" aria-hidden="true" width={80} height={80} className={`${HOBBY_ICON} ${SPRITE_ICONS.has(item) ? HOBBY_ICON_SPRITE : BARE_ICONS.has(item) ? HOBBY_ICON_BARE : ""} ${item === "Terraria" ? TERRARIA_ICON : ""} ${HOBBY_ICONS[item].startsWith("anime/") ? FACE_ICON : ""}`} />
                     )}
                     {item}
                   </li>
