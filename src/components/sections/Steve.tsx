@@ -352,7 +352,7 @@ function Side({
   walking: boolean;
   flight?: boolean;
   wing?: React.ReactNode;
-  reach?: boolean; // near arm held out ahead, an ender pearl in the hand, ready to throw
+  reach?: boolean; // an ender pearl held in the near hand
 }) {
   const limb = (
     angle: number,
@@ -405,9 +405,18 @@ function Side({
       )}
       {wing}
       {reach ? (
-        <g transform="rotate(-75 8 9)">
+        // arm eased a little forward from his side, the pearl cupped in his hand (drawn first, so
+        // his fingers wrap over its back half), as a player holds an item in third person
+        <g transform="rotate(-18 8 9)">
+          <image
+            href={PEARL}
+            x={8.2}
+            y={17.2}
+            width={4.5}
+            height={4.5}
+            style={{ imageRendering: "pixelated" }}
+          />
           <Part rows={ARM} hex flip x0={6} y0={8} />
-          <image href={PEARL} x={6} y={19} width={4} height={4} style={{ imageRendering: "pixelated" }} />
         </g>
       ) : (
         limb(
@@ -424,8 +433,8 @@ function Side({
 const PEARL = "/assets/images/ender-pearl.png";
 
 // `holding`: an ender pearl in his hand. Facing the viewer it's held out in his right hand (on the
-// viewer's left), seen almost edge-on as a flat disc; side-on ("side" pose) his arm is raised
-// ahead, ready to throw.
+// viewer's left), seen almost edge-on as a flat disc; side-on ("side" pose) it's held the same way,
+// just ahead of him.
 export default function Steve({
   pose,
   holding = false,

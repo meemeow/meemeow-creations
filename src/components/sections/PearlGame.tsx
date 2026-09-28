@@ -11,9 +11,10 @@ import type { PovScene } from "./povScene";
 // towards the End gateways, then the view drops into his eyes: a real 3D first-person view
 // (povScene) of the gateways floating over the end stone, the pearl in hand at the bottom right
 // and a label over each gateway (About, Projects, Contact, left to right). The view turns a
-// little toward the pointer; aim at a gateway and let go to throw: the pearl arcs into it, it
-// flares, and the loading screen takes over on the way to that page (gatewayWarp). Letting go
-// early, Escape, or putting the pearl away backs out.
+// little toward the pointer, and it stays there after letting go, so you can take your time: click
+// a gateway to throw: the pearl arcs into it, it flares, and the loading screen takes over on the
+// way to that page (gatewayWarp). A plain click (no hold), Escape, or putting the pearl away
+// backs out.
 
 const GATES = [
   { href: "/about", label: "About", line: "Initializing profile...", colour: "#32CD32" },
@@ -45,6 +46,7 @@ export default function PearlGame({
   const [phase, setPhase] = useState<Phase>("idle");
   const [portals, setPortals] = useState<OnScreen[]>([]);
   const [target, setTarget] = useState(1);
+  const [touch, setTouch] = useState(false); // a touch screen: the hints say press and tap
   const phaseRef = useRef<Phase>("idle");
   const armedRef = useRef(armed);
   const targetRef = useRef(1);
@@ -57,6 +59,14 @@ export default function PearlGame({
     phaseRef.current = next;
     setPhase(next);
   };
+
+  useEffect(() => {
+    const coarse = window.matchMedia("(pointer: coarse)");
+    const update = () => setTouch(coarse.matches);
+    update();
+    coarse.addEventListener("change", update);
+    return () => coarse.removeEventListener("change", update);
+  }, []);
 
   useEffect(() => {
     armedRef.current = armed;
@@ -141,24 +151,33 @@ export default function PearlGame({
     };
     cancelRef.current = cancel;
 
+    // Letting go straight away (a plain click) backs out; once the view is on its way in, letting
+    // go leaves you in his eyes to take your time and pick a gateway.
     const release = () => {
-      if (phaseRef.current === "turning" || phaseRef.current === "warping") cancel();
-      else if (phaseRef.current === "aiming") {
-        go("throwing");
-        const gate = targetRef.current;
-        pov.current?.throwTo(gate, reduced ? 1 : THROW_MS, () =>
-          later(reduced ? 0 : FLASH_MS * 0.6, () => warpTo(GATES[gate].href, GATES[gate].line, router)),
-        );
-      }
+      if (phaseRef.current === "turning") cancel();
+    };
+    const throwPearl = () => {
+      go("throwing");
+      const gate = targetRef.current;
+      pov.current?.throwTo(gate, reduced ? 1 : THROW_MS, () =>
+        later(reduced ? 0 : FLASH_MS * 0.6, () => warpTo(GATES[gate].href, GATES[gate].line, router)),
+      );
     };
 
     const onDown = (e: PointerEvent) => {
-      if (!armedRef.current || phaseRef.current !== "idle" || e.button !== 0) return;
-      if ((e.target as Element).closest("button, a")) return; // the hotbar's own slots
-      e.preventDefault();
-      scene.setPointerCapture(e.pointerId);
+      if (e.button !== 0 || (e.target as Element).closest("button, a")) return; // not the hotbar's own slots
       const s = scene.getBoundingClientRect();
       pointer = { x: e.clientX - s.left, y: e.clientY - s.top };
+      // In his eyes: a click throws at the gateway it's on (or nearest to).
+      if (phaseRef.current === "aiming") {
+        e.preventDefault();
+        aim();
+        throwPearl();
+        return;
+      }
+      if (!armedRef.current || phaseRef.current !== "idle") return;
+      e.preventDefault();
+      scene.setPointerCapture(e.pointerId);
       onTurn(true);
       go("turning");
       later(reduced ? 0 : TURN_MS, () => void warp());
@@ -216,9 +235,13 @@ export default function PearlGame({
   const aiming = phase === "aiming" || phase === "throwing";
   const hint =
     phase === "aiming"
-      ? "Aim at a gateway, let go to throw  (Esc to cancel)"
+      ? touch
+        ? "Tap a gateway to throw"
+        : "Click a gateway to throw  (Esc to cancel)"
       : armed && phase === "idle"
-        ? "Hold click to aim the ender pearl"
+        ? touch
+          ? "Press and hold to aim the ender pearl"
+          : "Hold click to aim the ender pearl"
         : "";
 
   return (
@@ -288,7 +311,7 @@ export default function PearlGame({
             style={{
               right: "-2%",
               bottom: "-6%",
-              width: "clamp(150px, 34vh, 340px)",
+              width: "clamp(96px, min(34vh, 36vw), 340px)",
               aspectRatio: "1",
               transform: "rotate(-28deg)",
             }}

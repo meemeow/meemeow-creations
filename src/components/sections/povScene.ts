@@ -77,6 +77,32 @@ export function createPovScene(canvas: HTMLCanvasElement) {
   const box = shadedBox();
   const disposables: { dispose: () => void }[] = [box];
 
+  // The pixel specks from the home page's background, fixed in the sky all around: white and
+  // grey square dots, a few a little bigger.
+  const dpr = renderer.getPixelRatio();
+  for (const [count, size] of [
+    [1600, 2],
+    [260, 3.5],
+  ]) {
+    const positions: number[] = [];
+    const colours: number[] = [];
+    for (let i = 0; i < count; i++) {
+      // an even spread over a big sphere (mostly above the horizon, where the sky shows)
+      const y = Math.random() * 1.2 - 0.25;
+      const r = Math.sqrt(Math.max(0, 1 - Math.min(1, y * y)));
+      const a = Math.random() * Math.PI * 2;
+      positions.push(Math.cos(a) * r * 150, y * 150, Math.sin(a) * r * 150);
+      const shade = [1, 0.77, 0.5, 0.3][Math.floor(Math.random() * 4)];
+      colours.push(shade, shade, shade);
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geo.setAttribute("color", new THREE.Float32BufferAttribute(colours, 3));
+    const mat = new THREE.PointsMaterial({ size: size * dpr, sizeAttenuation: false, vertexColors: true, fog: false });
+    scene.add(new THREE.Points(geo, mat));
+    disposables.push(geo, mat);
+  }
+
   // End stone: one instanced mesh for every block.
   const endStone = texture(FACE, PALETTE);
   const stoneMat = new THREE.MeshBasicMaterial({ map: endStone, vertexColors: true });
@@ -202,6 +228,10 @@ export function createPovScene(canvas: HTMLCanvasElement) {
     if (!width || !height) return;
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
+    // 70deg tall on wide screens; on narrow ones (phones held upright) widen it so the view still
+    // takes in all three gateways side by side
+    const wide = (2 * Math.atan(Math.tan((70 * Math.PI) / 360) * Math.max(1, 1.6 / camera.aspect)) * 180) / Math.PI;
+    camera.fov = Math.min(105, wide);
     camera.updateProjectionMatrix();
   };
   resize();

@@ -29,10 +29,84 @@ const SIGN_LEFT = 9 - SHIFT_LEFT; // the sign's left edge, % of the island
 const SIGN_LIFT = 0.9 * BLOCK; // the sign starts at his waist (half of his 1.8 blocks)
 // The heading is pulled left so it ends short of the End gateways (with a small gap), but never
 // past the screen's left edge, and sits level with their portals (lined up in the layout effect
-// below). In cqw: 1% of the island's width. The island sits 15.32% in from the scene's left and
-// is 69.36% of it wide, so the screen edge is this far left of the sign.
+// below). In cqw: 1% of the island's width.
 const HEADING_END = GATEWAYS_LEFT - 0.35 * BLOCK;
-const SCREEN_EDGE = 15.32 / 0.6936 + SIGN_LEFT;
+
+// Where the island sits in the scene. The layout is designed at 1920px wide (the island 69.36% of
+// the width, centred, its underside running off the bottom); every size keeps that composition,
+// with the sign and Steve sized in island widths. On narrower, taller screens (tablets, phones)
+// the island widens toward the full width, and where there's sky to spare it floats up off the
+// bottom so the scene sits in the middle instead of a strip along the floor.
+// Screens taller than they are wide (phones, upright tablets) have sky to spare, so there the sign
+// is "stacked": centred up in the sky above the gateways, bigger, instead of beside Steve.
+type IslandBox = {
+  left: number; // % of the scene
+  width: number; // % of the scene
+  lift: number; // px off the bottom
+  stacked: boolean;
+  // Side by side, but too narrow for the one-line heading beside Steve (it would have to shrink
+  // to fit): it goes on two lines instead, full size, up in the sky above Steve with the logo.
+  twoLine: boolean;
+  headingPx: number; // stacked sign sizes
+  logoPx: number;
+  signGapPx: number; // stacked: from the island's top up to the sign's bottom
+};
+const DESKTOP_ISLAND: IslandBox = { left: 15.32, width: 69.36, lift: 0, stacked: false, twoLine: false, headingPx: 0, logoPx: 0, signGapPx: 0 };
+const STACK_BELOW = 1.3; // aspect ratio
+const FILL = 0.68; // share of the height the side-by-side scene fills
+const SCENE_BLOCKS = 7.25; // its height in blocks: gateway tops (4.75 up) to the 2.5 rows showing
+const STACK_GAP = 1; // blocks between the gateway tops and the stacked sign, at least
+const SIGN_GAP = 1.4; // stacked: space between the heading and the logo, in heading heights
+const GATEWAY_TOP = 4.75; // blocks above the island (they float 1, and are 5 of 0.75 tall)
+function islandFor(w: number, h: number): IslandBox {
+  if (!w || !h) return DESKTOP_ISLAND;
+  const aspect = w / h;
+  // Side by side (landscape): size the island so the scene fills the height the way it does at
+  // 1920x1080 (gateway tops to the visible underside is ~68% of it), never smaller than there,
+  // and at most nearly the full width. Where it can't fill the height, lift it to centre it.
+  // (it comes out at the 1920 layout's 69.36% there; short screens such as phones on their side
+  // get a smaller island so the gateways stay below the header)
+  const width = Math.min(96, Math.max(30, ((FILL * h * 17) / SCENE_BLOCKS / w) * 100));
+  const left = (100 - width) / 2;
+  const islandPx = (width / 100) * w;
+  const block = islandPx / 17;
+  if (aspect >= STACK_BELOW) {
+    const lift = Math.max(0, Math.min(1.5 * block, (FILL * h - SCENE_BLOCKS * block) / 2));
+    // the one-line heading's natural width vs the room from the screen edge to the gateways
+    const screenEdge = (left / width) * 100 + SIGN_LEFT;
+    const room = (islandPx * (HEADING_END + screenEdge)) / 100 - 16;
+    // two lines from 866px to 1535px wide, and anywhere else the one line wouldn't fit
+    const twoLine = (w >= TWO_LINE_FROM && w <= TWO_LINE_TO) || 22.5 * 0.02944 * islandPx > room;
+    return { ...DESKTOP_ISLAND, left, width, lift, twoLine };
+  }
+
+  // Stacked: the island low, its top about three quarters of the way down (as far as its 2.5
+  // rows allow), the gateways on it, and the heading and logo centred in the open sky above them,
+  // with room to breathe (a clear margin under the header and a gap above the gateways).
+  const signH = () => headingPx * (1 + SIGN_GAP) + logoPx / 3;
+  const islandTop = Math.min(h * 0.74, h - 2.5 * block);
+  const lift = Math.max(0, h - islandTop - 2.5 * block);
+  const skyBottom = islandTop - (GATEWAY_TOP + STACK_GAP) * block; // just above the gateways
+  const margin = Math.max(40, h * 0.07); // under the header
+  const room = skyBottom - margin;
+  // Taller phones have more sky, so the sign grows with it (up to 1.4x); the heading stays on one
+  // line across the island.
+  const grow = Math.min(1.4, Math.max(1, room / 300));
+  let headingPx = Math.min((islandPx * 0.88 * grow) / 21, (islandPx * 0.92) / 21, 38);
+  let logoPx = Math.min(islandPx * 0.42 * grow, islandPx * 0.62, 320);
+  if (signH() > room * 0.8) {
+    const k = Math.max(0.4, (room * 0.8) / signH()); // short screen: shrink the sign to fit
+    headingPx *= k;
+    logoPx *= k;
+  }
+  // a little below the middle of the sky (but never onto the gateways)
+  const signBottom = Math.min(skyBottom, margin + room * 0.6 + signH() / 2);
+  return { left, width, lift, stacked: true, twoLine: false, headingPx, logoPx, signGapPx: islandTop - signBottom };
+}
+// two-line heading: the sign's bottom (the logo) sits just over Steve's head, in blocks
+const TWO_LINE_LIFT = 2.2 * BLOCK;
+const TWO_LINE_FROM = 866; // px wide
+const TWO_LINE_TO = 1535;
 const HEADING_DROP = 0.125; // and then this many blocks lower than level with them
 
 // Timeline, ms.
@@ -118,6 +192,37 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
   const headingRef = useRef<HTMLHeadingElement | null>(null);
   const logoRef = useRef<HTMLDivElement | null>(null);
   const sparksRef = useRef<HTMLCanvasElement | null>(null);
+  const [island, setIsland] = useState<IslandBox>(DESKTOP_ISLAND);
+
+  useLayoutEffect(() => {
+    const scene = sceneRef.current;
+    if (!scene) return;
+    const fit = () => {
+      const next = islandFor(scene.clientWidth, scene.clientHeight);
+      setIsland((prev) =>
+        Math.abs(prev.width - next.width) < 0.01 &&
+        Math.abs(prev.lift - next.lift) < 0.5 &&
+        prev.stacked === next.stacked &&
+        prev.twoLine === next.twoLine &&
+        Math.abs(prev.signGapPx - next.signGapPx) < 0.5 &&
+        Math.abs(prev.headingPx - next.headingPx) < 0.1
+          ? prev
+          : next,
+      );
+    };
+    fit();
+    const observer = new ResizeObserver(fit);
+    observer.observe(scene);
+    return () => observer.disconnect();
+  }, []);
+  const { stacked, twoLine } = island;
+  // the screen's left edge, in cqw left of the sign (for keeping the heading on screen)
+  const screenEdge = (island.left / island.width) * 100 + SIGN_LEFT;
+  const islandStyle = {
+    bottom: island.lift,
+    left: `${island.left}%`,
+    width: `${island.width}%`,
+  };
 
   // Line the heading up with the gateways' portals: its middle level with theirs. Measured in the
   // island's own layout (offsetTop ignores the reveal's slide; both float together), and again
@@ -126,6 +231,10 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
     const heading = headingRef.current;
     const island = heading?.offsetParent;
     if (!heading || !island) return;
+    if (stacked || twoLine) {
+      heading.style.top = "0px"; // stacked in the sky: nothing to line up with
+      return;
+    }
     const align = () => {
       const portal = island.querySelector("[data-gateway-portal]");
       if (!portal) return;
@@ -150,9 +259,14 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
     // (the gateway is sized by its own effect, after this one)
     const gateway = island.querySelector("[data-gateway-portal]")?.parentElement;
     if (gateway) observer.observe(gateway);
-    document.fonts?.ready.then(align);
-    return () => observer.disconnect();
-  }, []);
+    // (not once this layout is gone: a stacked sign mustn't be pulled back into line)
+    let live = true;
+    document.fonts?.ready.then(() => live && align());
+    return () => {
+      live = false;
+      observer.disconnect();
+    };
+  }, [stacked, twoLine]);
 
   // Layout effect: decide before the first paint, so a return visit doesn't flash black.
   useLayoutEffect(() => {
@@ -437,7 +551,7 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
         {/* Position and sizes inline: the dev server doesn't always pick up new arbitrary classes. */}
         <EndIsland
           className="absolute"
-          style={{ bottom: 0, left: "15.32%", width: "69.36%" }}
+          style={islandStyle}
         >
           {/* Everything here stands on the island, so it floats with it. */}
           {/* First, so the sign draws over their beams. */}
@@ -447,10 +561,13 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
               A size container outside it, so the heading can be placed in island widths (cqw). */}
           <div style={{ containerType: "inline-size" }}>
             <div
-              style={{
-                paddingLeft: `${SIGN_LEFT}%`,
-                paddingBottom: `${SIGN_LIFT}%`,
-              }}
+              style={
+                stacked
+                  ? { paddingBottom: island.signGapPx, textAlign: "center" }
+                  : twoLine
+                    ? { paddingLeft: `${SIGN_LEFT}%`, paddingBottom: `${TWO_LINE_LIFT}%` }
+                    : { paddingLeft: `${SIGN_LEFT}%`, paddingBottom: `${SIGN_LIFT}%` }
+              }
             >
               {/* Heading and logo as one column, the logo centred under the heading. */}
               <div
@@ -463,17 +580,30 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
                 <h1
                   ref={headingRef}
                   className="font-pixel text-white [text-shadow:4px_4px_0_#3f3f3f]"
-                  style={{
-                    fontSize: "clamp(1rem, 2.55vw, 2.45rem)",
+                  style={stacked ? { fontSize: island.headingPx, position: "relative", lineHeight: 1, opacity: 0 } : {
+                    // 2.45rem at 1920px; smaller where it would otherwise run into the gateways (its 21
+                    // letters are 1em wide each, and it has from the screen edge to HEADING_END)
+                    fontSize: twoLine
+                      ? `min(3.3cqw, calc((${HEADING_END + screenEdge}cqw - 16px) / 13))`
+                      : `min(2.944cqw, calc((${HEADING_END + screenEdge}cqw - 16px) / 22.5))`,
+                    lineHeight: twoLine ? 1.5 : 1,
+                    textAlign: "left",
                     // pulled left clear of the gateways (100% is its own width, as the column is
                     // as wide as it is); its `top` is set to line it up with their portals
                     position: "relative",
-                    left: `clamp(8px - ${SCREEN_EDGE}cqw, ${HEADING_END - SIGN_LEFT}cqw - 100%, 0px)`,
-                    lineHeight: 1,
+                    left: `clamp(8px - ${screenEdge}cqw, ${HEADING_END - SIGN_LEFT}cqw - 100%, 0px)`,
                     opacity: 0,
                   }}
                 >
-                  You Have Landed On...
+                  {twoLine ? (
+                    <>
+                      You Have
+                      <br />
+                      <span style={{ paddingLeft: "2em" }}>Landed On...</span>
+                    </>
+                  ) : (
+                    "You Have Landed On..."
+                  )}
                 </h1>
                 <div ref={logoRef} style={{ opacity: 0 }}>
                   <Image
@@ -483,13 +613,14 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
                     height={366}
                     priority
                     className="block h-auto [box-shadow:0_8px_24px_rgba(0,0,0,0.5)]"
-                    style={{
-                      width: "clamp(145px, 19vw, 320px)",
-                      marginTop: "clamp(12px, 2vw, 28px)",
+                    style={stacked ? { width: island.logoPx, marginTop: island.headingPx * SIGN_GAP } : {
+                      // all in island widths: 320px, 28px and 23px at 1920px
+                      width: "24.03cqw",
+                      marginTop: "2.1cqw",
                       // nudged down a little from the heading without moving the heading
                       position: "relative",
-                      top: "clamp(9px, 1.6vw, 23px)",
-                      left: "calc(-1 * clamp(8px, 1.6vw, 23px))", // and a little left of centre
+                      top: "1.73cqw",
+                      left: "-1.73cqw", // and a little left of centre
                     }}
                   />
                 </div>
@@ -513,7 +644,7 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
       {/* The HUD over the island's face, in the same box as the island but not floating with it. */}
       <div
         className="pointer-events-none absolute"
-        style={{ bottom: 0, left: "15.32%", width: "69.36%", height: "100%", zIndex: 2 }}
+        style={{ ...islandStyle, height: `calc(100% - ${island.lift}px)`, zIndex: 2 }}
       >
         <Hud selected={slot} onSelect={setSlot} />
       </div>
