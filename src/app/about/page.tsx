@@ -749,11 +749,17 @@ const VIDEO_SHADE =
   "bg-[linear-gradient(90deg,rgba(0,0,0,0.72)_0%,rgba(0,0,0,0.45)_60%,rgba(0,0,0,0.3)_100%)] upto-768:bg-[rgba(0,0,0,0.55)]";
 // As tall as the 16:9 background clip at the section's full width (9/16 of the viewport), capped at
 // 85% of the screen height (the clip squishes a little past that); taller content (phones) grows it.
-const ENDING_SCREEN = "flex flex-col justify-center min-h-[min(56.25vw,85svh)]!";
-// One line at every width: below lg the size follows the viewport so the ~15em line fits.
-const ENDING_TITLE = `${INTRO_NAME} whitespace-nowrap max-lg:text-[min(2.75rem,calc((100vw-112px)/15.2))]!`;
+// Below 640px the copy is taller than 9/16 of the width, so the band gets a fixed height instead,
+// leaving room above the copy for the fade and some of the clip.
+const ENDING_SCREEN = "flex flex-col justify-center min-h-[min(56.25vw,85svh)]! upto-639:min-h-[560px]! upto-420:min-h-[520px]!";
+// One line down to 520px (below lg the size follows the viewport so the ~15em line fits); on
+// narrower phones that got too small, so it wraps to two balanced lines at the name's phone size.
+const ENDING_TITLE =
+  `${INTRO_NAME} whitespace-nowrap min-[520px]:max-lg:text-[min(2.75rem,calc((100vw-112px)/15.2))]! ` +
+  "max-[519px]:whitespace-normal max-[519px]:[text-wrap:balance]";
 const ENDING_SUMMARY = `${INTRO_SUMMARY} mx-auto max-w-[640px]!`;
-const ENDING_ACTIONS = `${INTRO_ACTIONS} justify-center upto-420:w-full upto-420:max-w-[320px]`;
+// Below 640px the three buttons stack as one column of equal widths (they wrapped 2 + 1 before).
+const ENDING_ACTIONS = `${INTRO_ACTIONS} justify-center upto-639:w-full upto-639:max-w-[320px] upto-639:flex-col upto-639:gap-4`;
 
 // `title: null` marks a section without a curtain (the closing sign-off).
 const SECTIONS: Section[] = [
@@ -1235,7 +1241,7 @@ export default function About() {
           {video && (
             <>
               <video
-                className="pointer-events-none absolute inset-0 h-full w-full object-fill motion-reduce:hidden"
+                className="pointer-events-none absolute inset-0 h-full w-full object-fill motion-reduce:hidden upto-639:object-cover"
                 src={video}
                 autoPlay
                 loop
@@ -1248,7 +1254,7 @@ export default function About() {
               {/* Fades in from the section above's colour (no divider), so it melts into the clip. */}
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 top-0 h-[45%]"
+                className="pointer-events-none absolute inset-x-0 top-0 h-[45%] upto-639:h-[22%]"
                 style={{
                   background: fadeFrom(BG_HEX[(i - 1 + BG_HEX.length) % BG_HEX.length]),
                 }}
