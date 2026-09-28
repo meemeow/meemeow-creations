@@ -113,7 +113,6 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
   const [slot, setSlot] = useState(0); // the hotbar's chosen slot
   const holding = ready && slot === PEARL_SLOT; // the ender pearl is in his hand
   const sceneRef = useRef<HTMLDivElement | null>(null);
-  const worldRef = useRef<HTMLDivElement | null>(null);
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const steveRef = useRef<HTMLDivElement | null>(null);
   const headingRef = useRef<HTMLHeadingElement | null>(null);
@@ -419,10 +418,9 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
   }, [replay]);
 
   return (
-    // The scene takes presses for the ender pearl mini-game; the world inside it is what zooms
-    // into Steve's point of view (the HUD stays put, as in the game).
+    // The scene takes presses for the ender pearl mini-game, whose 3D view opens over it.
     <div ref={sceneRef} className="absolute inset-0 select-none" style={{ touchAction: "none" }}>
-      <div ref={worldRef} className="absolute inset-0">
+      <div className="absolute inset-0">
         <PixelParticles />
         {/* Firework sparks from the elytra boost, behind the island so they fall past it. */}
         <canvas
@@ -521,8 +519,6 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
       </div>
       <PearlGame
         sceneRef={sceneRef}
-        worldRef={worldRef}
-        hideRefs={[steveRef, headingRef, logoRef]}
         armed={holding && (pose === "front" || pose === "side")}
         onTurn={(toGateways) => setPose(toGateways ? "side" : "front")}
       />

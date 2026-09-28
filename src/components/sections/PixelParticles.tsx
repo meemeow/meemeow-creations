@@ -135,7 +135,9 @@ export default function PixelParticles({ className = "" }: { className?: string 
     const start = performance.now();
     let last = start;
 
-    const frame = (now: number) => {
+    // `settle`: jump every particle straight to the size (and speed) it eases toward, instead of
+    // easing there over many frames; used once at the start.
+    const frame = (now: number, settle = false) => {
       const elapsed = (now - start) / 1000;
       // The original steps once per frame at 60fps; scale its easing to the real frame time.
       const steps = Math.min(4, Math.max(0.25, ((now - last) / 1000) * 60));
@@ -153,7 +155,7 @@ export default function PixelParticles({ className = "" }: { className?: string 
       const radius = 0.175 + Math.sin(elapsed) * 0.03 + Math.cos(elapsed * 3) * 0.02;
 
       const time = elapsed * 0.5;
-      const scaleK = ease(0.2);
+      const scaleK = settle ? 1 : ease(0.2);
       const sizePerScale = 3.5 * PARTICLE_SCALE * (w / 2000);
       ctx.clearRect(0, 0, w, h);
 
@@ -190,7 +192,7 @@ export default function PixelParticles({ className = "" }: { className?: string 
         const ox = p.px * 0.8 - (ring.x - (p.x + ddx)) * push;
         const oy = p.py * 0.8 - (ring.y - (p.y + ddy)) * push;
         p.scale += (t - p.scale) * scaleK;
-        p.velocity = p.velocity * 0.5 + p.scale * 0.25;
+        p.velocity = settle ? p.scale * 0.5 : p.velocity * 0.5 + p.scale * 0.25; // (its steady value)
 
         const fx = p.x + ddx + ox * 0.25;
         const fy = p.y + ddy + oy * 0.25;
@@ -250,8 +252,9 @@ export default function PixelParticles({ className = "" }: { className?: string 
     };
 
     setup();
-    // Settle the sizes before the first paint (and for reduced motion, the still frame).
-    for (let i = 0; i < 40; i++) frame(start + i * 16);
+    // Settle the sizes before the first paint (and for reduced motion, the still frame), in one
+    // pass: easing them in over 40 frames up front held up every visit to Home by most of a second.
+    frame(start, true);
 
     const onMove = (e: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();

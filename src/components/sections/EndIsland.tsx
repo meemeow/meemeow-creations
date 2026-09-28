@@ -41,7 +41,7 @@ function pixelSteps(): Keyframe[] {
 const ROWS = [17, 15, 13, 11];
 
 // The end stone face, 16x16 texels, transcribed from the game's texture.
-const PALETTE: Record<string, [number, number, number]> = {
+export const PALETTE: Record<string, [number, number, number]> = {
   A: [214, 220, 152], // base
   C: [223, 230, 166], // pale
   B: [238, 246, 182], // light
@@ -49,7 +49,7 @@ const PALETTE: Record<string, [number, number, number]> = {
   D: [205, 200, 140], // tan
   E: [198, 190, 140], // dark tan
 };
-const FACE = [
+export const FACE = [
   "CAACBBACBEDAABEA",
   "AACBDABBDDACACBC",
   "CBBAEDACBABBCACB",

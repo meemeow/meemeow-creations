@@ -26,14 +26,14 @@ const T = 16; // texels per block
 type RGB = [number, number, number];
 
 // Bedrock's face, transcribed from the game's texture.
-const BEDROCK_PALETTE: Record<string, RGB> = {
+export const BEDROCK_PALETTE: Record<string, RGB> = {
   K: [7, 7, 7],
   D: [51, 51, 51],
   M: [87, 87, 87],
   N: [100, 100, 100],
   L: [151, 151, 151],
 };
-const BEDROCK = [
+export const BEDROCK = [
   "MDDDDMLLKLMDDDDM",
   "MMLLLLLLDLLLKMMD",
   "MKDDKDDDLDMMMLMM",
