@@ -12,6 +12,11 @@ import { REVEAL } from "@/lib/reveal";
 // bands plus one step lighter in the same hue (the projects page's #191b1d read
 // as blue next to them).
 const BACKGROUNDS = ["bg-[#0f0e0d]", "bg-[#171615]", "bg-[#1e1c1b]"];
+// The same colours as hex, for a background clip fading in from the section above (drawn with an
+// inline gradient, so it doesn't depend on Tailwind generating new classes).
+const BG_HEX = ["#0f0e0d", "#171615", "#1e1c1b"];
+// Solid at the top, easing out to clear (hex + alpha suffix).
+const fadeFrom = (hex: string) => `linear-gradient(to bottom, ${hex} 0%, ${hex}cc 30%, ${hex}55 65%, transparent 100%)`;
 
 // Side margins match the projects page content (capped at 1920px and centered,
 // margins growing with the viewport); vertical rhythm steps down on the
@@ -581,7 +586,7 @@ const HOBBY_LIST = "mt-5 space-y-14 max-lg:space-y-12 upto-639:mt-4 upto-639:spa
 const HOBBY_HEADING =
   "font-gotham font-semibold leading-[1.3] text-white text-[1.5rem] max-2xl:text-[1.375rem] max-lg:text-[1.25rem] upto-639:text-[1.125rem]";
 const HOBBY_NOTE =
-  "mt-2 max-w-[720px] font-gotham font-medium leading-[1.7] text-gray-400 text-[1rem] upto-639:text-[0.9375rem] upto-639:leading-[1.65]";
+  "mt-2 font-gotham font-medium leading-[1.7] text-gray-400 text-[1rem] upto-639:text-[0.9375rem] upto-639:leading-[1.65]";
 const HOBBY_CHIPS = "mt-5 flex flex-wrap gap-4 upto-639:mt-4 upto-639:gap-3";
 const HOBBY_CHIP =
   "flex items-center gap-3 border-[3px] bg-[#2f2d2c] min-h-[62px] px-5 py-3 font-gotham font-semibold text-white text-[1.0625rem] upto-639:gap-2.5 upto-639:min-h-[50px] upto-639:px-4 upto-639:py-2.5 upto-639:text-[0.9375rem] " +
@@ -635,7 +640,7 @@ const HOBBY_ICONS: Record<string, string> = {
   Isekai: "anime/isekai-face",
   "Ice Cream": "food/samanco-3",
   Bingsu: "food/bingsu",
-  Tempura: "food/tempura-4",
+  Tempura: "food/tempura-8",
   Ramen: "food/ramen",
   Sushi: "food/sushi",
   "Fried Chicken": "food/fried-chicken",
@@ -647,8 +652,8 @@ const HOBBY_GROUPS: { label: string; note: string; items: string[] }[] = [
   {
     label: "Online Games",
     note:
-      "My go-to stress reliever after a long day. Whether it's ranked matches with friends or a slow evening " +
-      "on the farm, games are how I unwind.",
+      "Gaming is how I unwind after a long day, whether through competitive matches with friends or " +
+      "slower-paced titles like Minecraft.",
     items: [
       "Valorant",
       "Minecraft",
@@ -665,8 +670,8 @@ const HOBBY_GROUPS: { label: string; note: string; items: string[] }[] = [
   {
     label: "Anime",
     note:
-      "My way to switch off and get lost in another world. I'll happily binge anything from a lighthearted " +
-      "rom-com to an epic adventure.",
+      "Anime is my preferred way to relax, and I enjoy a wide range of genres, from romantic comedies to " +
+      "large-scale adventures.",
     items: [
       "Romance",
       "Comedy",
@@ -683,8 +688,8 @@ const HOBBY_GROUPS: { label: string; note: string; items: string[] }[] = [
   {
     label: "Food",
     note:
-      "Good food is my favorite reward after finishing a project. Japanese food is my weakness, and there's " +
-      "always room for ice cream.",
+      "I enjoy exploring different cuisines, with a particular fondness for Japanese food and a standing " +
+      "weakness for desserts.",
     items: ["Ice Cream", "Bingsu", "Tempura", "Ramen", "Sushi", "Fried Chicken", "Fries", "Coffee", "Curry"],
   },
 ];
@@ -695,6 +700,9 @@ const HOBBY_GROUPS: { label: string; note: string; items: string[] }[] = [
 // `eyebrow` shows the section title as the small pixel label (like the Introduction)
 // instead of the big heading, leaving the content to carry the headline.
 // `eyebrowFull` runs the eyebrow's rule across the whole section (for full-width content).
+// `video` plays a muted looping clip behind the whole section, squished to the section's shape
+// (stretched, not cropped) and darkened like the contact
+// page's "From Me to You" card so the copy stays readable.
 type Section = {
   title: string | null;
   content?: ReactNode;
@@ -702,6 +710,7 @@ type Section = {
   asideFrom?: "lg" | "xl" | "2xl";
   eyebrow?: boolean;
   eyebrowFull?: boolean;
+  video?: string;
 };
 
 // Row layouts for a section with an aside (literal strings so Tailwind sees them).
@@ -730,7 +739,23 @@ const LANDSCAPE =
   "w-[480px] mx-[96px] max-2xl:w-[440px] max-2xl:mx-[88px] max-lg:w-[380px] max-lg:mx-[76px] " +
   "upto-639:mx-0 upto-639:w-[min(320px,calc(100vw-5rem))]";
 
-// `title: null` marks a blank section, kept for content still to come.
+// Closing section: no curtain, just a centred sign-off (the Introduction's name size and
+// summary copy) and the page's buttons, centred and wrapping.
+const ENDING = "mx-auto flex flex-col items-center text-center";
+// Shade over a section's background clip, the same dim as the contact page's "From Me to You"
+// card: darkest on the left, easing off to the right, and an even dim on narrow screens.
+const VIDEO_SHADE =
+  "pointer-events-none absolute inset-0 " +
+  "bg-[linear-gradient(90deg,rgba(0,0,0,0.72)_0%,rgba(0,0,0,0.45)_60%,rgba(0,0,0,0.3)_100%)] upto-768:bg-[rgba(0,0,0,0.55)]";
+// As tall as the 16:9 background clip at the section's full width (9/16 of the viewport), capped at
+// 85% of the screen height (the clip squishes a little past that); taller content (phones) grows it.
+const ENDING_SCREEN = "flex flex-col justify-center min-h-[min(56.25vw,85svh)]!";
+// One line at every width: below lg the size follows the viewport so the ~15em line fits.
+const ENDING_TITLE = `${INTRO_NAME} whitespace-nowrap max-lg:text-[min(2.75rem,calc((100vw-112px)/15.2))]!`;
+const ENDING_SUMMARY = `${INTRO_SUMMARY} mx-auto max-w-[640px]!`;
+const ENDING_ACTIONS = `${INTRO_ACTIONS} justify-center upto-420:w-full upto-420:max-w-[320px]`;
+
+// `title: null` marks a section without a curtain (the closing sign-off).
 const SECTIONS: Section[] = [
   {
     title: "Introduction",
@@ -1160,24 +1185,78 @@ const SECTIONS: Section[] = [
       </div>
     ),
   },
-  { title: null },
+  {
+    title: null,
+    video: "/assets/others/about_bg.mp4",
+    content: (
+      <div className={ENDING}>
+        <h2 className={ENDING_TITLE}>This is the end of the page</h2>
+        <p className={ENDING_SUMMARY}>
+          But not the end of something new. Take a look at what I&apos;ve built, reach out to work together, or keep a
+          copy of my resume.
+        </p>
+        <div className={ENDING_ACTIONS}>
+          <Link href="/projects" className={INTRO_BUTTON}>
+            <Image src="/assets/images/mc-crafting-table.png" alt="" aria-hidden="true" width={364} height={364} className={BUTTON_ICON} />
+            View Projects
+          </Link>
+          <Link href="/contact" className={INTRO_SLOT_BUTTON}>
+            {/* pixel-art envelope, drawn to match the Minecraft item icons */}
+            <svg viewBox="0 0 12 9" aria-hidden="true" shapeRendering="crispEdges" className={BUTTON_ICON}>
+              <path d="M0 0h12v9H0z" fill="#3b3b3b" />
+              <path d="M1 1h10v7H1z" fill="#e8e4d8" />
+              <path d="M1 1h1v1h1v1h1v1h1v1h2V4h1V3h1V2h1V1h1v2h-1v1H9v1H8v1H4V5H3V4H2V3H1z" fill="#a8a293" />
+            </svg>
+            Get in Touch
+          </Link>
+          <a href="/assets/files/Clamor_Emerson_Resume_2026.pdf" download="Clamor_Emerson_Resume_2026.pdf" className={INTRO_SLOT_BUTTON}>
+            <Image src="/assets/images/mc-book-and-quill.png" alt="" aria-hidden="true" width={360} height={360} className={BUTTON_ICON} />
+            Download Resume
+          </a>
+        </div>
+      </div>
+    ),
+  },
 ];
 
 export default function About() {
   return (
     <AboutShowcase>
       <style>{OPEN_SLOT_CSS}</style>
-      {SECTIONS.map(({ title, content, aside, asideFrom = "lg", eyebrow, eyebrowFull }, i) => (
+      {SECTIONS.map(({ title, content, aside, asideFrom = "lg", eyebrow, eyebrowFull, video }, i) => (
         // Titled sections open as a full-screen card with only their heading (see AboutShowcase).
         <section
           key={i}
           aria-label={title ?? undefined}
           data-showcase={title ? "" : undefined}
           data-state={title ? "intro" : undefined}
-          className={`group/show relative overflow-hidden ${BACKGROUNDS[i % BACKGROUNDS.length]} ${i > 0 ? "border-t border-white/[0.08]" : ""}`}
+          className={`group/show relative overflow-hidden ${BACKGROUNDS[i % BACKGROUNDS.length]} ${i > 0 && !video ? "border-t border-white/[0.08]" : ""}`}
         >
-          <div className={SECTION_OUTER}>
-            <div className={`${SECTION_INNER} ${SHOWCASE_INNER} ${content ? (i === 0 ? FULL_SCREEN_FIRST : FULL_SCREEN) : ""} min-h-[320px] max-lg:min-h-[260px] upto-639:min-h-[200px]`}>
+          {video && (
+            <>
+              <video
+                className="pointer-events-none absolute inset-0 h-full w-full object-fill motion-reduce:hidden"
+                src={video}
+                autoPlay
+                loop
+                muted
+                playsInline
+                aria-hidden="true"
+              />
+              {/* Darkens the clip so the heading stays readable (same dim as the contact card). */}
+              <div aria-hidden="true" className={VIDEO_SHADE} />
+              {/* Fades in from the section above's colour (no divider), so it melts into the clip. */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-0 top-0 h-[45%]"
+                style={{
+                  background: fadeFrom(BG_HEX[(i - 1 + BG_HEX.length) % BG_HEX.length]),
+                }}
+              />
+            </>
+          )}
+          <div className={`${SECTION_OUTER} ${video ? "relative" : ""}`}>
+            <div className={`${SECTION_INNER} ${SHOWCASE_INNER} ${content ? (i === 0 ? FULL_SCREEN_FIRST : title ? FULL_SCREEN : ENDING_SCREEN) : ""} min-h-[320px] max-lg:min-h-[260px] upto-639:min-h-[200px]`}>
               <div className={aside ? ASIDE_ROW[asideFrom] : ""}>
                 <div className={`w-full min-w-0 flex-1 ${aside ? COPY_STACKED[asideFrom] : ""}`}>
                   {title && (
@@ -1195,7 +1274,9 @@ export default function About() {
                       )}
                     </div>
                   )}
-                  {content && <div data-showcase-body className={REVEAL}>{content}</div>}
+                  {/* Only titled sections are revealed by the curtain (AboutShowcase), so the
+                      untitled sign-off shows as is. */}
+                  {content && <div data-showcase-body className={title ? REVEAL : ""}>{content}</div>}
                 </div>
                 {aside && <div data-showcase-body className={`${REVEAL} shrink-0`}>{aside}</div>}
               </div>
