@@ -66,7 +66,11 @@ function islandFor(w: number, h: number): IslandBox {
   // and at most nearly the full width. Where it can't fill the height, lift it to centre it.
   // (it comes out at the 1920 layout's 69.36% there; short screens such as phones on their side
   // get a smaller island so the gateways stay below the header)
-  const width = Math.min(96, Math.max(30, ((FILL * h * 17) / SCENE_BLOCKS / w) * 100));
+  let width = Math.min(96, Math.max(30, ((FILL * h * 17) / SCENE_BLOCKS / w) * 100));
+  // Stacked: no wider than about the scene's height, so on wider upright screens (~820px) the
+  // gateways don't grow into the sky and crowd the sign up under the header; it keeps the
+  // spacing a phone-sized screen has.
+  if (aspect < STACK_BELOW) width = Math.min(width, ((STACK_MAX_H * h) / w) * 100);
   const left = (100 - width) / 2;
   const islandPx = (width / 100) * w;
   const block = islandPx / 17;
@@ -92,19 +96,25 @@ function islandFor(w: number, h: number): IslandBox {
   // Taller phones have more sky, so the sign grows with it (up to 1.4x); the heading stays on one
   // line across the island.
   const grow = Math.min(1.4, Math.max(1, room / 300));
-  let headingPx = Math.min((islandPx * 0.88 * grow) / 21, (islandPx * 0.92) / 21, 38);
-  let logoPx = Math.min(islandPx * 0.42 * grow, islandPx * 0.62, 320);
+  // (below 866px: a touch smaller, and lower in the sky; the sizes then keep shrinking with the
+  // width from there, so there's no jump anywhere below it)
+  const tablet = w < TWO_LINE_FROM;
+  const k0 = tablet ? 0.8 : 1;
+  let headingPx = k0 * Math.min((islandPx * 0.88 * grow) / 21, (islandPx * 0.92) / 21, 38);
+  let logoPx = k0 * Math.min(islandPx * 0.42 * grow, islandPx * 0.62, 320);
   if (signH() > room * 0.8) {
     const k = Math.max(0.4, (room * 0.8) / signH()); // short screen: shrink the sign to fit
     headingPx *= k;
     logoPx *= k;
   }
   // a little below the middle of the sky (but never onto the gateways)
-  const signBottom = Math.min(skyBottom, margin + room * 0.6 + signH() / 2);
+  const signBottom = Math.min(skyBottom, margin + room * (tablet ? 0.72 : 0.6) + signH() / 2);
   return { left, width, lift, stacked: true, twoLine: false, headingPx, logoPx, signGapPx: islandTop - signBottom };
 }
 // two-line heading: the sign's bottom (the logo) sits just over Steve's head, in blocks
 const TWO_LINE_LIFT = 2.2 * BLOCK;
+const TWO_LINE_SHIFT = 5; // two lines: how much further left the heading sits (% of the island), room allowing
+const STACK_MAX_H = 0.98; // stacked: the island's widest, as a share of the scene's height
 const TWO_LINE_FROM = 866; // px wide
 const TWO_LINE_TO = 1535;
 const HEADING_DROP = 0.125; // and then this many blocks lower than level with them
@@ -592,7 +602,10 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
                     // pulled left clear of the gateways (100% is its own width, as the column is
                     // as wide as it is); its `top` is set to line it up with their portals
                     position: "relative",
-                    left: `clamp(8px - ${screenEdge}cqw, ${HEADING_END - SIGN_LEFT}cqw - 100%, 0px)`,
+                    // (two lines: moved further left into the open sky, spacing it out from the logo)
+                    left: twoLine
+                      ? `clamp(24px - ${screenEdge}cqw, ${HEADING_END - SIGN_LEFT}cqw - 100% - ${TWO_LINE_SHIFT}cqw, 0px)`
+                      : `clamp(8px - ${screenEdge}cqw, ${HEADING_END - SIGN_LEFT}cqw - 100%, 0px)`,
                     opacity: 0,
                   }}
                 >
@@ -652,10 +665,11 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
         className="pointer-events-none absolute"
         style={{ ...islandStyle, height: `calc(100% - ${island.lift}px)`, zIndex: 2 }}
       >
-        <Hud selected={slot} onSelect={setSlot} />
+        <Hud selected={slot} onSelect={setSlot} phone={stacked} lift={island.lift} />
       </div>
       <PearlGame
         sceneRef={sceneRef}
+        ready={ready}
         armed={holding && (pose === "front" || pose === "side")}
         onTurn={(toGateways) => setPose(toGateways ? "side" : "front")}
       />

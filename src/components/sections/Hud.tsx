@@ -23,6 +23,10 @@ export const PEARL_SLOT = 4; // slot 5
 const ISLAND_BLOCKS = 17;
 const VISIBLE_ROWS = 2.5;
 const MAX_ROWS = 2.2; // the HUD's height at most, in rows, leaving a margin above and below
+// Phones: the HUD's share of the width, its widest, and its gap above the scene's bottom (px).
+const PHONE_SHARE = 0.92;
+const PHONE_MAX_PX = 520;
+const PHONE_BOTTOM_PX = 10;
 
 // The game's font for the stack size: 5x7 pixel digits, a pixel apart, with a dark shadow one
 // pixel down and right.
@@ -60,12 +64,19 @@ function PixelText({ text, style }: { text: string; style: React.CSSProperties }
 }
 
 // `selected` (0-8) is the chosen slot, owned by the page so Steve can hold what's in it.
+// `phone`: on phones (the stacked layout) the island is small, so the HUD is sized to the screen
+// instead, big enough to tap, and sits along the bottom of the scene as in the game (`lift`: how
+// far the island, and so this box, is raised off the scene's bottom, in px).
 export default function Hud({
   selected,
   onSelect: setSelected,
+  phone = false,
+  lift = 0,
 }: {
   selected: number;
   onSelect: (slot: number) => void;
+  phone?: boolean;
+  lift?: number;
 }) {
   const boxRef = useRef<HTMLDivElement | null>(null);
   const [fit, setFit] = useState<{ texel: number; left: number; bottom: number } | null>(null);
@@ -83,6 +94,13 @@ export default function Hud({
       const texel = (exact >= 1 ? Math.floor(exact) : exact) / dpr;
       const block = blockDev / dpr;
       const snap = (v: number) => Math.round(v * dpr) / dpr;
+      if (phone) {
+        // most of the width, at most 520px wide (not rounded to whole device pixels as elsewhere:
+        // that could halve it on a phone, and being big enough to tap matters more here)
+        const texel = Math.min(width * PHONE_SHARE, PHONE_MAX_PX) / TEX_W;
+        setFit({ texel, left: snap((width - TEX_W * texel) / 2), bottom: snap(PHONE_BOTTOM_PX - lift) });
+        return;
+      }
       setFit({
         texel,
         left: snap((width - TEX_W * texel) / 2),
@@ -93,7 +111,7 @@ export default function Hud({
     const observer = new ResizeObserver(measure);
     observer.observe(box);
     return () => observer.disconnect();
-  }, []);
+  }, [phone, lift]);
 
   // Number keys pick a slot, as in the game.
   useEffect(() => {

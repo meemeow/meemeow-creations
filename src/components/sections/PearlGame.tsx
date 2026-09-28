@@ -26,6 +26,9 @@ const TURN_MS = 320; // Steve turning before the view moves in
 const WARP_MS = 900; // into his eyes
 const BACK_MS = 320; // backing out
 const THROW_MS = 650; // the pearl's flight
+const TAP_SLOP_PX = 10; // in his eyes, a press moving less than this is a tap (throws); more, a drag
+const IDLE_MS = 10000; // no presses for this long shows the how-to hint (then it stays)
+const HINT_BLINK_MS = 3000; // one slow fade in and out, as on the About page
 const FLASH_MS = 320; // the gateway flaring as it lands
 
 type Phase = "idle" | "turning" | "warping" | "aiming" | "throwing";
@@ -35,10 +38,12 @@ const loadScene = () => import("./povScene");
 
 export default function PearlGame({
   sceneRef,
+  ready,
   armed,
   onTurn,
 }: {
   sceneRef: RefObject<HTMLDivElement | null>; // receives the presses; the view is placed in it
+  ready: boolean; // the intro is over
   armed: boolean; // the pearl is in hand and the intro is over
   onTurn: (toGateways: boolean) => void;
 }) {
@@ -46,6 +51,8 @@ export default function PearlGame({
   const [phase, setPhase] = useState<Phase>("idle");
   const [portals, setPortals] = useState<OnScreen[]>([]);
   const [target, setTarget] = useState(1);
+  const [idle, setIdle] = useState(false); // nothing pressed for a while: show the how-to hint
+  const idleRef = useRef<HTMLParagraphElement | null>(null);
   const [touch, setTouch] = useState(false); // a touch screen: the hints say press and tap
   const phaseRef = useRef<Phase>("idle");
   const armedRef = useRef(armed);
@@ -87,6 +94,7 @@ export default function PearlGame({
     let fade: Animation | null = null;
     let track = 0; // keeps the labels on the gateways as the view turns
     let pointer = { x: 0, y: 0 }; // relative to the scene
+    let press: { x: number; y: number } | null = null; // where a press in his eyes began
     let disposed = false;
 
     const later = (ms: number, fn: () => void) => timers.push(window.setTimeout(fn, ms));
@@ -153,8 +161,22 @@ export default function PearlGame({
 
     // Letting go straight away (a plain click) backs out; once the view is on its way in, letting
     // go leaves you in his eyes to take your time and pick a gateway.
+    // In his eyes, a press only throws if it's a tap or click (lifted without moving much); a drag
+    // just looks around, so on touch screens you can move the view freely.
     const release = () => {
       if (phaseRef.current === "turning") cancel();
+      else if (phaseRef.current === "aiming" && press) {
+        const moved = Math.hypot(pointer.x - press.x, pointer.y - press.y);
+        press = null;
+        if (moved < TAP_SLOP_PX) {
+          aim();
+          throwPearl();
+        }
+      }
+    };
+    const onCancel = () => {
+      if (phaseRef.current === "aiming") press = null; // an interrupted drag: stay in his eyes
+      else cancel();
     };
     const throwPearl = () => {
       go("throwing");
@@ -168,11 +190,11 @@ export default function PearlGame({
       if (e.button !== 0 || (e.target as Element).closest("button, a")) return; // not the hotbar's own slots
       const s = scene.getBoundingClientRect();
       pointer = { x: e.clientX - s.left, y: e.clientY - s.top };
-      // In his eyes: a click throws at the gateway it's on (or nearest to).
+      // In his eyes: note where the press began (letting go decides: tap throws, drag looks).
       if (phaseRef.current === "aiming") {
         e.preventDefault();
-        aim();
-        throwPearl();
+        scene.setPointerCapture(e.pointerId);
+        press = { ...pointer };
         return;
       }
       if (!armedRef.current || phaseRef.current !== "idle") return;
@@ -196,7 +218,7 @@ export default function PearlGame({
     scene.addEventListener("pointerdown", onDown);
     scene.addEventListener("pointermove", onMove);
     scene.addEventListener("pointerup", release);
-    scene.addEventListener("pointercancel", cancel);
+    scene.addEventListener("pointercancel", onCancel);
     scene.addEventListener("contextmenu", onMenu);
     window.addEventListener("keydown", onKey);
     return () => {
@@ -204,7 +226,7 @@ export default function PearlGame({
       scene.removeEventListener("pointerdown", onDown);
       scene.removeEventListener("pointermove", onMove);
       scene.removeEventListener("pointerup", release);
-      scene.removeEventListener("pointercancel", cancel);
+      scene.removeEventListener("pointercancel", onCancel);
       scene.removeEventListener("contextmenu", onMenu);
       window.removeEventListener("keydown", onKey);
       cancelAnimationFrame(track);
@@ -216,6 +238,40 @@ export default function PearlGame({
     // the refs and callbacks are stable for the page's lifetime
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Idle hint: once the intro is over, IDLE_MS with no click, tap or key press shows how to play,
+  // blinking slowly (as on the About page); until then, any press starts the count again.
+  useEffect(() => {
+    if (!ready) return;
+    let timer = 0;
+    // Once it has appeared it stays (whenever the pearl isn't in hand), so presses no longer reset it.
+    let shown = false;
+    const reset = () => {
+      if (shown) return;
+      clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        shown = true;
+        setIdle(true);
+      }, IDLE_MS);
+    };
+    reset();
+    const events = ["pointerdown", "keydown", "wheel", "touchstart"] as const;
+    events.forEach((e) => window.addEventListener(e, reset, { passive: true }));
+    return () => {
+      clearTimeout(timer);
+      events.forEach((e) => window.removeEventListener(e, reset));
+    };
+  }, [ready]);
+  useEffect(() => {
+    const el = idleRef.current;
+    if (!el) return;
+    const blink = el.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }], {
+      duration: HINT_BLINK_MS,
+      iterations: Infinity,
+      easing: "ease-in-out",
+    });
+    return () => blink.cancel();
+  }, [idle, armed, phase]);
 
   // The pearl in hand: sliding up into view as he takes aim.
   useEffect(() => {
@@ -254,6 +310,17 @@ export default function PearlGame({
         style={{ zIndex: 1, opacity: 0 }}
       />
       <div className="pointer-events-none absolute inset-0" style={{ zIndex: 3 }}>
+        {idle && !hint && phase === "idle" && (
+          <p
+            ref={idleRef}
+            className="font-pixel absolute left-1/2 text-center uppercase text-gray-300 [text-shadow:2px_2px_0_rgba(0,0,0,0.75)]"
+            style={{ top: 14, transform: "translateX(-50%)", fontSize: "clamp(8px, 0.75vw, 11px)", letterSpacing: "0.12em", lineHeight: 1.7, opacity: 0, width: "max-content", maxWidth: "calc(100% - 32px)" }}
+          >
+            {touch
+              ? "Tap the ender pearl in slot 5 below"
+              : "Click the ender pearl in slot 5 below"}
+          </p>
+        )}
         {hint && (
           <p
             className="font-pixel absolute left-1/2 text-center text-white [text-shadow:2px_2px_0_#3f3f3f]"
