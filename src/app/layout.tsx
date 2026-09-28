@@ -36,7 +36,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${pressStart.variable} min-h-full`}>
-      <body className="flex min-h-screen flex-col bg-background text-foreground antialiased [font-family:Arial,Helvetica,sans-serif]">
+      {/* At least the visible screen's height: dvh follows mobile browsers' address bar showing
+          and hiding (plain vh assumes it's hidden, which made Home scroll on phones);
+          min-h-screen stays as the fallback for browsers without dvh. */}
+      <body
+        className="flex min-h-screen flex-col bg-background text-foreground antialiased [font-family:Arial,Helvetica,sans-serif]"
+        style={{ minHeight: "100dvh" }}
+      >
         <Navbar />
         <ScrollMomentum>
           <div className="flex flex-[1_0_auto] flex-col [&>main]:flex-[1_0_auto]">{children}</div>

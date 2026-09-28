@@ -574,7 +574,8 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
                 style={{
                   display: "inline-flex",
                   flexDirection: "column",
-                  alignItems: "center",
+                  // two lines: the logo tucks in under the end of "Landed On..."
+                  alignItems: twoLine ? "flex-end" : "center",
                 }}
               >
                 <h1
@@ -584,7 +585,7 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
                     // 2.45rem at 1920px; smaller where it would otherwise run into the gateways (its 21
                     // letters are 1em wide each, and it has from the screen edge to HEADING_END)
                     fontSize: twoLine
-                      ? `min(3.3cqw, calc((${HEADING_END + screenEdge}cqw - 16px) / 13))`
+                      ? `min(3.3cqw, calc((${HEADING_END + screenEdge}cqw - 16px) / 15.5))`
                       : `min(2.944cqw, calc((${HEADING_END + screenEdge}cqw - 16px) / 22.5))`,
                     lineHeight: twoLine ? 1.5 : 1,
                     textAlign: "left",
@@ -599,13 +600,18 @@ export default function HomeLanding({ replay = false }: { replay?: boolean }) {
                     <>
                       You Have
                       <br />
-                      <span style={{ paddingLeft: "2em" }}>Landed On...</span>
+                      <span style={{ paddingLeft: "4.5em" }}>Landed On...</span>
                     </>
                   ) : (
                     "You Have Landed On..."
                   )}
                 </h1>
-                <div ref={logoRef} style={{ opacity: 0 }}>
+                <div
+                  ref={logoRef}
+                  // two lines: shifted with the heading (which is pulled left), so it stays under it (100% is
+                  // the column's width, which is the heading's)
+                  style={twoLine ? { opacity: 0, position: "relative", left: `clamp(8px - ${screenEdge}cqw, ${HEADING_END - SIGN_LEFT}cqw - 100%, 0px)` } : { opacity: 0 }}
+                >
                   <Image
                     src="/assets/images/logotext.png"
                     alt="Meemeow Creations"
