@@ -194,7 +194,7 @@ export default function Contact() {
             }
 
             setFormData({ firstName: '', lastName: '', email: '', message: '' });
-            setOutcome({ type: 'success', message: 'Message sent — thank you!' });
+            setOutcome({ type: 'success', message: "Thanks for reaching out. I'll get back to you soon." });
         } catch (err) {
             const error = err as Error;
             console.error(error);

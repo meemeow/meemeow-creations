@@ -25,9 +25,8 @@ const VIDEO_POSITION: Record<NavKey, string> = {
 };
 
 // The clip that belongs to a route. A refresh, a shared link or a browser
-// back/forward gives no click to pin from, so the route itself supplies one.
-// "/" is left out on purpose: the logo clears to the plain #0A0A0A header, so
-// that's home's resting look.
+// back/forward gives no click to pin from, so the route itself supplies one (home's "/"
+// included, so it doesn't sit on a bare black header; the logo still clears it).
 const ROUTE_KEYS: { prefix: string; key: NavKey }[] = [
   { prefix: "/about", key: "about" },
   { prefix: "/projects", key: "projects" },
@@ -35,7 +34,9 @@ const ROUTE_KEYS: { prefix: string; key: NavKey }[] = [
 ];
 
 const keyForPath = (path: string | null): NavKey | null =>
-  ROUTE_KEYS.find(({ prefix }) => path === prefix || path?.startsWith(`${prefix}/`))?.key ?? null;
+  path === "/"
+    ? "home"
+    : ROUTE_KEYS.find(({ prefix }) => path === prefix || path?.startsWith(`${prefix}/`))?.key ?? null;
 
 // Mobile dropdown: links drop in one after another.
 const OPEN_LINK_ANIMATION = [
@@ -48,9 +49,8 @@ const OPEN_LINK_ANIMATION = [
 export default function Navbar() {
   const pathname = usePathname();
   const routeKey = keyForPath(pathname);
-  // The page we're on, for the link highlight. Unlike routeKey (the video pin),
-  // "/" counts here so Home is highlighted on the home page.
-  const currentKey: NavKey | null = pathname === "/" ? "home" : routeKey;
+  // The page we're on, for the link highlight.
+  const currentKey: NavKey | null = routeKey;
   const [open, setOpen] = useState(false);
   const [, setLinkHover] = useState(false);
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);

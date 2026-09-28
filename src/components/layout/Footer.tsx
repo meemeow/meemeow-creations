@@ -17,12 +17,8 @@ const DISCLAIMER =
 
 export default function Footer() {
   const disclaimer = "Minecraft is a trademark of Mojang Studios. Any other trademarks are the property of their respective holders.";
-  // Copyright runs from first publication to the current year, collapsing to a
-  // single year if they ever match again.
-  const FIRST_YEAR = 2025;
-  const currentYear = new Date().getFullYear();
-  const years = currentYear > FIRST_YEAR ? `${FIRST_YEAR}–${currentYear}` : `${FIRST_YEAR}`;
-  const text = `© ${years} Emerson Clamor. All rights reserved.`
+  // Copyright shows only the current year, so it stays up to date on its own.
+  const text = `© ${new Date().getFullYear()} Emerson Clamor. All rights reserved.`
   const containerRef = useRef<HTMLDivElement | null>(null);
   const spanRefs = useRef<Array<HTMLSpanElement | null>>([]);
 
