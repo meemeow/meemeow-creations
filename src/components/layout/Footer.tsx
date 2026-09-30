@@ -2,9 +2,6 @@
 
 import React, { useRef, useEffect } from "react";
 
-// Copyright characters. Each one is its own span so the pointer can scale and
-// recolour it, and each steps down with the navbar's tiers (2xl / lg) plus two
-// more stops for small and extra-small phones.
 const CHAR =
   "mb-2 inline-block origin-center text-[0.9rem] will-change-[transform,color] [transition:transform_160ms_ease,color_160ms_ease] " +
   "max-2xl:mb-1.5 max-2xl:text-[0.82rem] max-lg:mb-1 max-lg:text-[0.78rem] " +
@@ -16,9 +13,9 @@ const DISCLAIMER =
   "upto-639:text-[0.66rem] upto-420:text-[0.62rem] upto-376:text-[0.58rem]";
 
 export default function Footer() {
-  const disclaimer = "Minecraft is a trademark of Mojang Studios. Any other trademarks are the property of their respective holders.";
-  // Copyright shows only the current year, so it stays up to date on its own.
-  const text = `© ${new Date().getFullYear()} Emerson Clamor. All rights reserved.`
+  const disclaimer =
+    "Minecraft is a trademark of Mojang Studios. Any other trademarks are the property of their respective holders.";
+  const text = `© ${new Date().getFullYear()} Emerson Clamor. All rights reserved.`;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const spanRefs = useRef<Array<HTMLSpanElement | null>>([]);
 
@@ -27,7 +24,7 @@ export default function Footer() {
   }, [text.length]);
 
   const handleMove = (e: React.PointerEvent) => {
-    const maxDist = 120; // radius for strongest effect
+    const maxDist = 120;
     const x = e.clientX;
     const y = e.clientY;
 
@@ -39,9 +36,9 @@ export default function Footer() {
       const dx = x - cx;
       const dy = y - cy;
       const dist = Math.hypot(dx, dy);
-      const n = Math.max(0, 1 - dist / maxDist); // 0..1 proximity
-      const scale = 1 + n * 0.45; // upsize up to ~1.45
-      const hue = (i * 28 + n * 180) % 360; // per-character rainbow + proximity shift
+      const n = Math.max(0, 1 - dist / maxDist);
+      const scale = 1 + n * 0.45;
+      const hue = (i * 28 + n * 180) % 360;
 
       el.style.transform = `scale(${scale})`;
       el.style.color = `hsl(${hue}, 90%, 60%)`;
@@ -56,9 +53,6 @@ export default function Footer() {
     });
   };
 
-  // Words are kept whole: per-character spans would otherwise let a narrow phone
-  // break the line in the middle of a word. `index` keeps one flat run of refs
-  // across every character so the pointer effect still indexes them in order.
   let index = 0;
 
   return (
@@ -79,7 +73,9 @@ export default function Footer() {
                   {chars.map(({ ch, i }) => (
                     <span
                       key={i}
-                      ref={(el) => { spanRefs.current[i] = el; }}
+                      ref={(el) => {
+                        spanRefs.current[i] = el;
+                      }}
                       className={CHAR}
                     >
                       {ch}
@@ -88,7 +84,9 @@ export default function Footer() {
                 </span>
                 {spaceIndex !== null && (
                   <span
-                    ref={(el) => { spanRefs.current[spaceIndex] = el; }}
+                    ref={(el) => {
+                      spanRefs.current[spaceIndex] = el;
+                    }}
                     className={`${CHAR} w-2 max-lg:w-1.5`}
                   >
                     {" "}
@@ -98,7 +96,9 @@ export default function Footer() {
             );
           })}
         </div>
-        <div className={DISCLAIMER} role="note" aria-label="Legal disclaimer">{disclaimer}</div>
+        <div className={DISCLAIMER} role="note" aria-label="Legal disclaimer">
+          {disclaimer}
+        </div>
       </div>
     </footer>
   );

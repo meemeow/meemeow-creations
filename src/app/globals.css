@@ -1,8 +1,5 @@
 @import "tailwindcss";
 
-/* Max-width variants are declared widest first: Tailwind emits variants in
-   declaration order, so the narrowest one lands last and wins when several
-   apply (e.g. upto-420 overrides upto-639 on a 400px screen). */
 @custom-variant upto-1620 (@media (width <= 1620px));
 @custom-variant upto-1535 (@media (width <= 1535px));
 @custom-variant upto-1439 (@media (width <= 1439px));
@@ -27,70 +24,64 @@
 @custom-variant above-1279 (@media (width > 1279px));
 @custom-variant above-1620 (@media (width > 1620px));
 
-/* ---------- Fonts ---------- */
 @font-face {
-  font-family: 'Rubber';
-  src: url('/assets/fonts/RubberBiscuit-Regular.ttf') format('truetype');
+  font-family: "Rubber";
+  src: url("/assets/fonts/RubberBiscuit-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'FleurDeLeah';
-  src: url('/assets/fonts/FleurDeLeah-Regular.ttf') format('truetype');
+  font-family: "FleurDeLeah";
+  src: url("/assets/fonts/FleurDeLeah-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Rye';
-  src: url('/assets/fonts/Rye-Regular.ttf') format('truetype');
+  font-family: "Rye";
+  src: url("/assets/fonts/Rye-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Gotham';
-  src: url('/assets/fonts/Gotham-Black.otf') format('opentype');
+  font-family: "Gotham";
+  src: url("/assets/fonts/Gotham-Black.otf") format("opentype");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Gotham';
-  src: url('/assets/fonts/Gotham-Medium.otf') format('opentype');
+  font-family: "Gotham";
+  src: url("/assets/fonts/Gotham-Medium.otf") format("opentype");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Gotham';
-  src: url('/assets/fonts/Gotham-Light.otf') format('opentype');
+  font-family: "Gotham";
+  src: url("/assets/fonts/Gotham-Light.otf") format("opentype");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 
-/* ---------- Theme tokens ---------- */
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  /* Peachy-white glow used for focused fields and form border */
   --peach-r: 255;
   --peach-g: 230;
   --peach-b: 216;
   --peach-a: 0.9;
 
-  /* ---- Minecraft panel palette (contact form) ---- */
-  /* Panel fill and bevel edges live in contact/page.tsx (MC_PANEL) so colour
-     tweaks hot-reload; the dev server caches this file's :root block. */
-  --mc-panel-dark: #151515; /* hard outline / field fill */
+  --mc-panel-dark: #151515;
   --mc-field: #1b1b1b;
   --mc-text-dim: #9b9b9b;
-  --mc-red: #ff5555;        /* required-field asterisk */
+  --mc-red: #ff5555;
   --mc-green: #58a83b;
   --mc-green-lit: #6fc74a;
   --mc-green-dark: #2f6b1c;
@@ -103,23 +94,21 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* font-rubber / font-fleur / font-rye / font-gotham and the animate-* utilities */
 @theme {
-  --font-rubber: 'Rubber', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  --font-fleur: 'FleurDeLeah', cursive, serif;
-  --font-gotham: 'Gotham', Arial, Helvetica, sans-serif;
-  --font-rye: 'Rye', var(--font-gotham), Arial, sans-serif;
-  /* Minecraft-style pixel face (loaded in layout.tsx via next/font) */
-  --font-pixel: var(--font-press-start), 'Courier New', monospace;
+  --font-rubber: "Rubber", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  --font-fleur: "FleurDeLeah", cursive, serif;
+  --font-gotham: "Gotham", Arial, Helvetica, sans-serif;
+  --font-rye: "Rye", var(--font-gotham), Arial, sans-serif;
+  --font-pixel: var(--font-press-start), "Courier New", monospace;
 
   --animate-pulse-float: pulseFloat 2000ms ease-in-out infinite;
-  --animate-dropdown-in: dropdownIn 260ms cubic-bezier(.2,.9,.2,1) forwards;
+  --animate-dropdown-in: dropdownIn 260ms cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
   --animate-contact-glow: contactGlow 3.2s ease-in-out infinite;
   --animate-visit-glow: visitGlow 3.2s ease-in-out infinite;
   --animate-indicator-in: fadeIn 0.3s ease 1.5s forwards;
-  --animate-arrow-bounce: arrowBounce 1.8s cubic-bezier(.4,0,.2,1) infinite;
-  --animate-arrow-nudge: arrowNudge 1.2s cubic-bezier(.4,0,.2,1) infinite;
-  --animate-arrow-bounce-down: arrowBounceDown 1.8s cubic-bezier(.4,0,.2,1) infinite;
+  --animate-arrow-bounce: arrowBounce 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  --animate-arrow-nudge: arrowNudge 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  --animate-arrow-bounce-down: arrowBounceDown 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -129,16 +118,18 @@
   }
 }
 
-/* ---------- Keyframes ----------
-   Kept at top level (not inside @theme) so the per-link staggered
-   `animate-[linkStagger_…]` values can reference them too. */
 @keyframes pulseFloat {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-  100% { transform: translateY(0); }
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+  100% {
+    transform: translateY(0);
+  }
 }
 
-/* mobile nav dropdown panel */
 @keyframes dropdownIn {
   to {
     opacity: 1;
@@ -146,72 +137,96 @@
   }
 }
 
-/* mobile nav links, staggered per link */
 @keyframes linkStagger {
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
-/* per-letter glow on the contact heading and submit button */
 @keyframes contactGlow {
   0% {
-    filter: drop-shadow(0 0 0 rgba(255,200,160,0));
+    filter: drop-shadow(0 0 0 rgba(255, 200, 160, 0));
     transform: translateY(0) scale(1);
     opacity: 0.95;
   }
   40% {
-    filter: drop-shadow(0 0 18px rgba(255,180,120,0.36));
+    filter: drop-shadow(0 0 18px rgba(255, 180, 120, 0.36));
     transform: translateY(-3px) scale(1.02);
     opacity: 1;
   }
   100% {
-    filter: drop-shadow(0 0 0 rgba(255,200,160,0));
+    filter: drop-shadow(0 0 0 rgba(255, 200, 160, 0));
     transform: translateY(0) scale(1);
     opacity: 0.95;
   }
 }
 
-/* per-letter wave on the project "Visit Page" buttons */
 @keyframes visitGlow {
   0% {
-    filter: drop-shadow(0 0 0 rgba(255,200,160,0));
+    filter: drop-shadow(0 0 0 rgba(255, 200, 160, 0));
     transform: translateY(0);
     opacity: 0.95;
   }
   40% {
-    filter: drop-shadow(0 0 18px rgba(255,180,120,0.36));
+    filter: drop-shadow(0 0 18px rgba(255, 180, 120, 0.36));
     transform: translateY(-3px);
     opacity: 1;
   }
   100% {
-    filter: drop-shadow(0 0 0 rgba(255,200,160,0));
+    filter: drop-shadow(0 0 0 rgba(255, 200, 160, 0));
     transform: translateY(0);
     opacity: 0.95;
   }
 }
 
-/* "images will cycle" dot on hovered stacked project cards */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-/* "email directly" arrow: arrowBounce mirrored, so the hop goes downward */
 @keyframes arrowBounceDown {
-  0%, 55%, 100% { transform: translateY(0); }
-  25% { transform: translateY(4px); }
-  40% { transform: translateY(1px); }
+  0%,
+  55%,
+  100% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(4px);
+  }
+  40% {
+    transform: translateY(1px);
+  }
 }
 
-/* send-button chevron: the same rhythm as arrowBounce, nudged sideways instead */
 @keyframes arrowNudge {
-  0%, 55%, 100% { transform: translateX(0); }
-  25% { transform: translateX(4px); }
-  40% { transform: translateX(1px); }
+  0%,
+  55%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(4px);
+  }
+  40% {
+    transform: translateX(1px);
+  }
 }
 
-/* back-to-top arrow: a small hop upward, with a pause between hops */
 @keyframes arrowBounce {
-  0%, 55%, 100% { transform: translateY(0); }
-  25% { transform: translateY(-4px); }
-  40% { transform: translateY(-1px); }
+  0%,
+  55%,
+  100% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-4px);
+  }
+  40% {
+    transform: translateY(-1px);
+  }
 }

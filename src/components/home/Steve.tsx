@@ -1,34 +1,20 @@
-// Steve as pixel art, in the game's proportions (head 8, body 12, legs 12 = 32 pixels tall),
-// in three poses: gliding on elytra (side view, heading right), walking (side view, facing
-// right, limbs swinging) and standing facing the viewer. One SVG unit is one skin pixel; the
-// viewBox is the same for every pose, with the feet on its bottom edge and the body centred,
-// so swapping poses keeps him in place.
-
 export type StevePose = "fly" | "walk" | "front" | "side";
 
-// Every pose shares this box: x -12..28, y -4..32 (feet at 32, body centred on x = 8).
 export const STEVE_VIEWBOX = { x: -12, y: -4, w: 40, h: 36 };
 
-// Palette keys for the hand-drawn elytra.
 const PAL: Record<string, string> = {
-  L: "#b9bfd0", // elytra, light
-  K: "#8d93a8", // elytra, mid
-  D: "#5e6376", // elytra, edge
+  L: "#b9bfd0",
+  K: "#8d93a8",
+  D: "#5e6376",
 };
-
-// Each body part is drawn as one small bitmap (not a square per pixel), so when a limb rotates
-// there are no hairline seams between pixels; the browser scales it with nearest-neighbour
-// pixels. The bitmap is an in-memory 32-bit BMP data URL, built the same on server and client.
 
 type RGBA = [number, number, number, number];
 
-const BASE64 =
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 function base64(bytes: Uint8Array) {
   let out = "";
   for (let i = 0; i < bytes.length; i += 3) {
-    const n =
-      (bytes[i] << 16) | ((bytes[i + 1] ?? 0) << 8) | (bytes[i + 2] ?? 0);
+    const n = (bytes[i] << 16) | ((bytes[i + 1] ?? 0) << 8) | (bytes[i + 2] ?? 0);
     out += BASE64[(n >> 18) & 63] + BASE64[(n >> 12) & 63];
     out += i + 1 < bytes.length ? BASE64[(n >> 6) & 63] : "=";
     out += i + 2 < bytes.length ? BASE64[n & 63] : "=";
@@ -36,34 +22,29 @@ function base64(bytes: Uint8Array) {
   return out;
 }
 
-// Top-down 32-bit BMP with an alpha channel (BITMAPV4HEADER, BI_BITFIELDS).
 function bitmapUrl(pixels: RGBA[][]) {
   const h = pixels.length;
   const w = pixels[0].length;
   const header = 14 + 108;
   const buf = new Uint8Array(header + w * h * 4);
   const view = new DataView(buf.buffer);
-  buf[0] = 0x42; // "B"
-  buf[1] = 0x4d; // "M"
+  buf[0] = 0x42;
+  buf[1] = 0x4d;
   view.setUint32(2, buf.length, true);
   view.setUint32(10, header, true);
   view.setUint32(14, 108, true);
   view.setInt32(18, w, true);
-  view.setInt32(22, -h, true); // negative height = rows top to bottom
+  view.setInt32(22, -h, true);
   view.setUint16(26, 1, true);
   view.setUint16(28, 32, true);
-  view.setUint32(30, 3, true); // BI_BITFIELDS
+  view.setUint32(30, 3, true);
   view.setUint32(34, w * h * 4, true);
-  view.setUint32(54, 0x00ff0000, true); // red mask
-  view.setUint32(58, 0x0000ff00, true); // green
-  view.setUint32(62, 0x000000ff, true); // blue
-  view.setUint32(66, 0xff000000, true); // alpha
-  view.setUint32(70, 0x73524742, true); // "sRGB"
-  pixels.forEach((row, y) =>
-    row.forEach(([r, g, b, a], x) =>
-      buf.set([b, g, r, a], header + (y * w + x) * 4),
-    ),
-  );
+  view.setUint32(54, 0x00ff0000, true);
+  view.setUint32(58, 0x0000ff00, true);
+  view.setUint32(62, 0x000000ff, true);
+  view.setUint32(66, 0xff000000, true);
+  view.setUint32(70, 0x73524742, true);
+  pixels.forEach((row, y) => row.forEach(([r, g, b, a], x) => buf.set([b, g, r, a], header + (y * w + x) * 4)));
   return `data:image/bmp;base64,${base64(buf)}`;
 }
 
@@ -74,11 +55,8 @@ const hexToRgba = (hex: string): RGBA => [
   255,
 ];
 
-// Rows of palette keys ("." = empty) or of six-digit hex colours ("......" = empty).
 const fromKeys = (rows: string[]): RGBA[][] =>
-  rows.map((row) =>
-    [...row].map((key) => (key === "." ? [0, 0, 0, 0] : hexToRgba(PAL[key]))),
-  );
+  rows.map((row) => [...row].map((key) => (key === "." ? [0, 0, 0, 0] : hexToRgba(PAL[key]))));
 const fromHex = (rows: string[]): RGBA[][] =>
   rows.map((row) =>
     Array.from({ length: row.length / 6 }, (_, x) => {
@@ -87,9 +65,7 @@ const fromHex = (rows: string[]): RGBA[][] =>
     }),
   );
 
-// Built once and reused.
 const urls = new Map<string[], string>();
-// `flip` mirrors the part left to right in place.
 function Part({
   rows,
   hex = false,
@@ -116,17 +92,13 @@ function Part({
       y={y0}
       width={width}
       height={rows.length}
-      transform={
-        flip ? `translate(${2 * x0 + width} 0) scale(-1 1)` : undefined
-      }
+      transform={flip ? `translate(${2 * x0 + width} 0) scale(-1 1)` : undefined}
       preserveAspectRatio="none"
       style={{ imageRendering: "pixelated" }}
     />
   );
 }
 
-// Every face below is read pixel for pixel from Steve's 64x64 skin texture: rows of six-digit
-// hex colours ("......" = empty). The front is assembled from the head, body, arm and leg fronts.
 const FRONT = [
   "........................2d20102b1e0d2f20102a1c0b2719082a1c0a2b1e0d2a1d0d........................",
   "........................2a1e0d2c1f0b2e1e0a3424123d2d1a3d2d192a1d0b271f0e........................",
@@ -162,8 +134,6 @@ const FRONT = [
   "........................6c6c6a6b6b6b6b6b6c6b6b6d6c6c6a6b6b6b6b6b6c6b6b6d........................",
 ];
 
-// Side view: his left-side faces, drawn mirrored (flip) so the face leads toward the right — the head is
-// mostly hair over the top and back, with an ear and the beard at the front.
 const SIDE_HEAD = [
   "311e12321f113422112c1b0b2a1a0a291909291b092a1c02",
   "34260d2c1c092b1b0a2d1d0e29190a29190a2c180e271c06",
@@ -216,7 +186,6 @@ const LEG = [
   "3f413d3f413e3f403d3e3f38",
   "3f3f413f3f413f403a3f3e44",
 ];
-// The far arm and leg: their inner faces, a little darker since they're further away.
 const FAR_ARM = [
   "00636802626502626702645f",
   "006562005351005454006369",
@@ -246,34 +215,24 @@ const FAR_LEG = [
   "31313331313331322d313035",
 ];
 
-// Elytra seen side-on: a slim wing lying along the back (left), from the shoulders to past the
-// knees, with a dark outer edge and feather bands. Straight-edged so it stays clean when the
-// gliding figure is tilted.
-const WING = [
-  ".DD",
-  ...Array.from({ length: 17 }, (_, i) => (i % 4 === 1 ? "DKK" : "DLL")),
-  ".DD",
-]; // columns 4..6 (overlapping the back edge), rows 8..26
+const WING = [".DD", ...Array.from({ length: 17 }, (_, i) => (i % 4 === 1 ? "DKK" : "DLL")), ".DD"];
 
-// Folded elytra seen from the front. Closed, the two wings lie together down his back as one big
-// piece, like a cape: it sits across his shoulders and hangs down behind him, flaring a little
-// wider toward a smoothly rounded hem around his shins, so it shows around the outside of his
-// arms and between his arms and legs. Slate blue-grey like the game's, darkest at the top and
-// lightening toward the hem, with feather bands and a darker outline. Columns -4..19, rows
-// 7..27; drawn behind the front.
 const FRONT_WING = (() => {
   const top = [64, 76, 92];
   const tip = [142, 158, 174];
   const hex = (rgb: number[], k: number) =>
-    rgb.map((v) => Math.max(0, Math.min(255, Math.round(v * k))).toString(16).padStart(2, "0")).join("");
-  const H = 21; // rows 7..27
-  // half its width on row i, about his middle (x = 8): shoulder-wide at the top, a touch narrower
-  // on the very first row, flaring toward the hem
+    rgb
+      .map((v) =>
+        Math.max(0, Math.min(255, Math.round(v * k)))
+          .toString(16)
+          .padStart(2, "0"),
+      )
+      .join("");
+  const H = 21;
   const half = (i: number) => (i === 0 ? 7.5 : 8.5 + 3 * (i / (H - 1)) ** 1.3);
-  // the hem: level across the middle, curving up round the outer corners (radius CORNER)
   const CORNER = 5;
   const hem = (x: number) => {
-    const d = Math.abs(x + 0.5 - 8) - (half(H - 1) - CORNER); // how far into the corner
+    const d = Math.abs(x + 0.5 - 8) - (half(H - 1) - CORNER);
     if (d <= 0) return H - 1;
     const k = Math.min(1, d / CORNER);
     return H - 1 - CORNER * (1 - Math.sqrt(1 - k * k));
@@ -290,7 +249,7 @@ const FRONT_WING = (() => {
         continue;
       }
       const outline = !inside(x - 1, i) || !inside(x + 1, i) || !inside(x, i + 1) || !inside(x, i - 1);
-      const band = (i + Math.floor(Math.abs(x + 0.5 - 8) / 2)) % 3 === 0; // stepped feather lines
+      const band = (i + Math.floor(Math.abs(x + 0.5 - 8) / 2)) % 3 === 0;
       row += hex(shade, outline ? 0.72 : band ? 0.86 : 1);
     }
     rows.push(row);
@@ -298,20 +257,10 @@ const FRONT_WING = (() => {
   return rows;
 })();
 
-// Walking stride: how far each limb swings (degrees) and how long one full step cycle takes.
 const STRIDE = 40;
 const STEP_S = 0.75;
 
-// A limb swinging about its top joint while walking.
-function Swing({
-  from,
-  pivot,
-  children,
-}: {
-  from: number;
-  pivot: [number, number];
-  children: React.ReactNode;
-}) {
+function Swing({ from, pivot, children }: { from: number; pivot: [number, number]; children: React.ReactNode }) {
   const [px, py] = pivot;
   return (
     <g>
@@ -327,22 +276,11 @@ function Swing({
   );
 }
 
-// Turn a part about a joint by a CSS variable (so the landing can animate it).
-const turnBy = (
-  cssVar: string,
-  px: number,
-  py: number,
-  fallback = "0deg",
-): React.CSSProperties => ({
+const turnBy = (cssVar: string, px: number, py: number, fallback = "0deg"): React.CSSProperties => ({
   transform: `translate(${px}px, ${py}px) rotate(var(${cssVar}, ${fallback})) translate(${-px}px, ${-py}px)`,
   transformOrigin: "0 0",
 });
 
-// `flight`: the gliding figure. The head counter-turns against the glide angle (--glide) so it
-// stays level, and the legs (--legs) and arms (--arms) can swing about the hip and shoulder so
-// the landing can bring the feet down first.
-// `wing` is drawn over his body and legs but under his near arm (the elytra hang on his back;
-// the arm is on the outside).
 function Side({
   walking,
   flight = false,
@@ -352,14 +290,9 @@ function Side({
   walking: boolean;
   flight?: boolean;
   wing?: React.ReactNode;
-  reach?: boolean; // an ender pearl held in the near hand
+  reach?: boolean;
 }) {
-  const limb = (
-    angle: number,
-    pivot: [number, number],
-    child: React.ReactNode,
-    cssVar: string,
-  ) =>
+  const limb = (angle: number, pivot: [number, number], child: React.ReactNode, cssVar: string) =>
     walking ? (
       <Swing from={angle} pivot={pivot}>
         {child}
@@ -371,25 +304,14 @@ function Side({
     );
   return (
     <>
-      {limb(
-        -STRIDE,
-        [8, 9],
-        <Part rows={FAR_ARM} hex flip x0={6} y0={8} />,
-        "--arms",
-      )}
-      {limb(
-        STRIDE,
-        [8, 20],
-        <Part rows={FAR_LEG} hex flip x0={6} y0={20} />,
-        "--legs",
-      )}
+      {limb(-STRIDE, [8, 9], <Part rows={FAR_ARM} hex flip x0={6} y0={8} />, "--arms")}
+      {limb(STRIDE, [8, 20], <Part rows={FAR_LEG} hex flip x0={6} y0={20} />, "--legs")}
       <Part rows={SIDE_BODY} hex flip x0={6} y0={8} />
       <g
         style={
           flight
             ? {
-                transform:
-                  "translate(8px, 8px) rotate(calc(var(--glide, 90deg) * -1)) translate(-8px, -8px)",
+                transform: "translate(8px, 8px) rotate(calc(var(--glide, 90deg) * -1)) translate(-8px, -8px)",
                 transformOrigin: "0 0",
               }
             : undefined
@@ -397,34 +319,15 @@ function Side({
       >
         <Part rows={SIDE_HEAD} hex flip x0={4} y0={0} />
       </g>
-      {limb(
-        -STRIDE,
-        [8, 20],
-        <Part rows={LEG} hex flip x0={6} y0={20} />,
-        "--legs",
-      )}
+      {limb(-STRIDE, [8, 20], <Part rows={LEG} hex flip x0={6} y0={20} />, "--legs")}
       {wing}
       {reach ? (
-        // arm eased a little forward from his side, the pearl cupped in his hand (drawn first, so
-        // his fingers wrap over its back half), as a player holds an item in third person
         <g transform="rotate(-18 8 9)">
-          <image
-            href={PEARL}
-            x={8.2}
-            y={17.2}
-            width={4.5}
-            height={4.5}
-            style={{ imageRendering: "pixelated" }}
-          />
+          <image href={PEARL} x={8.2} y={17.2} width={4.5} height={4.5} style={{ imageRendering: "pixelated" }} />
           <Part rows={ARM} hex flip x0={6} y0={8} />
         </g>
       ) : (
-        limb(
-          STRIDE,
-          [8, 9],
-          <Part rows={ARM} hex flip x0={6} y0={8} />,
-          "--arms",
-        )
+        limb(STRIDE, [8, 9], <Part rows={ARM} hex flip x0={6} y0={8} />, "--arms")
       )}
     </>
   );
@@ -432,9 +335,6 @@ function Side({
 
 const PEARL = "/assets/images/ender-pearl.png";
 
-// `holding`: an ender pearl in his hand. Facing the viewer it's held out in his right hand (on the
-// viewer's left), seen almost edge-on as a flat disc; side-on ("side" pose) it's held the same way,
-// just ahead of him.
 export default function Steve({
   pose,
   holding = false,
@@ -446,14 +346,9 @@ export default function Steve({
 }) {
   const { x, y, w, h } = STEVE_VIEWBOX;
   return (
-    <svg
-      viewBox={`${x} ${y} ${w} ${h}`}
-      aria-hidden="true"
-      className={`block w-full overflow-visible ${className}`}
-    >
+    <svg viewBox={`${x} ${y} ${w} ${h}`} aria-hidden="true" className={`block w-full overflow-visible ${className}`}>
       {pose === "front" && (
         <>
-          {/* still wearing the elytra, folded behind him */}
           <Part rows={FRONT_WING} hex x0={-4} y0={7} />
           <Part rows={FRONT} hex />
           {holding && (
@@ -470,26 +365,18 @@ export default function Steve({
         </>
       )}
       {pose === "walk" && <Side walking />}
-      {pose === "side" && (
-        // standing, turned to the right, the folded elytra along his back
-        <Side walking={false} reach={holding} wing={<Part rows={WING} x0={4} y0={8} />} />
-      )}
+      {pose === "side" && <Side walking={false} reach={holding} wing={<Part rows={WING} x0={4} y0={8} />} />}
       {pose === "fly" && (
-        // Leaning forward into the glide: the standing figure tipped head-first to the right by
-        // --glide (90deg, lying flat, in flight; the landing animates it with --legs and --arms).
         <g
           style={{
-            transform:
-              "translate(8px, 16px) rotate(var(--glide, 90deg)) translate(-8px, -16px)",
+            transform: "translate(8px, 16px) rotate(var(--glide, 90deg)) translate(-8px, -16px)",
             transformOrigin: "0 0",
           }}
         >
-          {/* head kept level so he looks straight ahead, as when flying in the game */}
           <Side
             walking={false}
             flight
             wing={
-              // spread a little away from the back, like open elytra
               <g transform="rotate(6 6 8)">
                 <Part rows={WING} x0={4} y0={8} />
               </g>

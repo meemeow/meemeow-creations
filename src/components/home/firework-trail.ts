@@ -1,17 +1,10 @@
-// Minecraft firework-rocket sparks for an elytra boost. As in the game, the rocket rides with the
-// player, so sparks are shed from his body and simply left behind in the air (they aren't
-// blasted backward); each is the game's little twinkling star sprite, which hangs a moment and
-// then falls away into the void, shrinking to a dot as it goes. Also the dust kicked up when he
-// lands. Drawn on a canvas covering the scene.
-
 type Spark = { x: number; y: number; vx: number; vy: number; age: number; life: number; phase: number };
 type Mote = { x: number; y: number; vx: number; vy: number; age: number; life: number; size: number; colour: string };
 
-const PX = 3; // canvas px per sprite pixel
-const GRAVITY = 240; // px/s²: they drop away into the void
-const RATE = 16; // sparks per second while boosting
+const PX = 3;
+const GRAVITY = 240;
+const RATE = 16;
 
-// The spark sprite's frames, largest first ("#" = bright, "+" = dim): a star that shrinks to a dot.
 const FRAMES = [
   ["..#..", ".+#+.", "##+##", ".+#+.", "..#.."],
   ["..#..", ".###.", "..#.."].map((r) => `.${r}.`),
@@ -19,7 +12,6 @@ const FRAMES = [
   ["#"].map((r) => `..${r}..`),
 ];
 
-// End stone colours for the landing dust.
 const DUST = ["219,221,158", "205,207,144", "232,234,178", "190,192,130"];
 
 export function createFireworkTrail(canvas: HTMLCanvasElement) {
@@ -29,7 +21,7 @@ export function createFireworkTrail(canvas: HTMLCanvasElement) {
   let raf = 0;
   let last = 0;
   let emitter: (() => { x: number; y: number } | null) | null = null;
-  let carry = 0; // fractional sparks owed between frames
+  let carry = 0;
 
   const resize = () => {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -43,10 +35,10 @@ export function createFireworkTrail(canvas: HTMLCanvasElement) {
     sparks.push({
       x: x + (Math.random() - 0.5) * 10,
       y: y + (Math.random() - 0.5) * 10,
-      vx: (Math.random() - 0.5) * 12, // barely moving: left hanging where he passed
+      vx: (Math.random() - 0.5) * 12,
       vy: (Math.random() - 0.5) * 12,
       age: 0,
-      life: 3 + Math.random() * 1.5, // long enough to fall out of the bottom of the scene
+      life: 3 + Math.random() * 1.5,
       phase: Math.random() * Math.PI * 2,
     });
 
@@ -60,7 +52,7 @@ export function createFireworkTrail(canvas: HTMLCanvasElement) {
         if (c === ".") return;
         ctx.fillStyle = c === "#" ? `rgba(255,255,255,${alpha})` : `rgba(205,205,215,${alpha * 0.85})`;
         ctx.fillRect(left + i * PX, top + j * PX, PX, PX);
-      })
+      }),
     );
   };
 
@@ -89,12 +81,10 @@ export function createFireworkTrail(canvas: HTMLCanvasElement) {
       }
       const t = s.age / s.life;
       const sprite = FRAMES[Math.min(FRAMES.length - 1, Math.floor(t * FRAMES.length))];
-      // twinkle: the game's sparks flicker as they shrink
       const twinkle = 0.55 + 0.45 * Math.abs(Math.sin(s.phase + s.age * 14));
       drawSprite(s.x, s.y, sprite, +(twinkle * (1 - t * 0.5)).toFixed(3));
     }
 
-    // landing dust: thrown up, dragged by the air, settling fast
     for (let i = motes.length - 1; i >= 0; i--) {
       const m = motes[i];
       m.age += dt;
@@ -125,7 +115,6 @@ export function createFireworkTrail(canvas: HTMLCanvasElement) {
   window.addEventListener("resize", resize);
 
   return {
-    // Shed sparks every frame from wherever `source` says (relative to the canvas) until stopped.
     start(source: () => { x: number; y: number } | null) {
       emitter = source;
       wake();
@@ -133,8 +122,6 @@ export function createFireworkTrail(canvas: HTMLCanvasElement) {
     stop() {
       emitter = null;
     },
-    // A puff of end-stone dust at (x, y), relative to the canvas, mostly thrown the way he's
-    // moving (`dir`: 1 = right).
     dust(x: number, y: number, dir = 1, count = 14) {
       for (let i = 0; i < count; i++) {
         const forward = Math.random() < 0.7;

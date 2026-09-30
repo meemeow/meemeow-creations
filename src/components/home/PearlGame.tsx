@@ -3,18 +3,8 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { warpTo } from "./gatewayWarp";
-import type { PovScene } from "./povScene";
-
-// The ender pearl mini-game (an optional shortcut; the navbar still works as normal). With the
-// pearl in hand (hotbar slot 5), pressing and holding on the scene turns Steve to the right,
-// towards the End gateways, then the view drops into his eyes: a real 3D first-person view
-// (povScene) of the gateways floating over the end stone, the pearl in hand at the bottom right
-// and a label over each gateway (About, Projects, Contact, left to right). The view turns a
-// little toward the pointer, and it stays there after letting go, so you can take your time: click
-// a gateway to throw: the pearl arcs into it, it flares, and the loading screen takes over on the
-// way to that page (gatewayWarp). A plain click (no hold), Escape, or putting the pearl away
-// backs out.
+import { warpTo } from "./gateway-warp";
+import type { PovScene } from "./pov-scene";
 
 const GATES = [
   { href: "/about", label: "About", line: "Initializing profile...", colour: "#32CD32" },
@@ -22,19 +12,19 @@ const GATES = [
   { href: "/contact", label: "Contact", line: "Searching contacts...", colour: "#ffff1f" },
 ];
 
-const TURN_MS = 320; // Steve turning before the view moves in
-const WARP_MS = 900; // into his eyes
-const BACK_MS = 320; // backing out
-const THROW_MS = 650; // the pearl's flight
-const TAP_SLOP_PX = 10; // in his eyes, a press moving less than this is a tap (throws); more, a drag
-const IDLE_MS = 10000; // no presses for this long shows the how-to hint (then it stays)
-const HINT_BLINK_MS = 3000; // one slow fade in and out, as on the About page
-const FLASH_MS = 320; // the gateway flaring as it lands
+const TURN_MS = 320;
+const WARP_MS = 900;
+const BACK_MS = 320;
+const THROW_MS = 650;
+const TAP_SLOP_PX = 10;
+const IDLE_MS = 5000;
+const HINT_BLINK_MS = 3000;
+const FLASH_MS = 320;
 
 type Phase = "idle" | "turning" | "warping" | "aiming" | "throwing";
 type OnScreen = { x: number; y: number; size: number; top: number };
 
-const loadScene = () => import("./povScene");
+const loadScene = () => import("./pov-scene");
 
 export default function PearlGame({
   sceneRef,
@@ -42,18 +32,18 @@ export default function PearlGame({
   armed,
   onTurn,
 }: {
-  sceneRef: RefObject<HTMLDivElement | null>; // receives the presses; the view is placed in it
-  ready: boolean; // the intro is over
-  armed: boolean; // the pearl is in hand and the intro is over
+  sceneRef: RefObject<HTMLDivElement | null>;
+  ready: boolean;
+  armed: boolean;
   onTurn: (toGateways: boolean) => void;
 }) {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("idle");
   const [portals, setPortals] = useState<OnScreen[]>([]);
   const [target, setTarget] = useState(1);
-  const [idle, setIdle] = useState(false); // nothing pressed for a while: show the how-to hint
+  const [idle, setIdle] = useState(false);
   const idleRef = useRef<HTMLParagraphElement | null>(null);
-  const [touch, setTouch] = useState(false); // a touch screen: the hints say press and tap
+  const [touch, setTouch] = useState(false);
   const phaseRef = useRef<Phase>("idle");
   const armedRef = useRef(armed);
   const targetRef = useRef(1);
@@ -78,10 +68,9 @@ export default function PearlGame({
   useEffect(() => {
     armedRef.current = armed;
     if (armed) {
-      GATES.forEach((g) => router.prefetch(g.href)); // warm up the three pages
-      void loadScene(); // and the 3D view
+      GATES.forEach((g) => router.prefetch(g.href));
+      void loadScene();
     }
-    // Switching away from the pearl mid-aim backs out.
     if (!armed && phaseRef.current !== "idle" && phaseRef.current !== "throwing") cancelRef.current();
   }, [armed, router]);
 
@@ -92,9 +81,9 @@ export default function PearlGame({
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const timers: number[] = [];
     let fade: Animation | null = null;
-    let track = 0; // keeps the labels on the gateways as the view turns
-    let pointer = { x: 0, y: 0 }; // relative to the scene
-    let press: { x: number; y: number } | null = null; // where a press in his eyes began
+    let track = 0;
+    let pointer = { x: 0, y: 0 };
+    let press: { x: number; y: number } | null = null;
     let disposed = false;
 
     const later = (ms: number, fn: () => void) => timers.push(window.setTimeout(fn, ms));
@@ -131,7 +120,6 @@ export default function PearlGame({
       track = requestAnimationFrame(follow);
     };
 
-    // Into his eyes: the 3D view fades up while the camera drops in from behind him.
     const warp = async () => {
       const { createPovScene } = await loadScene();
       if (disposed || phaseRef.current !== "turning") return;
@@ -159,10 +147,6 @@ export default function PearlGame({
     };
     cancelRef.current = cancel;
 
-    // Letting go straight away (a plain click) backs out; once the view is on its way in, letting
-    // go leaves you in his eyes to take your time and pick a gateway.
-    // In his eyes, a press only throws if it's a tap or click (lifted without moving much); a drag
-    // just looks around, so on touch screens you can move the view freely.
     const release = () => {
       if (phaseRef.current === "turning") cancel();
       else if (phaseRef.current === "aiming" && press) {
@@ -175,7 +159,7 @@ export default function PearlGame({
       }
     };
     const onCancel = () => {
-      if (phaseRef.current === "aiming") press = null; // an interrupted drag: stay in his eyes
+      if (phaseRef.current === "aiming") press = null;
       else cancel();
     };
     const throwPearl = () => {
@@ -187,10 +171,9 @@ export default function PearlGame({
     };
 
     const onDown = (e: PointerEvent) => {
-      if (e.button !== 0 || (e.target as Element).closest("button, a")) return; // not the hotbar's own slots
+      if (e.button !== 0 || (e.target as Element).closest("button, a")) return;
       const s = scene.getBoundingClientRect();
       pointer = { x: e.clientX - s.left, y: e.clientY - s.top };
-      // In his eyes: note where the press began (letting go decides: tap throws, drag looks).
       if (phaseRef.current === "aiming") {
         e.preventDefault();
         scene.setPointerCapture(e.pointerId);
@@ -212,7 +195,7 @@ export default function PearlGame({
       if (e.key === "Escape" && phaseRef.current !== "idle" && phaseRef.current !== "throwing") cancel();
     };
     const onMenu = (e: Event) => {
-      if (armedRef.current) e.preventDefault(); // a long press on touch shouldn't open a menu
+      if (armedRef.current) e.preventDefault();
     };
 
     scene.addEventListener("pointerdown", onDown);
@@ -235,16 +218,12 @@ export default function PearlGame({
       pov.current?.destroy();
       pov.current = null;
     };
-    // the refs and callbacks are stable for the page's lifetime
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Idle hint: once the intro is over, IDLE_MS with no click, tap or key press shows how to play,
-  // blinking slowly (as on the About page); until then, any press starts the count again.
   useEffect(() => {
     if (!ready) return;
     let timer = 0;
-    // Once it has appeared it stays (whenever the pearl isn't in hand), so presses no longer reset it.
     let shown = false;
     const reset = () => {
       if (shown) return;
@@ -273,7 +252,6 @@ export default function PearlGame({
     return () => blink.cancel();
   }, [idle, armed, phase]);
 
-  // The pearl in hand: sliding up into view as he takes aim.
   useEffect(() => {
     const hand = handRef.current;
     if (!hand || phase !== "warping") return;
@@ -302,39 +280,75 @@ export default function PearlGame({
 
   return (
     <>
-      {/* The 3D view: over the scene, under the HUD (which stays, as in the game). */}
       <canvas
         ref={canvasRef}
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 h-full w-full [image-rendering:pixelated]"
         style={{ zIndex: 1, opacity: 0 }}
       />
+      {inView && phase !== "throwing" && (
+        <div className="pointer-events-none absolute inset-0" style={{ zIndex: 1 }}>
+          <div
+            ref={handRef}
+            className="absolute"
+            style={{
+              right: "-2%",
+              bottom: "-6%",
+              width: "clamp(96px, min(34vh, 36vw), 340px)",
+              aspectRatio: "1",
+              transform: "rotate(-28deg)",
+            }}
+          >
+            <Image
+              src="/assets/images/ender-pearl.png"
+              alt=""
+              width={13}
+              height={13}
+              unoptimized
+              className="block h-full w-full [image-rendering:pixelated]"
+            />
+          </div>
+        </div>
+      )}
       <div className="pointer-events-none absolute inset-0" style={{ zIndex: 3 }}>
         {idle && !hint && phase === "idle" && (
           <p
             ref={idleRef}
             className="font-pixel absolute left-1/2 text-center uppercase text-gray-300 [text-shadow:2px_2px_0_rgba(0,0,0,0.75)]"
-            style={{ top: 14, transform: "translateX(-50%)", fontSize: "clamp(8px, 0.75vw, 11px)", letterSpacing: "0.12em", lineHeight: 1.7, opacity: 0, width: "max-content", maxWidth: "calc(100% - 32px)" }}
+            style={{
+              top: 14,
+              transform: "translateX(-50%)",
+              fontSize: "clamp(8px, 0.75vw, 11px)",
+              letterSpacing: "0.12em",
+              lineHeight: 1.7,
+              opacity: 0,
+              width: "max-content",
+              maxWidth: "calc(100% - 32px)",
+            }}
           >
-            {touch
-              ? "Tap the ender pearl in slot 5 below"
-              : "Click the ender pearl in slot 5 below"}
+            {touch ? "Tap the ender pearl in slot 5 below" : "Click the ender pearl in slot 5 below"}
           </p>
         )}
         {hint && (
           <p
             className="font-pixel absolute left-1/2 text-center text-white [text-shadow:2px_2px_0_#3f3f3f]"
-            style={{ top: 14, transform: "translateX(-50%)", fontSize: "clamp(9px, 0.85vw, 13px)", opacity: 0.85, width: "max-content", maxWidth: "calc(100% - 32px)" }}
+            style={{
+              top: 14,
+              transform: "translateX(-50%)",
+              fontSize: "clamp(9px, 0.85vw, 13px)",
+              opacity: 0.85,
+              width: "max-content",
+              maxWidth: "calc(100% - 32px)",
+            }}
           >
             {hint}
           </p>
         )}
 
-        {/* A label over each gateway; the one aimed at stands out. */}
         {aiming &&
           portals.map((p, i) => {
             const on = i === target;
-            const block = p.size * 2; // one block, in px, at that distance
+            const block = p.size * 2;
             return (
               <div key={GATES[i].href}>
                 {on && phase === "aiming" && (
@@ -369,23 +383,6 @@ export default function PearlGame({
               </div>
             );
           })}
-
-        {/* The pearl in hand, first person: big in the bottom right corner, as in the game. */}
-        {inView && phase !== "throwing" && (
-          <div
-            ref={handRef}
-            className="absolute"
-            style={{
-              right: "-2%",
-              bottom: "-6%",
-              width: "clamp(96px, min(34vh, 36vw), 340px)",
-              aspectRatio: "1",
-              transform: "rotate(-28deg)",
-            }}
-          >
-            <Image src="/assets/images/ender-pearl.png" alt="" width={13} height={13} unoptimized className="block h-full w-full [image-rendering:pixelated]" />
-          </div>
-        )}
       </div>
     </>
   );

@@ -4,7 +4,6 @@ import { usePreviewCycle } from "@/hooks/use-preview-cycle";
 import { altImagesMap, previewMap, type Project } from "@/data/projects";
 import { ALT_LAYER, CARD_SHELL, cardBackground } from "./project-card-classes";
 
-/** Masonry-view card: cycles previews immediately on hover. */
 export default function ProjectCard({ p, isEven }: { p: Project; isEven: boolean }) {
   const altImages = altImagesMap[p.id] ?? [];
   const previewName = previewMap[p.id];

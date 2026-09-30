@@ -2,13 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-// How far down the page the button appears.
 const SHOW_AFTER = 320;
 
-// Minecraft GUI button: flat stone face, hard 3px bevel (lit top/left, shaded
-// bottom/right), black outline, no rounding and no blur anywhere. Hovering
-// brightens the stone the way the game highlights a selected button; pressing
-// flips the bevel so the face sinks in.
 const MC_BUTTON =
   "relative flex h-17 w-17 cursor-pointer items-center justify-center border-0 bg-[#8b8b8b] text-white " +
   "[image-rendering:pixelated] " +
@@ -21,9 +16,6 @@ const MC_BUTTON =
   "focus-visible:[outline:none] focus-visible:[box-shadow:inset_4px_4px_0_0_#dcdcdc,inset_-4px_-4px_0_0_#5f5f5f,0_0_0_4px_#000000,0_0_0_7px_rgba(255,255,160,0.7),0_7px_0_4px_rgba(0,0,0,0.35)] " +
   "max-lg:h-15 max-lg:w-15";
 
-// In-game item tooltip: near-black purple panel, black outer edge with a violet
-// inner border, and pale yellow text with the offset dark shadow the game draws
-// under its glyphs. Sits to the left of the button and snaps in, no easing.
 const TOOLTIP =
   "pointer-events-none absolute top-1/2 right-full mr-4 whitespace-nowrap " +
   "bg-[#150015] px-3 py-2 font-rubber text-[0.95rem] leading-none text-white " +
@@ -35,8 +27,6 @@ const TOOLTIP =
   "group-focus-within:opacity-100 group-focus-within:[transform:translateY(-50%)_translateX(0)] " +
   "max-lg:hidden";
 
-// Pixel arrow drawn on a 9x9 grid, one rect per row, so the edges stair-step
-// like an in-game sprite instead of curving.
 const ARROW_ROWS: [x: number, y: number, w: number][] = [
   [4, 0, 1],
   [3, 1, 3],
@@ -60,13 +50,11 @@ export default function ScrollToTop() {
   }, []);
 
   const toTop = () => {
-    // Honour a reduced-motion preference by jumping instead of gliding.
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
   };
 
   return (
-    // The wrapper owns the fade/slide so the button keeps its own press transform.
     <div
       className={`group fixed right-8 bottom-8 z-500 [transition:opacity_240ms_ease,transform_240ms_cubic-bezier(.2,.9,.2,1)] max-lg:right-5 max-lg:bottom-5 ${
         visible
@@ -86,7 +74,6 @@ export default function ScrollToTop() {
           aria-hidden="true"
           className="animate-arrow-bounce will-change-transform motion-reduce:animate-none"
         >
-          {/* dark drop shadow one pixel down-right, the way in-game glyphs are drawn */}
           <g fill="#3f3f3f">
             {ARROW_ROWS.map(([x, y, w]) => (
               <rect key={`s${y}`} x={x + 1} y={y + 1} width={w} height={1} />

@@ -1,12 +1,12 @@
-import { contactSchema } from '@/lib/contact-validation';
-import { createTransporter, mailFrom, mailTo } from '@/lib/send-mail';
+import { contactSchema } from "@/lib/contact-validation";
+import { createTransporter, mailFrom, mailTo } from "@/lib/send-mail";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const result = contactSchema.safeParse(body);
     if (!result.success) {
-      return new Response(JSON.stringify({ error: 'validation', issues: result.error.issues }), { status: 422 });
+      return new Response(JSON.stringify({ error: "validation", issues: result.error.issues }), { status: 422 });
     }
 
     const data = result.data;
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
     return new Response(JSON.stringify({ ok: true }), { status: 200 });
   } catch (err) {
-    console.error('Contact API error:', err);
-    return new Response(JSON.stringify({ error: 'server_error' }), { status: 500 });
+    console.error("Contact API error:", err);
+    return new Response(JSON.stringify({ error: "server_error" }), { status: 500 });
   }
 }

@@ -2,23 +2,24 @@ import * as THREE from "three";
 import { BEDROCK, BEDROCK_PALETTE } from "./EndGateways";
 import { FACE, PALETTE } from "./EndIsland";
 
-// Steve's point of view for the ender pearl mini-game, in real 3D (three.js): standing on the End
-// island's end stone, looking out at the three End gateways (bedrock around a portal block, a
-// magenta beam through each) floating ahead in the dark purple End sky, with a few far islands.
-// Blocky Minecraft look: 1 unit = 1 block, 16x16 textures with hard pixels, flat side shading.
-
 type RGB = [number, number, number];
 
 const SKY = 0x150e1f;
-const EYE = new THREE.Vector3(0, 1.62, 3); // his eyes, standing on the island
-const START = new THREE.Vector3(-3.5, 3.2, 7.5); // the view drops in from behind him
-// Portal centres: About (left), Projects (middle, a little further off), Contact (right).
+const EYE = new THREE.Vector3(0, 1.62, 3);
+const START = new THREE.Vector3(-3.5, 3.2, 7.5);
 const PORTALS = [new THREE.Vector3(-4.3, 4, -5.5), new THREE.Vector3(0, 4.3, -7.5), new THREE.Vector3(4.3, 4, -5.5)];
-// Bedrock around each portal: a plus shape a block above and below it, and one more beyond each.
 const GATEWAY_BLOCKS: [number, number, number][] = [
   [0, 2, 0],
-  [0, 1, 0], [1, 1, 0], [-1, 1, 0], [0, 1, 1], [0, 1, -1],
-  [0, -1, 0], [1, -1, 0], [-1, -1, 0], [0, -1, 1], [0, -1, -1],
+  [0, 1, 0],
+  [1, 1, 0],
+  [-1, 1, 0],
+  [0, 1, 1],
+  [0, 1, -1],
+  [0, -1, 0],
+  [1, -1, 0],
+  [-1, -1, 0],
+  [0, -1, 1],
+  [0, -1, -1],
   [0, -2, 0],
 ];
 
@@ -36,21 +37,18 @@ function texture(rows: string[], palette: Record<string, RGB>) {
   return t;
 }
 
-// Minecraft's flat side shading: tops full bright, sides and bottoms darker.
 function shadedBox() {
   const g = new THREE.BoxGeometry(1, 1, 1);
-  const shade = [0.6, 0.6, 1, 0.5, 0.8, 0.8]; // +x, -x, +y, -y, +z, -z
+  const shade = [0.6, 0.6, 1, 0.5, 0.8, 0.8];
   const colours: number[] = [];
   for (let face = 0; face < 6; face++) for (let v = 0; v < 4; v++) colours.push(shade[face], shade[face], shade[face]);
   g.setAttribute("color", new THREE.Float32BufferAttribute(colours, 3));
   return g;
 }
 
-// The End island underfoot and a few distant ones: blocks inside a rough ellipse, the layers below
-// narrowing like an island's underside.
 function islandBlocks(cx: number, cz: number, rx: number, rz: number, top: number, depth: number, seed: number) {
   let s = seed;
-  const rand = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 2 ** 32);
+  const rand = () => (s = (s * 1664525 + 1013904223) >>> 0) / 2 ** 32;
   const out: [number, number, number][] = [];
   for (let layer = 0; layer < depth; layer++) {
     const shrink = 1 - layer / depth;
@@ -77,8 +75,6 @@ export function createPovScene(canvas: HTMLCanvasElement) {
   const box = shadedBox();
   const disposables: { dispose: () => void }[] = [box];
 
-  // The pixel specks from the home page's background, fixed in the sky all around: white and
-  // grey square dots, a few a little bigger.
   const dpr = renderer.getPixelRatio();
   for (const [count, size] of [
     [1600, 2],
@@ -87,7 +83,6 @@ export function createPovScene(canvas: HTMLCanvasElement) {
     const positions: number[] = [];
     const colours: number[] = [];
     for (let i = 0; i < count; i++) {
-      // an even spread over a big sphere (mostly above the horizon, where the sky shows)
       const y = Math.random() * 1.2 - 0.25;
       const r = Math.sqrt(Math.max(0, 1 - Math.min(1, y * y)));
       const a = Math.random() * Math.PI * 2;
@@ -103,7 +98,6 @@ export function createPovScene(canvas: HTMLCanvasElement) {
     disposables.push(geo, mat);
   }
 
-  // End stone: one instanced mesh for every block.
   const endStone = texture(FACE, PALETTE);
   const stoneMat = new THREE.MeshBasicMaterial({ map: endStone, vertexColors: true });
   const blocks = [
@@ -118,17 +112,17 @@ export function createPovScene(canvas: HTMLCanvasElement) {
   scene.add(island);
   disposables.push(endStone, stoneMat, island);
 
-  // The gateways.
   const bedrock = texture(BEDROCK, BEDROCK_PALETTE);
   const bedrockMat = new THREE.MeshBasicMaterial({ map: bedrock, vertexColors: true });
   const gate = new THREE.InstancedMesh(box, bedrockMat, GATEWAY_BLOCKS.length * PORTALS.length);
   PORTALS.forEach((p, g) =>
-    GATEWAY_BLOCKS.forEach(([x, y, z], i) => gate.setMatrixAt(g * GATEWAY_BLOCKS.length + i, m.makeTranslation(p.x + x, p.y + y, p.z + z))),
+    GATEWAY_BLOCKS.forEach(([x, y, z], i) =>
+      gate.setMatrixAt(g * GATEWAY_BLOCKS.length + i, m.makeTranslation(p.x + x, p.y + y, p.z + z)),
+    ),
   );
   scene.add(gate);
   disposables.push(bedrock, bedrockMat, gate);
 
-  // The portal blocks: a drifting starfield of teal and lavender specks on blue-black.
   const starCanvas = document.createElement("canvas");
   starCanvas.width = starCanvas.height = 32;
   const starCtx = starCanvas.getContext("2d")!;
@@ -160,7 +154,6 @@ export function createPovScene(canvas: HTMLCanvasElement) {
   scene.add(portals);
   disposables.push(stars, portalMat, portals, portals.geometry);
 
-  // The beams: a bright core and a soft glow, up into the sky and down onto the island.
   const beamCore = new THREE.MeshBasicMaterial({ color: 0xe592f2, fog: false });
   const beamGlow = new THREE.MeshBasicMaterial({
     color: 0xb84ad8,
@@ -186,7 +179,6 @@ export function createPovScene(canvas: HTMLCanvasElement) {
     }
   }
 
-  // The thrown pearl and the flare where it lands.
   const pearlTex = new THREE.TextureLoader().load("/assets/images/ender-pearl.png");
   pearlTex.magFilter = pearlTex.minFilter = THREE.NearestFilter;
   pearlTex.generateMipmaps = false;
@@ -206,16 +198,21 @@ export function createPovScene(canvas: HTMLCanvasElement) {
   fctx.fillStyle = grad;
   fctx.fillRect(0, 0, 64, 64);
   const flareTex = new THREE.CanvasTexture(flareCanvas);
-  const flareMat = new THREE.SpriteMaterial({ map: flareTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
+  const flareMat = new THREE.SpriteMaterial({
+    map: flareTex,
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    fog: false,
+  });
   const flare = new THREE.Sprite(flareMat);
   flare.visible = false;
   scene.add(flare);
   disposables.push(pearlTex, pearlMat, flareTex, flareMat);
 
-  // Where he looks: straight at the middle gateway, turned a little toward the pointer.
   const lookBase = new THREE.Vector3(0, 3.4, -7);
-  const aim = { x: 0, y: 0 }; // pointer, -1..1
-  const look = { x: 0, y: 0 }; // eased
+  const aim = { x: 0, y: 0 };
+  const look = { x: 0, y: 0 };
   let entering: { from: number; ms: number } | null = null;
   let throwing: { from: THREE.Vector3; to: THREE.Vector3; start: number; ms: number; done: () => void } | null = null;
   let flaring: { start: number; ms: number } | null = null;
@@ -228,8 +225,6 @@ export function createPovScene(canvas: HTMLCanvasElement) {
     if (!width || !height) return;
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
-    // 70deg tall on wide screens; on narrow ones (phones held upright) widen it so the view still
-    // takes in all three gateways side by side
     const wide = (2 * Math.atan(Math.tan((70 * Math.PI) / 360) * Math.max(1, 1.6 / camera.aspect)) * 180) / Math.PI;
     camera.fov = Math.min(105, wide);
     camera.updateProjectionMatrix();
@@ -244,7 +239,6 @@ export function createPovScene(canvas: HTMLCanvasElement) {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
 
-    // Dropping into his eyes, then free looking.
     const k = entering ? ease(Math.min(1, (now - entering.from) / entering.ms)) : 1;
     camera.position.lerpVectors(START, EYE, k);
     look.x += (aim.x - look.x) * Math.min(1, dt * 6);
@@ -262,7 +256,7 @@ export function createPovScene(canvas: HTMLCanvasElement) {
       const t = Math.min(1, (now - throwing.start) / throwing.ms);
       pearl.visible = true;
       pearl.position.lerpVectors(throwing.from, throwing.to, t);
-      pearl.position.y += Math.sin(t * Math.PI) * 1.6; // an arc
+      pearl.position.y += Math.sin(t * Math.PI) * 1.6;
       pearl.material.rotation = t * 10;
       if (t >= 1) {
         pearl.visible = false;
@@ -286,7 +280,6 @@ export function createPovScene(canvas: HTMLCanvasElement) {
   };
 
   return {
-    // Start drawing, dropping the view into his eyes over `ms`.
     enter(ms: number) {
       entering = { from: performance.now(), ms: Math.max(1, ms) };
       look.x = aim.x;
@@ -301,18 +294,22 @@ export function createPovScene(canvas: HTMLCanvasElement) {
       cancelAnimationFrame(raf);
       raf = 0;
     },
-    // The pointer, relative to the canvas (-1..1 each way, y up).
     setAim(x: number, y: number) {
       aim.x = Math.max(-1, Math.min(1, x));
       aim.y = Math.max(-1, Math.min(1, y));
     },
-    // Each portal's centre on screen, in CSS px from the canvas's top left, with its apparent size.
     portalsOnScreen() {
       const { width, height } = canvas.getBoundingClientRect();
       return PORTALS.map((p) => {
         const c = p.clone().project(camera);
-        const edge = p.clone().add(new THREE.Vector3(0.5, 0, 0)).project(camera);
-        const top = p.clone().add(new THREE.Vector3(0, 2.6, 0)).project(camera); // above the gateway
+        const edge = p
+          .clone()
+          .add(new THREE.Vector3(0.5, 0, 0))
+          .project(camera);
+        const top = p
+          .clone()
+          .add(new THREE.Vector3(0, 2.6, 0))
+          .project(camera);
         return {
           x: ((c.x + 1) / 2) * width,
           y: ((1 - c.y) / 2) * height,
@@ -321,7 +318,6 @@ export function createPovScene(canvas: HTMLCanvasElement) {
         };
       });
     },
-    // Throw from the hand (bottom right of the view) to portal `i`; `done` once it's there.
     throwTo(i: number, ms: number, done: () => void) {
       const towards = new THREE.Vector3(0.55, -0.45, 0.5).unproject(camera).sub(camera.position).normalize();
       const hand = camera.position.clone().addScaledVector(towards, 0.9);

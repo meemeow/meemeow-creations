@@ -4,15 +4,11 @@ import { useEffect, useRef, type RefObject } from "react";
 
 type Timer = ReturnType<typeof setTimeout>;
 
-/** Must match the opacity transition on ALT_LAYER in project-card-classes.ts. */
 const FADE_MS = 400;
 
 type PreviewCycleOptions = {
-  /** Alternate images to cross-fade through while the card is hovered. */
   images: string[];
-  /** Delay before the first alternate image appears. 0 shows it immediately. */
   startDelay: number;
-  /** Time each alternate image stays on screen. */
   cycleInterval: number;
 };
 
@@ -23,16 +19,6 @@ type PreviewCycle = {
   clear: () => void;
 };
 
-/**
- * Cross-fades a project card through its alternate screenshots by swapping the
- * background image of two stacked layers. Shared by the masonry and stacked
- * cards, which differ only in how long they wait and how fast they cycle.
- *
- * The incoming layer is raised above the outgoing one and fades in over it; the
- * outgoing layer is only hidden once that fade is done. Fading both at once
- * would leave the card showing two half-transparent screenshots mid-swap, which
- * reads as a blur pulse on every loop.
- */
 export function usePreviewCycle({ images, startDelay, cycleInterval }: PreviewCycleOptions): PreviewCycle {
   const cycleRef = useRef<Timer | null>(null);
   const startRef = useRef<Timer | null>(null);
@@ -53,7 +39,6 @@ export function usePreviewCycle({ images, startDelay, cycleInterval }: PreviewCy
     if (ref.current) ref.current.classList.remove("visible");
   };
 
-  /** Stack order decides which screenshot wins while the fade is running. */
   const setLayerDepth = (ref: RefObject<HTMLDivElement | null>, z: number) => {
     if (ref.current) ref.current.style.zIndex = String(z);
   };
@@ -84,7 +69,6 @@ export function usePreviewCycle({ images, startDelay, cycleInterval }: PreviewCy
       setLayerDepth(nextLayer, 3);
       setLayerDepth(prevLayer, 2);
       showLayer(nextLayer);
-      // The incoming layer is opaque by now, so dropping the old one is invisible.
       fadeRef.current = setTimeout(() => hideLayer(prevLayer), FADE_MS);
 
       activeRef.current = activeRef.current === "a" ? "b" : "a";
@@ -110,13 +94,15 @@ export function usePreviewCycle({ images, startDelay, cycleInterval }: PreviewCy
   };
 
   useEffect(() => {
+    const layerA = altARef.current;
+    const layerB = altBRef.current;
     return () => {
       clearTimers();
-      // Ensure any visible alt layers are hidden and their backgrounds cleared
-      hideLayer(altARef);
-      hideLayer(altBRef);
-      if (altARef.current) altARef.current.style.backgroundImage = "";
-      if (altBRef.current) altBRef.current.style.backgroundImage = "";
+      for (const layer of [layerA, layerB]) {
+        if (!layer) continue;
+        layer.classList.remove("visible");
+        layer.style.backgroundImage = "";
+      }
       activeRef.current = "a";
     };
   }, []);

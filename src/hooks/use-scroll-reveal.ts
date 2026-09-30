@@ -2,11 +2,6 @@
 
 import { useEffect, type RefObject } from "react";
 
-/**
- * Pops in every `[data-reveal]` element inside `containerRef` as it scrolls into view.
- * `tabFlag` is a window key: once anything has animated in this tab, later visits
- * show everything immediately instead of replaying the animation.
- */
 export function useScrollReveal(containerRef: RefObject<HTMLElement | null>, tabFlag: string) {
   useEffect(() => {
     const container = containerRef.current;
@@ -29,8 +24,7 @@ export function useScrollReveal(containerRef: RefObject<HTMLElement | null>, tab
           }
         });
       },
-      // Same trigger as the projects page: pop in as soon as a block peeks into view.
-      { root: null, rootMargin: "0px 0px -48px 0px", threshold: 0 }
+      { root: null, rootMargin: "0px 0px -48px 0px", threshold: 0 },
     );
     els.forEach((el) => obs.observe(el));
     return () => obs.disconnect();

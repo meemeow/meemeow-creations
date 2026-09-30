@@ -1,10 +1,11 @@
-// Per-letter glowing wave used inside the project "Visit Page" buttons.
 export default function WaveText({ text }: { text: string }) {
   return (
     <>
       {text.split("").map((ch, i) =>
         ch === " " ? (
-          <span key={i} className="inline-block w-[0.42rem]" aria-hidden="true">&nbsp;</span>
+          <span key={i} className="inline-block w-[0.42rem]" aria-hidden="true">
+            &nbsp;
+          </span>
         ) : (
           <span
             key={i}
@@ -13,7 +14,7 @@ export default function WaveText({ text }: { text: string }) {
           >
             {ch}
           </span>
-        )
+        ),
       )}
     </>
   );

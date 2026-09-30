@@ -4,9 +4,6 @@ import { usePreviewCycle } from "@/hooks/use-preview-cycle";
 import { altImagesMap, previewMap, type Project } from "@/data/projects";
 import { ALT_LAYER, CARD_SHELL, cardBackground } from "./project-card-classes";
 
-// Stacked card sizing: previews are always shown at the full 16:8 size (no
-// hover needed to expand). Hovering the row lifts the card; hovering the card
-// itself shows a small "images will cycle" dot after 1.5s.
 const STACKED_CARD =
   "h-auto aspect-[16/8] [transition:transform_200ms_ease,box-shadow_200ms_ease] " +
   "[.project-row:hover_&]:[transform:translateY(-4px)] [.project-row:hover_&]:[box-shadow:0_18px_36px_rgba(0,0,0,0.6)] " +
@@ -14,10 +11,6 @@ const STACKED_CARD =
   "[&:hover]:after:absolute [&:hover]:after:right-[10px] [&:hover]:after:bottom-[10px] [&:hover]:after:z-3 [&:hover]:after:h-[12px] [&:hover]:after:w-[12px] " +
   "[&:hover]:after:rounded-[50%] [&:hover]:after:bg-[rgba(255,255,255,0.4)] [&:hover]:after:opacity-0 [&:hover]:after:animate-indicator-in [&:hover]:after:content-['']";
 
-/**
- * Stacked-view row: waits 2s on hover before cycling previews. `className` sets the
- * wrapper width (default: full width, three fifths beside the text above 940px).
- */
 export default function ProjectRow({ p, className = "w-full above-940:w-3/5" }: { p: Project; className?: string }) {
   const altImages = altImagesMap[p.id] ?? [];
   const previewName = previewMap[p.id];

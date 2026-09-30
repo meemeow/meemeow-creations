@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ScrollMomentum from "@/components/layout/ScrollMomentum";
 import ScrollToTop from "@/components/ui/ScrollToTop";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +17,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Blocky pixel face for the Minecraft-style contact panel.
 const pressStart = Press_Start_2P({
   variable: "--font-press-start",
   weight: "400",
@@ -25,20 +25,32 @@ const pressStart = Press_Start_2P({
 });
 
 export const metadata: Metadata = {
-  title: "Meemeow Creations",
-  description: "Made by Memo",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  authors: [{ name: "Emerson Clamor" }],
+  alternates: { canonical: "./" },
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: "./",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${pressStart.variable} min-h-full`}>
-      {/* At least the visible screen's height: dvh follows mobile browsers' address bar showing
-          and hiding (plain vh assumes it's hidden, which made Home scroll on phones);
-          min-h-screen stays as the fallback for browsers without dvh. */}
       <body
         className="flex min-h-screen flex-col bg-background text-foreground antialiased [font-family:Arial,Helvetica,sans-serif]"
         style={{ minHeight: "100dvh" }}
