@@ -65,7 +65,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${arimo.variable} ${archivoBlack.variable} ${pressStart.variable} min-h-full`}>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} ${arimo.variable} ${archivoBlack.variable} ${pressStart.variable} min-h-full`}
+    >
       <body
         className="flex min-h-screen flex-col bg-background text-foreground antialiased [font-family:Arial,var(--font-arimo),Helvetica,sans-serif]"
         style={{ minHeight: "100dvh" }}
