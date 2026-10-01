@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Press_Start_2P } from "next/font/google";
+import { Arimo, Geist, Geist_Mono, Press_Start_2P } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -15,6 +15,13 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+// Metric-compatible Arial stand-in for devices without Arial (Android).
+const arimo = Arimo({
+  variable: "--font-arimo",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 const pressStart = Press_Start_2P({
@@ -50,9 +57,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${pressStart.variable} min-h-full`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${arimo.variable} ${pressStart.variable} min-h-full`}>
       <body
-        className="flex min-h-screen flex-col bg-background text-foreground antialiased [font-family:Arial,Helvetica,sans-serif]"
+        className="flex min-h-screen flex-col bg-background text-foreground antialiased [font-family:Arial,var(--font-arimo),Helvetica,sans-serif]"
         style={{ minHeight: "100dvh" }}
       >
         <Navbar />
