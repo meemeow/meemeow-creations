@@ -1,3 +1,5 @@
+import { HEAVY_HEADING } from "@/lib/fonts";
+
 export const EYEBROW =
   "flex max-w-[640px] items-center gap-4 font-pixel text-[0.7rem] uppercase tracking-[0.12em] text-white " +
   "[text-shadow:2px_2px_0_rgba(0,0,0,0.75)] upto-420:text-[0.6rem] " +
@@ -8,7 +10,7 @@ export const SUB_EYEBROW =
   "after:h-px after:flex-1 after:bg-[#1c1a19] after:[box-shadow:0_1px_0_#454140] after:content-['']";
 
 export const INTRO_NAME =
-  "font-extrabold leading-[1.05] text-white text-[3.5rem] max-2xl:text-[3rem] max-lg:text-[2.75rem] " +
+  `${HEAVY_HEADING} font-extrabold leading-[1.05] text-white text-[3.5rem] max-2xl:text-[3rem] max-lg:text-[2.75rem] ` +
   "upto-639:text-[2.25rem] upto-420:text-[2rem] upto-376:text-[1.75rem]";
 export const INTRO_SUMMARY =
   "mt-6 max-w-[640px] max-xl:max-w-none font-gotham font-medium leading-[1.7] text-gray-300 text-[1.0625rem] max-lg:text-[1rem] " +
@@ -45,7 +47,7 @@ export const BUTTON_ICON = "h-[22px] w-[22px] shrink-0 [image-rendering:pixelate
 export const SCHOOL = "mt-5 flex items-center gap-5 upto-639:mt-4 upto-639:gap-4";
 export const SCHOOL_SEAL = "h-[84px] w-auto shrink-0 max-lg:h-[72px] upto-639:h-[60px] upto-420:h-[52px]";
 export const SCHOOL_NAME =
-  "font-extrabold leading-[1.1] text-white text-[2.5rem] max-2xl:text-[2.25rem] max-lg:text-[2rem] " +
+  `${HEAVY_HEADING} font-extrabold leading-[1.1] text-white text-[2.5rem] max-2xl:text-[2.25rem] max-lg:text-[2rem] ` +
   "upto-639:text-[1.625rem] upto-420:text-[1.375rem] upto-376:text-[1.25rem]";
 export const DEGREE =
   "mt-5 max-w-[640px] font-gotham font-semibold text-gray-200 text-[1.25rem] leading-[1.4] max-2xl:text-[1.125rem] " +

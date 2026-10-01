@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import GlowHeading from "@/components/ui/GlowHeading";
+import { HEAVY_HEADING } from "@/lib/fonts";
 import { REVEAL } from "@/lib/reveal";
 import { EYEBROW } from "./about-classes";
 
@@ -23,7 +24,7 @@ const SECTION_INNER =
   "py-20 max-2xl:py-16 max-lg:py-14 upto-639:py-10 upto-420:py-8";
 
 const HEADING =
-  "text-[3rem] leading-[1.1] font-extrabold text-white text-balance " +
+  `${HEAVY_HEADING} text-[3rem] leading-[1.1] font-extrabold text-white text-balance ` +
   "max-2xl:text-[2.75rem] max-lg:text-[2.5rem] upto-639:text-[2.25rem] upto-420:text-[2rem] upto-376:text-[1.75rem]";
 
 const SHOWCASE_INNER =

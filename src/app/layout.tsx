@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Arimo, Geist, Geist_Mono, Press_Start_2P } from "next/font/google";
+import { Archivo_Black, Arimo, Geist, Geist_Mono, Press_Start_2P } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -20,6 +20,14 @@ const geistMono = Geist_Mono({
 // Metric-compatible Arial stand-in for devices without Arial (Android).
 const arimo = Arimo({
   variable: "--font-arimo",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+// Arial Black stand-in for heavy headings on devices without it.
+const archivoBlack = Archivo_Black({
+  variable: "--font-archivo-black",
+  weight: "400",
   subsets: ["latin"],
   display: "swap",
 });
@@ -57,7 +65,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${arimo.variable} ${pressStart.variable} min-h-full`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${arimo.variable} ${archivoBlack.variable} ${pressStart.variable} min-h-full`}>
       <body
         className="flex min-h-screen flex-col bg-background text-foreground antialiased [font-family:Arial,var(--font-arimo),Helvetica,sans-serif]"
         style={{ minHeight: "100dvh" }}

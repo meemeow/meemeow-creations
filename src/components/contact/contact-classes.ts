@@ -1,3 +1,5 @@
+import { HEAVY_HEADING } from "@/lib/fonts";
+
 export const MC_PANEL =
   "border-[3px] bg-[#2f2d2c] " +
   "border-t-[#3d3938] border-r-[#3d3938] border-b-[#000000] border-l-[#000000] " +
@@ -53,7 +55,7 @@ export const SLOT_TEXT = "min-w-0 truncate";
 export const WIDE_GRID = "min-[1920px]:mx-auto min-[1920px]:max-w-[max(1792px,calc(50vw+608px))]";
 
 export const HERO_TITLE =
-  "mb-3 text-[4rem] leading-[1.05] font-extrabold whitespace-nowrap min-[1920px]:text-[5rem] min-[1920px]:leading-[1.02] max-2xl:text-[3.75rem] max-lg:text-[3.25rem] " +
+  `mb-3 ${HEAVY_HEADING} text-[4rem] leading-[1.05] font-extrabold whitespace-nowrap min-[1920px]:text-[5rem] min-[1920px]:leading-[1.02] max-2xl:text-[3.75rem] max-lg:text-[3.25rem] ` +
   "upto-768:mx-auto upto-768:text-center upto-768:text-[2.75rem] upto-639:mb-2 upto-639:text-[clamp(1.2rem,calc(9.6vw-0.5rem),2.5rem)]";
 
 export const HERO_LINE =
