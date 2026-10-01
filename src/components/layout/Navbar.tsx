@@ -241,7 +241,7 @@ export default function Navbar() {
                 height={64}
               />
               <Image
-                src="/assets/images/logo%20medium.png"
+                src="/assets/images/logo-medium.png"
                 alt="Meemeow logo"
                 className="hidden h-[45px] w-auto max-w-none shrink-0 ml-[calc((140px_-_45px*1096/366)/2_+_45px*34/366_-_45px*76/385)] upto-420:block"
                 width={480}
