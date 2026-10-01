@@ -23,7 +23,7 @@ export default function ContactHero() {
         >
           <div
             data-reveal
-            className={`${REVEAL} relative flex min-h-[500px] items-center overflow-hidden px-20 py-12 min-[1135px]:min-h-[clamp(500px,calc(500px+(100vw-1135px)*0.25),600px)] max-lg:min-h-[320px] upto-639:min-h-[260px] upto-420:min-h-[220px] upto-376:min-h-[200px] max-lg:p-8 2xl:order-1 2xl:col-span-8 2xl:min-h-[600px] upto-768:p-6 upto-420:p-5 rounded-lg border-2 border-white/20 bg-white/5`}
+            className={`${REVEAL} relative flex min-h-[500px] items-center overflow-hidden px-20 py-12 min-[1135px]:min-h-[clamp(500px,calc(500px+(100vw-1135px)*0.25),600px)] max-lg:min-h-[320px] upto-639:min-h-[260px] upto-420:min-h-[220px] upto-376:min-h-[210px] max-lg:p-8 2xl:order-1 2xl:col-span-8 2xl:min-h-[600px] upto-768:p-6 upto-420:p-5 rounded-lg border-2 border-white/20 bg-white/5`}
           >
             <video
               className="pointer-events-none absolute inset-0 h-full w-full object-cover motion-reduce:hidden"
@@ -36,7 +36,7 @@ export default function ContactHero() {
             />
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.72)_0%,rgba(0,0,0,0.45)_60%,rgba(0,0,0,0.3)_100%)] upto-768:bg-[rgba(0,0,0,0.55)]"
+              className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.72)_0%,rgba(0,0,0,0.45)_60%,rgba(0,0,0,0.3)_100%)] upto-768:bg-none upto-768:bg-[rgba(0,0,0,0.45)]"
             />
             <div className="relative w-full text-center md:text-left">
               <h1 className={HERO_TITLE}>From Me to You</h1>
