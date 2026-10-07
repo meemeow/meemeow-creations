@@ -86,6 +86,7 @@ export default function ProjectsView() {
                   <div className="mt-4 max-lg:mt-3">
                     <a
                       aria-label={`Visit ${p.title}`}
+                      data-track={p.title}
                       href={p.url ?? "#"}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -115,6 +116,7 @@ export default function ProjectsView() {
                 <div className="mt-4 max-lg:mt-3">
                   <a
                     aria-label={`Visit ${p.title}`}
+                    data-track={p.title}
                     href={p.url ?? "#"}
                     target="_blank"
                     rel="noopener noreferrer"

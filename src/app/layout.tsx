@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ScrollMomentum from "@/components/layout/ScrollMomentum";
 import ScrollToTop from "@/components/ui/ScrollToTop";
+import Tracker from "@/components/layout/Tracker";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
 const geistSans = Geist({
@@ -79,6 +80,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </ScrollMomentum>
         <Footer />
         <ScrollToTop />
+        <Tracker />
       </body>
     </html>
   );

@@ -3,6 +3,7 @@ import Link from "next/link";
 import ProjectRow from "@/components/projects/ProjectRow";
 import { EPASIGLIB_STACK } from "@/data/about";
 import { projects } from "@/data/projects";
+import { FEATURED_LINK } from "@/lib/track";
 import {
   BUTTON_ICON,
   DEGREE,
@@ -42,7 +43,13 @@ export default function FeaturedProject() {
       </div>
 
       <div className={FEATURED_ACTIONS}>
-        <a href={EPASIGLIB.url} target="_blank" rel="noopener noreferrer" className={INTRO_BUTTON}>
+        <a
+          href={EPASIGLIB.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-track={FEATURED_LINK}
+          className={INTRO_BUTTON}
+        >
           <Image
             src="/assets/images/mc-zombie-chicken.webp"
             alt=""

@@ -50,16 +50,19 @@ Open [http://localhost:3000](http://localhost:3000).
 
 Set these in `.env.local` (and in your hosting provider's settings):
 
-| Variable               | Description                                                                                          |
-| ---------------------- | ---------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL` | Public URL of the site, used for the sitemap, canonical links, and link previews. Optional on Vercel |
-| `SMTP_HOST`            | SMTP server host                                                                                     |
-| `SMTP_PORT`            | SMTP port (default `587`)                                                                            |
-| `SMTP_SECURE`          | `true` for implicit TLS (port 465)                                                                   |
-| `SMTP_USER`            | SMTP username                                                                                        |
-| `SMTP_PASS`            | SMTP password or app password                                                                        |
-| `FROM_EMAIL`           | Sender address                                                                                       |
-| `TO_EMAIL`             | Where contact form messages are delivered                                                            |
+| Variable                   | Description                                                                                            |
+| -------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_SITE_URL`     | Public URL of the site, used for the sitemap, canonical links, and link previews. Optional on Vercel   |
+| `SMTP_HOST`                | SMTP server host                                                                                       |
+| `SMTP_PORT`                | SMTP port (default `587`)                                                                              |
+| `SMTP_SECURE`              | `true` for implicit TLS (port 465)                                                                     |
+| `SMTP_USER`                | SMTP username                                                                                          |
+| `SMTP_PASS`                | SMTP password or app password                                                                          |
+| `FROM_EMAIL`               | Sender address                                                                                         |
+| `TO_EMAIL`                 | Where contact form messages are delivered                                                              |
+| `UPSTASH_REDIS_REST_URL`   | Upstash Redis URL for click/scroll counters (`KV_REST_API_URL` from the Vercel integration also works) |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis token (`KV_REST_API_TOKEN` also works). Without Redis, counting is skipped               |
+| `STATS_KEY`                | Secret for the unlisted stats page at `/stats?key=<STATS_KEY>`                                         |
 
 ## Scripts
 
