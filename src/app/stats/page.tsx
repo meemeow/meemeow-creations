@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { CERT_DETAIL, CERT_GROUP_LABEL, CERT_NAME } from "@/components/about/about-classes";
-import { SKILL_CARD, SKILL_GRID, SKILL_GROUPS_GRID, SKILL_TILE } from "@/components/about/Skills";
+import { CERT_DETAIL, CERT_GROUP_LABEL, CERT_NAME, EYEBROW } from "@/components/about/about-classes";
+import { SKILL_CARD, SKILL_GRID, SKILL_GROUPS_GRID } from "@/components/about/Skills";
 import { redis } from "@/lib/redis";
 import { SCROLL_PAGES, SITE_URL } from "@/lib/site";
 import {
@@ -20,7 +20,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const COUNT_TILE = `${SKILL_TILE} w-auto! min-w-11 px-2 font-pixel text-[0.75rem] tabular-nums text-white`;
+const PAGE_INNER =
+  "mx-8 px-6 py-12 min-[768px]:mx-12 min-[1024px]:mx-20 min-[1280px]:mx-24 min-[1440px]:mx-28 min-[1600px]:mx-32 " +
+  "max-lg:py-10 upto-639:mx-4 upto-639:py-8 upto-467:px-[12px]";
+const COUNT = "ml-auto shrink-0 pl-2 font-pixel text-[0.875rem] tabular-nums text-white upto-639:text-[0.75rem]";
 
 type Stat = { name: string; detail: string; count: number };
 
@@ -33,11 +36,11 @@ function StatGroup({ label, stats }: { label: string; stats: Stat[] }) {
       <ul className={SKILL_GRID}>
         {stats.map((s) => (
           <li key={`${s.name}-${s.detail}`} className={SKILL_CARD}>
-            <span className={COUNT_TILE}>{s.count}</span>
             <span className="min-w-0">
-              <span className={`${CERT_NAME} break-all`}>{s.name}</span>
+              <span className={`${CERT_NAME} [overflow-wrap:anywhere]`}>{s.name}</span>
               <span className={CERT_DETAIL}>{s.detail}</span>
             </span>
+            <span className={COUNT}>{s.count}</span>
           </li>
         ))}
       </ul>
@@ -95,13 +98,15 @@ export default async function Stats({ searchParams }: { searchParams: Promise<{ 
 
   return (
     <main className="min-h-screen bg-[#0F0E0D] text-white">
-      <div className="mx-auto w-full max-w-[1200px] px-6 py-12 upto-639:px-4">
-        <h1 className="font-pixel text-[1.25rem] upto-639:text-[1rem]">Live View Statistics</h1>
-        {!redis && <p className="mt-4 text-gray-400">Redis isn&apos;t configured, so nothing is being counted.</p>}
-        <div className={SKILL_GROUPS_GRID}>
-          {groups.map((g) => (
-            <StatGroup key={g.label} {...g} />
-          ))}
+      <div className="mx-auto w-full max-w-[1920px]">
+        <div className={PAGE_INNER}>
+          <h1 className={`${EYEBROW} max-w-none`}>Live View Statistics</h1>
+          {!redis && <p className="mt-4 text-gray-400">Redis isn&apos;t configured, so nothing is being counted.</p>}
+          <div className={SKILL_GROUPS_GRID}>
+            {groups.map((g) => (
+              <StatGroup key={g.label} {...g} />
+            ))}
+          </div>
         </div>
       </div>
     </main>

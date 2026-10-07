@@ -8,7 +8,7 @@ export const SKILL_GRID = "grid grid-cols-2 gap-3 upto-420:grid-cols-1";
 export const SKILL_CARD =
   "flex h-full items-center gap-3 border-[3px] bg-[#2f2d2c] px-3 py-2.5 font-gotham " +
   "border-t-[#3d3938] border-r-[#3d3938] border-b-[#000000] border-l-[#000000] [box-shadow:0_6px_18px_rgba(0,0,0,0.45)]";
-export const SKILL_TILE =
+const SKILL_TILE =
   "flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-[#1c1b1a] [box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.08)]";
 const SKILL_LOGO = "h-6 w-6";
 const SKILL_LOGO_LARGE = "h-8 w-8";
