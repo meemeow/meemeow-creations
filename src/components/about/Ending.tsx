@@ -44,6 +44,7 @@ export default function Ending() {
         <a
           href="/assets/files/Clamor_Emerson_Resume_2026.pdf"
           download="Clamor_Emerson_Resume_2026.pdf"
+          data-resume="About (bottom)"
           className={INTRO_SLOT_BUTTON}
         >
           <Image

@@ -69,6 +69,7 @@ export default function Introduction() {
         <a
           href="/assets/files/Clamor_Emerson_Resume_2026.pdf"
           download="Clamor_Emerson_Resume_2026.pdf"
+          data-resume="About (top)"
           className={INTRO_SLOT_BUTTON}
         >
           <Image

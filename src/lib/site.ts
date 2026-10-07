@@ -9,3 +9,7 @@ export const SITE_DESCRIPTION =
   "Portfolio of Emerson Clamor, a frontend developer building with React, Next.js, and TypeScript.";
 
 export const ROUTES = ["/", "/about", "/projects", "/contact"] as const;
+
+// Pages whose scroll-to-end is counted; the landing scene doesn't scroll.
+export const SCROLL_PAGES = ["/about", "/projects", "/contact"] as const;
+export type ScrollPage = (typeof SCROLL_PAGES)[number];

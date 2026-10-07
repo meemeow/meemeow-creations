@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type RefObject } from "react";
+import { track as trackEvent } from "@/lib/track-client";
 import { warpTo } from "./gateway-warp";
 import type { PovScene } from "./pov-scene";
 
@@ -125,6 +126,7 @@ export default function PearlGame({
       if (disposed || phaseRef.current !== "turning") return;
       pov.current ??= createPovScene(canvas);
       go("warping");
+      trackEvent({ type: "game" });
       aim();
       pov.current.enter(reduced ? 0 : WARP_MS);
       show(true, WARP_MS * 0.5);
