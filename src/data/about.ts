@@ -134,6 +134,7 @@ export const SKILL_GROUPS: {
       { logo: "react", name: "React", detail: "UI library" },
       { logo: "nextdotjs", name: "Next.js", detail: "React framework" },
       { logo: "tailwindcss", name: "Tailwind CSS", detail: "Utility-first CSS" },
+      { logo: "bootstrap-color", name: "Bootstrap", detail: "CSS framework" },
       { logo: "mantine-white", name: "Mantine", detail: "Component library" },
     ],
   },
@@ -144,6 +145,7 @@ export const SKILL_GROUPS: {
       { logo: "firebase-brand", name: "Firestore", detail: "NoSQL database" },
       { logo: "php-color", name: "PHP", detail: "Server-side language", wide: true },
       { logo: "mysql-logo", name: "MySQL", detail: "Relational database", wide: true },
+      { logo: "codeigniter-color", name: "CodeIgniter", detail: "PHP framework" },
     ],
   },
   {
@@ -178,6 +180,7 @@ export const SKILL_GROUPS: {
     items: [
       { logo: "react", name: "React Native", detail: "Cross-platform apps" },
       { logo: "swift-white", name: "Swift", detail: "iOS apps" },
+      { logo: "androidstudio-color", name: "Android Studio", detail: "Android apps" },
     ],
   },
 ];
