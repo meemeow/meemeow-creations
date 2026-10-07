@@ -12,9 +12,9 @@ export const metadata: Metadata = {
 };
 
 const PAGE_INNER =
-  "mx-8 px-6 py-12 min-[768px]:mx-12 min-[1024px]:mx-20 min-[1280px]:mx-24 min-[1440px]:mx-28 min-[1600px]:mx-32 " +
-  "max-lg:py-10 upto-639:mx-4 upto-639:py-8 upto-467:px-[12px]";
-const STAT_CARD = `${SKILL_CARD} px-5! py-3.5! upto-639:px-4! upto-639:py-3!`;
+  "mx-8 px-6 py-8 min-[768px]:mx-12 min-[1024px]:mx-20 min-[1280px]:mx-24 min-[1440px]:mx-28 min-[1600px]:mx-32 " +
+  "upto-639:mx-4 upto-467:px-[12px]";
+const STAT_CARD = `${SKILL_CARD} px-5! py-2.5! upto-639:px-4!`;
 const COUNT = `${SKILL_TILE} ml-auto w-auto! min-w-11 px-2 font-pixel text-[0.75rem] tabular-nums text-white`;
 
 type Stat = { name: string; count: number; wide?: boolean };
@@ -82,12 +82,12 @@ export default async function Stats({ searchParams }: { searchParams: Promise<{ 
   ];
 
   return (
-    <main className="min-h-screen bg-[#0F0E0D] text-white">
+    <main className="bg-[#0F0E0D] text-white">
       <div className="mx-auto w-full max-w-[1920px]">
         <div className={PAGE_INNER}>
           <h1 className={`${EYEBROW} max-w-none`}>Live View Statistics</h1>
           {!redis && <p className="mt-4 text-gray-400">Redis isn&apos;t configured, so nothing is being counted.</p>}
-          <div className={SKILL_GROUPS_GRID}>
+          <div className={`${SKILL_GROUPS_GRID} lg:gap-y-6`}>
             {groups.map((g) => (
               <StatGroup key={g.label} {...g} />
             ))}
