@@ -1,16 +1,21 @@
 "use client";
 
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef, type CSSProperties, type RefObject } from "react";
+import type { PreviewImage } from "@/data/projects";
 
 type Timer = ReturnType<typeof setTimeout>;
 
-const FADE_MS = 400;
-
 type PreviewCycleOptions = {
-  images: string[];
+  images: PreviewImage[];
   startDelay: number;
   cycleInterval: number;
+  fadeMs?: number;
 };
+
+export function previewBackground(img: PreviewImage): CSSProperties {
+  if (typeof img === "string") return { backgroundImage: `url('${img}')` };
+  return { backgroundImage: `url('${img.light}')`, "--dark-src": `url('${img.dark}')` } as CSSProperties;
+}
 
 type PreviewCycle = {
   altARef: RefObject<HTMLDivElement | null>;
@@ -19,7 +24,12 @@ type PreviewCycle = {
   clear: () => void;
 };
 
-export function usePreviewCycle({ images, startDelay, cycleInterval }: PreviewCycleOptions): PreviewCycle {
+export function usePreviewCycle({
+  images,
+  startDelay,
+  cycleInterval,
+  fadeMs = 400,
+}: PreviewCycleOptions): PreviewCycle {
   const cycleRef = useRef<Timer | null>(null);
   const startRef = useRef<Timer | null>(null);
   const fadeRef = useRef<Timer | null>(null);
@@ -27,8 +37,16 @@ export function usePreviewCycle({ images, startDelay, cycleInterval }: PreviewCy
   const altBRef = useRef<HTMLDivElement | null>(null);
   const activeRef = useRef<"a" | "b">("a");
 
-  const setLayerBg = (ref: RefObject<HTMLDivElement | null>, src: string) => {
-    if (ref.current) ref.current.style.backgroundImage = `url('${src}')`;
+  const setLayerBg = (ref: RefObject<HTMLDivElement | null>, img: PreviewImage) => {
+    const layer = ref.current;
+    if (!layer) return;
+    if (typeof img === "string") {
+      layer.style.backgroundImage = `url('${img}')`;
+      layer.style.removeProperty("--dark-src");
+    } else {
+      layer.style.backgroundImage = `url('${img.light}')`;
+      layer.style.setProperty("--dark-src", `url('${img.dark}')`);
+    }
   };
 
   const showLayer = (ref: RefObject<HTMLDivElement | null>) => {
@@ -69,7 +87,7 @@ export function usePreviewCycle({ images, startDelay, cycleInterval }: PreviewCy
       setLayerDepth(nextLayer, 3);
       setLayerDepth(prevLayer, 2);
       showLayer(nextLayer);
-      fadeRef.current = setTimeout(() => hideLayer(prevLayer), FADE_MS);
+      fadeRef.current = setTimeout(() => hideLayer(prevLayer), fadeMs);
 
       activeRef.current = activeRef.current === "a" ? "b" : "a";
       cycleRef.current = setTimeout(advance, cycleInterval);
@@ -102,6 +120,7 @@ export function usePreviewCycle({ images, startDelay, cycleInterval }: PreviewCy
         if (!layer) continue;
         layer.classList.remove("visible");
         layer.style.backgroundImage = "";
+        layer.style.removeProperty("--dark-src");
       }
       activeRef.current = "a";
     };

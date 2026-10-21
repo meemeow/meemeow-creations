@@ -1,8 +1,9 @@
 "use client";
 
-import { usePreviewCycle } from "@/hooks/use-preview-cycle";
+import { previewBackground, usePreviewCycle } from "@/hooks/use-preview-cycle";
+import { usePreviewTilt } from "@/hooks/use-preview-tilt";
 import { altImagesMap, previewMap, type Project } from "@/data/projects";
-import { ALT_LAYER, CARD_SHELL, cardBackground } from "./project-card-classes";
+import { ALT_LAYER, CARD_SHELL, SHINE, SPLIT_DARK, WIPE_LAYER, WIPE_MS, cardBackground } from "./project-card-classes";
 
 const STACKED_CARD =
   "h-auto aspect-[16/8] [transition:transform_200ms_ease,box-shadow_200ms_ease] " +
@@ -13,31 +14,37 @@ const STACKED_CARD =
 
 export default function ProjectRow({ p, className = "w-full above-940:w-3/5" }: { p: Project; className?: string }) {
   const altImages = altImagesMap[p.id] ?? [];
-  const previewName = previewMap[p.id];
-  const hasPreview = !!previewName;
+  const preview = previewMap[p.id];
+  const hasPreview = !!preview;
+  const isSplit = hasPreview && typeof preview !== "string";
+  const layerClass = isSplit ? WIPE_LAYER : ALT_LAYER;
 
   const { altARef, altBRef, start, clear } = usePreviewCycle({
     images: altImages,
-    startDelay: 2000,
-    cycleInterval: 2000,
+    startDelay: isSplit ? 5000 : 2000,
+    cycleInterval: isSplit ? 5000 : 2000,
+    fadeMs: isSplit ? WIPE_MS : undefined,
   });
+  const tilt = usePreviewTilt(isSplit);
 
   return (
     <div className={className}>
       <div
-        className={`${CARD_SHELL} ${cardBackground(hasPreview, false)} ${STACKED_CARD}`}
-        style={hasPreview ? { backgroundImage: `url('/assets/images/${previewName}')` } : undefined}
+        className={`${CARD_SHELL} ${cardBackground(hasPreview, false)} ${isSplit ? SPLIT_DARK : ""} ${STACKED_CARD}`}
+        style={hasPreview ? previewBackground(preview) : undefined}
         onMouseEnter={() => hasPreview && start()}
         onMouseLeave={clear}
         onTouchStart={() => hasPreview && start()}
         onTouchEnd={clear}
+        {...tilt}
       >
         {hasPreview && (
           <>
-            <div ref={altARef} className={ALT_LAYER} />
-            <div ref={altBRef} className={ALT_LAYER} />
+            <div ref={altARef} className={layerClass} />
+            <div ref={altBRef} className={layerClass} />
           </>
         )}
+        {isSplit && <span className={SHINE} aria-hidden="true" />}
       </div>
     </div>
   );

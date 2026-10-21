@@ -5,7 +5,16 @@ export type Project = {
   url?: string;
 };
 
+// A split preview shows the dark and light themes side by side, cut diagonally.
+export type PreviewImage = string | { dark: string; light: string };
+
 export const projects: Project[] = [
+  {
+    id: 4,
+    title: "Sakura",
+    desc: "A Cherry Blossom-Themed Online Casino Platform with GCash and Maya Wallets, VIP Tiers, and Light and Dark Modes",
+    url: "https://meemeow.github.io/sakura-ecasino/",
+  },
   {
     id: 1,
     title: "ePasigLib",
@@ -26,13 +35,19 @@ export const projects: Project[] = [
   },
 ];
 
-export const previewMap: Record<number, string> = {
-  1: "PKC_preview1.png",
-  2: "cattachasm_preview1.png",
-  3: "MGC_preview1.png",
+const sakura = (screen: string) => ({
+  dark: `/assets/images/sakura_${screen}_dark.png`,
+  light: `/assets/images/sakura_${screen}_light.png`,
+});
+
+export const previewMap: Record<number, PreviewImage> = {
+  1: "/assets/images/PKC_preview1.png",
+  2: "/assets/images/cattachasm_preview1.png",
+  3: "/assets/images/MGC_preview1.png",
+  4: sakura("login"),
 };
 
-export const altImagesMap: Record<number, string[]> = {
+export const altImagesMap: Record<number, PreviewImage[]> = {
   1: [
     "/assets/images/PKC_preview2.png",
     "/assets/images/PKC_preview3.png",
@@ -51,4 +66,5 @@ export const altImagesMap: Record<number, string[]> = {
     "/assets/images/MGC_preview4.png",
     "/assets/images/MGC_preview1.png",
   ],
+  4: [sakura("account"), sakura("wallet"), sakura("vip"), sakura("login")],
 };

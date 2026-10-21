@@ -68,8 +68,8 @@ export default function ProjectsView() {
           ref={masonryRef}
           className="flex flex-col gap-[240px] [transition:gap_260ms_ease] min-[1024px]:upto-1439:gap-[clamp(120px,calc(120px+(100vw-1024px)*0.2884615385),240px)]"
         >
-          {projects.map((p) => {
-            const isEven = p.id % 2 === 0;
+          {projects.map((p, i) => {
+            const isEven = i % 2 === 1;
             return (
               <article
                 key={p.id}
