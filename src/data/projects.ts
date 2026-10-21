@@ -12,7 +12,7 @@ export const projects: Project[] = [
   {
     id: 4,
     title: "Sakura",
-    desc: "A Cherry Blossom-Themed Online Casino Platform with GCash and Maya Wallets, VIP Tiers, and Light and Dark Modes",
+    desc: "A Non-Commercial Demo Casino with Play-Money Wallets, Simulated Deposits, and Recreated Slot Games",
     url: "https://meemeow.github.io/sakura-ecasino/",
   },
   {
