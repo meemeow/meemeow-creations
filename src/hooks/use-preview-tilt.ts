@@ -10,18 +10,18 @@ const SETTLE_MS = 500;
 // from -8% to 108% for the dark half to fully disappear and fully cover the card.
 const SPLIT_OVERSHOOT = 8;
 
-// Tilts the card toward the mouse and moves the dark/light split to follow it.
+// Tilts the card toward the mouse and, on split previews, moves the dark/light split to follow it.
 // Mouse only, so touch keeps the card flat and the split centred.
-export function usePreviewTilt(enabled: boolean) {
+export function usePreviewTilt(split: boolean) {
   const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
-    if (!enabled || e.pointerType !== "mouse") return;
+    if (e.pointerType !== "mouse") return;
     const el = e.currentTarget;
     const r = el.getBoundingClientRect();
     const x = (e.clientX - r.left) / r.width;
     const y = (e.clientY - r.top) / r.height;
 
     el.style.setProperty("--tx", String(x - 0.5));
-    el.style.setProperty("--split", `${x * (100 + SPLIT_OVERSHOOT * 2) - SPLIT_OVERSHOOT}%`);
+    if (split) el.style.setProperty("--split", `${x * (100 + SPLIT_OVERSHOOT * 2) - SPLIT_OVERSHOOT}%`);
     el.style.setProperty("--split-ms", `${FOLLOW_MS}ms`);
     el.style.transform =
       `perspective(${PERSPECTIVE}) translateY(-4px) ` +
@@ -30,7 +30,6 @@ export function usePreviewTilt(enabled: boolean) {
   };
 
   const onPointerLeave = (e: PointerEvent<HTMLDivElement>) => {
-    if (!enabled) return;
     const el = e.currentTarget;
     el.style.removeProperty("--tx");
     el.style.removeProperty("--split");

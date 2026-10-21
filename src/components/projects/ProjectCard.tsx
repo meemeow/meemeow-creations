@@ -23,8 +23,8 @@ export default function ProjectCard({ p, isEven }: { p: Project; isEven: boolean
 
   const { altARef, altBRef, start, clear } = usePreviewCycle({
     images: altImages,
-    startDelay: isSplit ? 5000 : 0,
-    cycleInterval: isSplit ? 5000 : 3000,
+    startDelay: isSplit ? 5000 : 1500,
+    cycleInterval: isSplit ? 5000 : 3500,
     fadeMs: isSplit ? WIPE_MS : undefined,
   });
   const tilt = usePreviewTilt(isSplit);
@@ -46,7 +46,7 @@ export default function ProjectCard({ p, isEven }: { p: Project; isEven: boolean
             <div ref={altBRef} className={layerClass} />
           </>
         )}
-        {isSplit && <span className={SHINE} aria-hidden="true" />}
+        {hasPreview && <span className={SHINE} aria-hidden="true" />}
         {p.inProgress && <span className={PENDING_LABEL}>In Progress</span>}
       </div>
     </div>
