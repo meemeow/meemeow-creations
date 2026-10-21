@@ -132,6 +132,7 @@ export const SKILL_GROUPS: {
       { logo: "javascript-white", name: "JavaScript", detail: "Language" },
       { logo: "typescript-white", name: "TypeScript", detail: "Typed JavaScript" },
       { logo: "react", name: "React", detail: "UI library" },
+      { logo: "vue-color", name: "Vue.js", detail: "Progressive framework" },
       { logo: "nextdotjs", name: "Next.js", detail: "React framework" },
       { logo: "tailwindcss", name: "Tailwind CSS", detail: "Utility-first CSS" },
       { logo: "bootstrap-color", name: "Bootstrap", detail: "CSS framework" },
