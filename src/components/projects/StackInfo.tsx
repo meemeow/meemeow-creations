@@ -53,7 +53,12 @@ export default function StackInfo({
   return (
     <span className="relative inline-flex items-center gap-3 max-lg:gap-2.5">
       <span>{children}</span>
-      <button type="button" aria-label="Project details" aria-describedby={id} className={`${ICON} ${SIDE[align].icon}`}>
+      <button
+        type="button"
+        aria-label="Project details"
+        aria-describedby={id}
+        className={`${ICON} ${SIDE[align].icon}`}
+      >
         <svg viewBox="0 0 16 16" className="h-[62%] w-[62%]" fill="currentColor" aria-hidden="true">
           <rect x="6.6" y="6.6" width="2.8" height="7" rx="1.4" />
           <circle cx="8" cy="3.6" r="1.6" />
@@ -63,7 +68,14 @@ export default function StackInfo({
         <span className={LABEL}>Development</span>
         <span className="flex items-center justify-between gap-4">
           <span className="flex items-center gap-2 text-[0.88rem] font-medium text-white">
-            <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+            <svg
+              viewBox="0 0 16 16"
+              className="h-3.5 w-3.5 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              aria-hidden="true"
+            >
               <rect x="2" y="3" width="12" height="11" rx="2" />
               <path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" strokeLinecap="round" />
             </svg>
