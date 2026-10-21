@@ -7,6 +7,10 @@ export const cardBackground = (hasPreview: boolean, masonry: boolean) =>
     ? "bg-[url('/assets/images/PKC_preview1.png')] bg-[length:100%_auto] bg-center bg-no-repeat upto-940:bg-cover"
     : `bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))] backdrop-blur-[6px]${masonry ? " bg-cover bg-center" : ""}`;
 
+export const PENDING_LABEL =
+  "pointer-events-none absolute inset-0 flex items-center justify-center font-rye text-[2rem] tracking-[1px] text-white/35 " +
+  "max-lg:text-[1.5rem] upto-467:text-[1.25rem]";
+
 export const ALT_LAYER =
   "alt-layer pointer-events-none absolute inset-0 z-2 rounded-[inherit] bg-[length:100%_auto] bg-center bg-no-repeat " +
   "opacity-0 [transition:opacity_400ms_ease] [&.visible]:opacity-100 upto-940:bg-cover";
@@ -19,11 +23,12 @@ export const SPLIT_DARK =
   "before:[clip-path:polygon(0_0,calc(var(--split,50%)_+_8%)_0,calc(var(--split,50%)_-_8%)_100%,0_100%)] " +
   "before:[transition:clip-path_var(--split-ms,500ms)_ease-out] upto-940:before:bg-cover";
 
-// Holographic streak that slides across as the card tilts.
+// Soft white glare that follows the mouse as the card tilts; hidden until hover so it never tints the screenshot.
 export const SHINE =
-  "pointer-events-none absolute inset-0 z-4 mix-blend-screen bg-[length:250%_100%] " +
-  "bg-[linear-gradient(115deg,transparent_32%,rgb(255_150_200/0.12)_42%,rgb(160_200_255/0.12)_50%,rgb(255_236_160/0.1)_58%,transparent_68%)] " +
-  "[background-position:calc(50%_-_var(--tx,0)_*_120%)_0] [transition:background-position_var(--split-ms,500ms)_ease-out]";
+  "pointer-events-none absolute inset-0 z-4 rounded-[inherit] mix-blend-soft-light bg-[length:250%_100%] opacity-0 " +
+  "bg-[linear-gradient(115deg,transparent_42%,rgb(255_255_255/0.1)_50%,transparent_58%)] " +
+  "[background-position:calc(50%_-_var(--tx,0)_*_120%)_0] [:hover>&]:opacity-100 " +
+  "[transition:background-position_var(--split-ms,500ms)_ease-out,opacity_300ms_ease]";
 
 // Wipes the next slide in along the same slant as the split instead of fading it.
 export const WIPE_MS = 700;

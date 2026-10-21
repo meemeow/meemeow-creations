@@ -4,7 +4,7 @@ import { ROUTES, SCROLL_PAGES } from "@/lib/site";
 
 export const FEATURED_LINK = "ePasigLib (About)";
 
-export const TRACKED_LINKS = [...projects.map((p) => p.title), FEATURED_LINK];
+export const TRACKED_LINKS = [...projects.filter((p) => p.url).map((p) => p.title), FEATURED_LINK];
 
 export const RESUME_BUTTONS = ["About (top)", "About (bottom)"] as const;
 

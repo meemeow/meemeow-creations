@@ -3,7 +3,16 @@
 import { previewBackground, usePreviewCycle } from "@/hooks/use-preview-cycle";
 import { usePreviewTilt } from "@/hooks/use-preview-tilt";
 import { altImagesMap, previewMap, type Project } from "@/data/projects";
-import { ALT_LAYER, CARD_SHELL, SHINE, SPLIT_DARK, WIPE_LAYER, WIPE_MS, cardBackground } from "./project-card-classes";
+import {
+  ALT_LAYER,
+  CARD_SHELL,
+  PENDING_LABEL,
+  SHINE,
+  SPLIT_DARK,
+  WIPE_LAYER,
+  WIPE_MS,
+  cardBackground,
+} from "./project-card-classes";
 
 const STACKED_CARD =
   "h-auto aspect-[16/8] [transition:transform_200ms_ease,box-shadow_200ms_ease] " +
@@ -45,6 +54,7 @@ export default function ProjectRow({ p, className = "w-full above-940:w-3/5" }: 
           </>
         )}
         {isSplit && <span className={SHINE} aria-hidden="true" />}
+        {p.inProgress && <span className={PENDING_LABEL}>In Progress</span>}
       </div>
     </div>
   );

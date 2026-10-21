@@ -3,7 +3,16 @@
 import { previewBackground, usePreviewCycle } from "@/hooks/use-preview-cycle";
 import { usePreviewTilt } from "@/hooks/use-preview-tilt";
 import { altImagesMap, previewMap, type Project } from "@/data/projects";
-import { ALT_LAYER, CARD_SHELL, SHINE, SPLIT_DARK, WIPE_LAYER, WIPE_MS, cardBackground } from "./project-card-classes";
+import {
+  ALT_LAYER,
+  CARD_SHELL,
+  PENDING_LABEL,
+  SHINE,
+  SPLIT_DARK,
+  WIPE_LAYER,
+  WIPE_MS,
+  cardBackground,
+} from "./project-card-classes";
 
 export default function ProjectCard({ p, isEven }: { p: Project; isEven: boolean }) {
   const altImages = altImagesMap[p.id] ?? [];
@@ -38,6 +47,7 @@ export default function ProjectCard({ p, isEven }: { p: Project; isEven: boolean
           </>
         )}
         {isSplit && <span className={SHINE} aria-hidden="true" />}
+        {p.inProgress && <span className={PENDING_LABEL}>In Progress</span>}
       </div>
     </div>
   );

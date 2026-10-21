@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import WaveText from "@/components/ui/WaveText";
-import { projects } from "@/data/projects";
+import { projects, type Project } from "@/data/projects";
 import { REVEAL } from "@/lib/reveal";
 import ProjectCard from "./ProjectCard";
 import ProjectRow from "./ProjectRow";
+import StackInfo from "./StackInfo";
 import { useProjectReveal, type ProjectView } from "./use-project-reveal";
 import ViewToggle from "./ViewToggle";
 
@@ -31,6 +32,30 @@ const VISIT =
   "upto-639:text-[0.875rem] upto-420:text-[0.85rem] upto-376:text-[0.8rem] " +
   "max-md:min-w-[140px] md:max-[941px]:min-w-[170px] min-[941px]:max-xl:min-w-[150px] xl:min-w-[170px] 2xl:min-w-[180px] " +
   "upto-940:px-7 upto-639:mx-auto upto-639:flex upto-639:w-fit upto-467:my-2 upto-467:py-[0.5rem]";
+
+const PENDING = `${VISIT.replace("cursor-pointer", "cursor-default")} opacity-60`;
+
+function VisitButton({ p, label }: { p: Project; label: string }) {
+  if (p.inProgress) {
+    return (
+      <span aria-disabled="true" className={PENDING}>
+        In Progress
+      </span>
+    );
+  }
+  return (
+    <a
+      aria-label={`Visit ${p.title}`}
+      data-track={p.title}
+      href={p.url ?? "#"}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={VISIT}
+    >
+      <WaveText text={label} />
+    </a>
+  );
+}
 
 export default function ProjectsView() {
   const [view, setView] = useState<ProjectView>("masonry");
@@ -81,19 +106,14 @@ export default function ProjectsView() {
                     isEven ? "md:pr-4 above-940:text-left" : "md:pl-4 above-940:text-right"
                   }`}
                 >
-                  <div className={`mb-1 ${TITLE}`}>{p.title}</div>
+                  <div className={`mb-1 ${TITLE}`}>
+                    <StackInfo stack={p.stack} period={p.period} align={isEven ? "left" : "right"}>
+                      {p.title}
+                    </StackInfo>
+                  </div>
                   <div className={DESC}>{p.desc}</div>
                   <div className="mt-4 max-lg:mt-3">
-                    <a
-                      aria-label={`Visit ${p.title}`}
-                      data-track={p.title}
-                      href={p.url ?? "#"}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={VISIT}
-                    >
-                      <WaveText text="Visit Page" />
-                    </a>
+                    <VisitButton p={p} label="Visit Page" />
                   </div>
                 </div>
               </article>
@@ -111,19 +131,14 @@ export default function ProjectsView() {
               <div
                 className={`${META} w-full text-right above-940:w-2/5 above-940:[.project-row:hover_&]:[transform:translateY(-6px)]`}
               >
-                <div className={`mb-2 ${TITLE}`}>{p.title}</div>
+                <div className={`mb-2 ${TITLE}`}>
+                  <StackInfo stack={p.stack} period={p.period} align="right">
+                    {p.title}
+                  </StackInfo>
+                </div>
                 <div className={`whitespace-pre-line ${DESC}`}>{p.desc}</div>
                 <div className="mt-4 max-lg:mt-3">
-                  <a
-                    aria-label={`Visit ${p.title}`}
-                    data-track={p.title}
-                    href={p.url ?? "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={VISIT}
-                  >
-                    <WaveText text="Visit page" />
-                  </a>
+                  <VisitButton p={p} label="Visit page" />
                 </div>
               </div>
             </article>
