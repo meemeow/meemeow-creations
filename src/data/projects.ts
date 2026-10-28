@@ -31,6 +31,14 @@ export const projects: Project[] = [
     inProgress: true,
   },
   {
+    id: 7,
+    title: "Marci Metzger Homes",
+    desc: "A Technical Assessment Redesigning a Pahrump Realtor's Website, Rebuilt with Property Search, Services, and a Photo Gallery",
+    url: "https://clamor-marcimetzger.vercel.app/",
+    stack: ["Next.js", "React", "TypeScript", "Tailwind CSS"],
+    period: "Oct 2026",
+  },
+  {
     id: 4,
     title: "Sakura",
     desc: "A Non-Commercial Demo Casino with Play-Money Wallets, Simulated Deposits, and Recreated Slot Games",
@@ -98,6 +106,7 @@ export const previewMap: Record<number, PreviewImage> = {
   2: "/assets/images/cattachasm_preview1.png",
   3: "/assets/images/MGC_preview1.png",
   4: sakura("login"),
+  7: "/assets/images/marcimetzger_preview1.png",
 };
 
 export const altImagesMap: Record<number, PreviewImage[]> = {
@@ -120,4 +129,10 @@ export const altImagesMap: Record<number, PreviewImage[]> = {
     "/assets/images/MGC_preview1.png",
   ],
   4: [sakura("account"), sakura("wallet"), sakura("vip"), sakura("login")],
+  7: [
+    "/assets/images/marcimetzger_preview2.png",
+    "/assets/images/marcimetzger_preview3.png",
+    "/assets/images/marcimetzger_preview4.png",
+    "/assets/images/marcimetzger_preview1.png",
+  ],
 };

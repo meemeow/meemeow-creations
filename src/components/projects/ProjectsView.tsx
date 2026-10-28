@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import WaveText from "@/components/ui/WaveText";
 import { projects, type Project } from "@/data/projects";
+import { INTRO_SLOT_BUTTON } from "@/components/about/about-classes";
 import { REVEAL } from "@/lib/reveal";
 import ProjectCard from "./ProjectCard";
 import ProjectRow from "./ProjectRow";
@@ -14,26 +15,40 @@ const META =
   "[transition:transform_220ms_cubic-bezier(.2,.9,.2,1),opacity_220ms_ease] will-change-[transform,opacity] " +
   "upto-639:text-center upto-467:px-2 upto-467:py-1 min-[1024px]:upto-1279:gap-[0.4rem]";
 
+const TITLE_BASE = "font-rye font-semibold tracking-[0.2px] leading-[1.1] ";
+
 const TITLE =
-  "font-rye font-semibold tracking-[0.2px] leading-[1.1] text-[2.25rem] " +
-  "max-2xl:text-[1.875rem] max-lg:text-[1.75rem] upto-639:text-[1.625rem] upto-420:text-[1.5rem] upto-376:text-[1.375rem]";
+  TITLE_BASE +
+  "text-[2.25rem] max-2xl:text-[1.875rem] max-lg:text-[1.75rem] upto-639:text-[1.625rem] upto-420:text-[1.5rem] upto-376:text-[1.375rem]";
+
+// Titles this long wrap to two lines at the normal size in the masonry view, so they get a smaller one to stay on one line.
+const LONG_TITLE_CHARS = 18;
+const TITLE_LONG =
+  TITLE_BASE +
+  "text-[1.875rem] max-2xl:text-[1.625rem] max-lg:text-[1.5rem] upto-639:text-[1.5rem] upto-420:text-[1.375rem] upto-376:text-[1.25rem]";
+
+const titleClass = (title: string) => (title.length >= LONG_TITLE_CHARS ? TITLE_LONG : TITLE);
 
 const DESC =
   "font-gotham font-medium text-gray-300 text-[1.0625rem] leading-[1.5] " +
   "max-2xl:text-[1rem] max-lg:text-[0.9375rem] max-lg:leading-[1.45] " +
   "upto-639:text-[0.9rem] upto-420:text-[0.875rem] upto-376:text-[0.8125rem]";
 
-const VISIT =
-  "inline-flex cursor-pointer items-center justify-center rounded-[10px] border border-[rgba(255,255,255,0.08)] bg-black px-6 py-[0.64rem] font-gotham font-medium text-[1rem] text-white no-underline " +
-  "[box-shadow:0_6px_22px_rgba(0,0,0,0.6),0_0_10px_rgba(255,255,255,0.04)_inset] " +
-  "[transition:transform_160ms_cubic-bezier(.2,.9,.2,1),box-shadow_160ms_ease,background_160ms_ease,border-color_160ms_ease,color_160ms_ease] " +
-  "focus:[outline:none] focus:[box-shadow:0_0_0_3px_rgba(255,230,216,0.12)] active:[transform:scale(0.96)_translateY(2px)] [&:active:not(:focus)]:[box-shadow:0_2px_8px_rgba(0,0,0,0.6)] " +
-  "max-2xl:px-5 max-2xl:py-[0.55rem] max-2xl:text-[0.9375rem] max-lg:rounded-lg max-lg:px-4 max-lg:py-2 max-lg:text-[0.9rem] " +
-  "upto-639:text-[0.875rem] upto-420:text-[0.85rem] upto-376:text-[0.8rem] " +
-  "max-md:min-w-[140px] md:max-[941px]:min-w-[170px] min-[941px]:max-xl:min-w-[150px] xl:min-w-[170px] 2xl:min-w-[180px] " +
-  "upto-940:px-7 upto-639:mx-auto upto-639:flex upto-639:w-fit upto-467:my-2 upto-467:py-[0.5rem]";
+// The About page's "Download Resume" pixel button, just shorter so it doesn't crowd the project text.
+const VISIT_BASE =
+  INTRO_SLOT_BUTTON.replace("h-12", "h-11").replace("max-lg:h-11", "max-lg:h-10") +
+  " upto-639:mx-auto upto-639:flex upto-639:w-fit upto-467:my-2";
 
-const PENDING = `${VISIT.replace("cursor-pointer", "cursor-default")} opacity-60`;
+// Less left padding, since the round compass already leaves empty space on that side, and a touch more room before the label.
+const VISIT = `${VISIT_BASE.replace(" gap-3 ", " gap-[13px] ").replace("max-2xl:gap-2 ", "max-2xl:gap-[9px] ")} pl-4 max-2xl:pl-2.5`;
+
+// The compass sprite has more empty space around it than the About page items, so it runs a bit bigger than BUTTON_ICON.
+// The all-caps pixel label sits above the button's middle, so the compass is lifted 2px to line up with it.
+const VISIT_ICON =
+  "mr-0.5 h-7 w-7 shrink-0 -translate-y-0.5 [image-rendering:pixelated] max-lg:h-6 max-lg:w-6 upto-420:h-[22px] upto-420:w-[22px]";
+
+// No compass on the pending button, so it keeps the original even padding.
+const PENDING = `${VISIT_BASE} pointer-events-none opacity-60`;
 
 function VisitButton({ p, label }: { p: Project; label: string }) {
   if (p.inProgress) {
@@ -52,7 +67,17 @@ function VisitButton({ p, label }: { p: Project; label: string }) {
       rel="noopener noreferrer"
       className={VISIT}
     >
-      <WaveText text={label} />
+      {/* Animated GIF, so it's served as-is rather than through the image optimizer. */}
+      <Image
+        src="/assets/images/mc-compass.gif"
+        alt=""
+        aria-hidden="true"
+        width={160}
+        height={160}
+        unoptimized
+        className={VISIT_ICON}
+      />
+      {label}
     </a>
   );
 }
@@ -106,7 +131,7 @@ export default function ProjectsView() {
                     isEven ? "md:pr-4 above-940:text-left" : "md:pl-4 above-940:text-right"
                   }`}
                 >
-                  <div className={`mb-1 ${TITLE}`}>
+                  <div className={`mb-1 ${titleClass(p.title)}`}>
                     <StackInfo stack={p.stack} period={p.period} align={isEven ? "left" : "right"}>
                       {p.title}
                     </StackInfo>

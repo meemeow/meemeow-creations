@@ -4,8 +4,9 @@ import Image from "next/image";
 import { useId, type ReactNode } from "react";
 import { STACK_LOGOS } from "@/data/projects";
 
+// Centred on the first line of the title (line-height 1.1em), so wrapped titles don't leave it floating between lines.
 const ICON =
-  "peer inline-flex h-[1.6rem] w-[1.6rem] shrink-0 cursor-help items-center justify-center rounded-full border-2 border-white/75 bg-white/[0.06] " +
+  "peer mt-[0.55em] inline-flex -translate-y-1/2 h-[1.6rem] w-[1.6rem] shrink-0 cursor-help items-center justify-center rounded-full border-2 border-white/75 bg-white/[0.06] " +
   "text-white [box-shadow:0_0_10px_rgba(255,255,255,0.12)] " +
   "[transition:color_160ms_ease,background_160ms_ease,border-color_160ms_ease,transform_160ms_ease,box-shadow_160ms_ease] " +
   "hover:scale-110 hover:border-white hover:bg-white hover:text-black hover:[box-shadow:0_0_14px_rgba(255,255,255,0.35)] " +
@@ -51,7 +52,7 @@ export default function StackInfo({
   const id = useId();
   const ongoing = period.endsWith("Present");
   return (
-    <span className="relative inline-flex items-center gap-3 max-lg:gap-2.5">
+    <span className="relative inline-flex items-start gap-3 max-lg:gap-2.5">
       <span>{children}</span>
       <button
         type="button"
